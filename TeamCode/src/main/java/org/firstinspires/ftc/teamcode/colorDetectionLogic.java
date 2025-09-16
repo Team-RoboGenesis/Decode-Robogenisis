@@ -30,6 +30,11 @@ public class colorDetectionLogic extends OpMode  {
     @Override
     public void loop() {
         for(int run = 0; run < 3; run++) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             if (green > red + 100) {
                 if (run == 1) {
                     greenInSlot = 1;
@@ -57,14 +62,9 @@ public class colorDetectionLogic extends OpMode  {
 
             if (purpleInSlot < 10) purpleInSlot = purpleInSlot * 10;
             if (run == 1) {
-                turnTable.setPosition(0.5);
+                turnTable.setPosition(0.5555);
             } else if (run == 2) {
-                turnTable.setPosition(0.88888);
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                turnTable.setPosition(1);
             }
         }
 
