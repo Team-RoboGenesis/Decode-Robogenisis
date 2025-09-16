@@ -6,8 +6,6 @@ import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
@@ -17,15 +15,7 @@ import java.util.List;
 @Autonomous(name = "limelightTest")
 public class LimelightTest extends LinearOpMode {
 
-    public DcMotor frontLeftWheel = null;
-    public DcMotor frontRightWheel = null;
-    public DcMotor backLeftWheel = null;
-    public DcMotor backRightWheel = null;
-    public Servo mainIntake = null;
-    public DcMotor slides = null;
-    public Servo pivot = null;
-    public DcMotor leftIntakeArm = null;
-    public DcMotor rightIntakeArm = null;
+
     private Servo limeAlign = null;
     private double servoPos = 0;
 
