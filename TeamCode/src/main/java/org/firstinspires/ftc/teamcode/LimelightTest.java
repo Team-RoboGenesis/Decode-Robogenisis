@@ -18,6 +18,7 @@ public class LimelightTest extends LinearOpMode {
 
     private Servo limeAlign = null;
     private double servoPos = 0;
+    private double targetPos = 0;
 
     private Limelight3A limelight;
 
@@ -37,12 +38,14 @@ public class LimelightTest extends LinearOpMode {
          * Starts polling for data.
          */
         limelight.start();
-        servoPos = limeAlign.getPosition();
+
 
         waitForStart();
 
         while (opModeIsActive()) {
             LLResult result = limelight.getLatestResult();
+            servoPos = limeAlign.getPosition();
+            targetPos = servoPos;
 
             if (result != null) {
                 if (result.isValid()) {
@@ -57,11 +60,15 @@ public class LimelightTest extends LinearOpMode {
 
                     while (opModeIsActive()) {
                         if(result.getTx()<-6) {
-                            limeAlign.setPosition(servoPos-0.025);
+                            limeAlign.setPosition(targetPos-0.01);
+                            targetPos = targetPos-0.01;
+                            Thread.sleep(50);
                         }
 
                         if(result.getTx()>6) {
-                            limeAlign.setPosition(servoPos+0.025);
+                            limeAlign.setPosition(targetPos+0.01);
+                            targetPos = targetPos +0.01;
+                            Thread.sleep(50);
                         }
 
                         LLStatus status = limelight.getStatus();
