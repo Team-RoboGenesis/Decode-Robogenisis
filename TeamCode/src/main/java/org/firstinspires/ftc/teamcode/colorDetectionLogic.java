@@ -3,9 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp
+@TeleOp (name = "clor detect thingy")
 public class colorDetectionLogic extends OpMode  {
     private double red = 0;
     private double blue = 0;
@@ -18,56 +19,63 @@ public class colorDetectionLogic extends OpMode  {
     private int greenInSlot = 0;
     ColorSensor sort;
     private Servo turnTable;
+    private double SLOT_1 = 0;
+    private double SLOT_2 = 0.33333;
+    private double SLOT_3 = 0.54;
+    private char slot1Val = 'n';
+    private char slot2Val = 'n';
+    private char slot3Val = 'n';
     @Override
     public void init() {
         sort = hardwareMap.get(ColorSensor.class, "sort");
 
         turnTable = hardwareMap.get(Servo.class, "turnTable");
 
-        turnTable.setPosition(0.3333333);
+        turnTable.setPosition(SLOT_1);
     }
 
     @Override
-    public void loop() {
-        for(int run = 0; run < 3; run++) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+    public void loop()
+    {
+        if (green > red + 100)
+        {
+            isGreenBall = true;
+            isPurpleBall = false;
+            if (turnTable.getPosition() == SLOT_1)
+            {
+               slot1Val = 'g';
             }
-            if (green > red + 100) {
-                if (run == 1) {
-                    greenInSlot = 1;
-                }
-                else if (run == 2) {
-                    greenInSlot = 2;
-                }
-                else {
-                    greenInSlot = 3;
-                }
+            else if (turnTable.getPosition() == SLOT_2)
+            {
+                slot2Val = 'g';
             }
-
-
-            if (blue > 900 && blue < 2000 && green < 1000) {
-                if (run == 1) {
-                    purpleInSlot++;
-                }
-                else if (run == 2) {
-                    purpleInSlot = purpleInSlot + 2;
-                }
-                else {
-                    purpleInSlot = 3 + purpleInSlot;
-                }
-            }
-
-            if (purpleInSlot < 10) purpleInSlot = purpleInSlot * 10;
-            if (run == 1) {
-                turnTable.setPosition(0.5555);
-            } else if (run == 2) {
-                turnTable.setPosition(1);
+            else if (turnTable.getPosition() == SLOT_3)
+            {
+                slot3Val = 'g';
             }
         }
-
+        if(blue >= green + 100)
+        {
+            isPurpleBall = true;
+            isGreenBall = false;
+            if (turnTable.getPosition() == SLOT_1)
+            {
+                slot1Val = 'p';
+            }
+            else if (turnTable.getPosition() == SLOT_2)
+            {
+                slot2Val = 'p';
+            }
+            else if (turnTable.getPosition() == SLOT_3)
+            {
+                slot3Val = 'p';
+            }
+        }
+        else
+        {
+            isPurpleBall = false;
+            isGreenBall = false;
+        }
 
         if(id == 21) {
             motif = "GPP";
@@ -77,23 +85,28 @@ public class colorDetectionLogic extends OpMode  {
             motif = "PPG";
         }
 
+        if(gamepad1.a)
+        {
+            turnTable.setPosition(SLOT_3);
+        }
+        else if (gamepad1.b)
+        {
+            turnTable.setPosition(SLOT_1);
+        }
 
-        telemetry.addData("red: ", sort.red());
-        telemetry.addData("blue: ", sort.blue());
-        telemetry.addData("green: ", sort.green());
+        telemetry.addData("red value: ", sort.red());
+        telemetry.addData("blue value: ", sort.blue());
+        telemetry.addData("green value: ", sort.green());
         telemetry.addData("Green slot ", greenInSlot);
         telemetry.addData("purple slots ", purpleInSlot);
         telemetry.addData("motif pattern:", motif);
+        telemetry.addData("first slot: ", slot1Val);
+        telemetry.addData("second slot: ", slot2Val);
+        telemetry.addData("third slot: ", slot3Val);
         telemetry.update();
 
         red = sort.red();
         blue = sort.blue();
         green = sort.green();
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        requestOpModeStop();
     }
 }
