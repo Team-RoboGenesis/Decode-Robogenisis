@@ -54,21 +54,25 @@ public class LimelightTest extends LinearOpMode {
                     telemetry.addData("tx", result.getTx());
                     telemetry.addData("ty", result.getTy());
                     telemetry.addData("Botpose", botpose.toString());
+                    telemetry.addData("april Id", result.getBarcodeResults());
                     telemetry.addData(">", "Robot Ready.  Press Play.");
-                    telemetry.update();
+
+
+
 
                     while (opModeIsActive()) {
-                          if(result.getTx() <= -6) {
+                          if(result.getTx() <= -3) {
                               limeAlign.setPosition(targetPos+0.01);
                               targetPos = targetPos+0.02;
                               Thread.sleep(50);
                           }
 
-                          if(result.getTx() >= 6) {
+                          if(result.getTx() >= 3) {
                               limeAlign.setPosition(targetPos-0.01);
                               targetPos = targetPos -0.02;
                               Thread.sleep(50);
                           }
+
                         LLStatus status = limelight.getStatus();
                         telemetry.addData("Name", "%s",
                                 status.getName());
