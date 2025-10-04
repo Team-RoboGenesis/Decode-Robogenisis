@@ -9,6 +9,8 @@ public class LaunchTest extends OpMode {
 
     private DcMotor potatoCannon = null;
     private DcMotor potatoCannonTwo = null;
+    private int motor1Direction = 1;
+    private int motor2Direction = motor1Direction * -1;
 
     @Override
     public void init() {
@@ -22,24 +24,24 @@ public class LaunchTest extends OpMode {
     public void loop() {
 
         if (gamepad1.y)
-        {
-            potatoCannon.setPower(-1);
-            potatoCannonTwo.setPower(1);
+        { // full power
+            potatoCannon.setPower(motor1Direction);
+            potatoCannonTwo.setPower(motor2Direction);
         }
         else if (gamepad1.b)
-        {
-            potatoCannon.setPower(-2/3);
-            potatoCannonTwo.setPower(2/3);
+        { // 2/3 power
+            potatoCannon.setPower(0.6666 * motor1Direction);
+            potatoCannonTwo.setPower(0.6666 * motor2Direction);
         }
         else if (gamepad1.a)
-        {
-            potatoCannon.setPower(-1/3);
-            potatoCannonTwo.setPower(1/3);
+        { // 1/3 power
+            potatoCannon.setPower(0.3333 * motor1Direction);
+            potatoCannonTwo.setPower(0.3333 * motor2Direction);
         }
         else if (gamepad1.options)
-        {
-            potatoCannon.setPower(-0);
-            potatoCannonTwo.setPower(0);
+        { //kill power
+            potatoCannon.setPower(0 * motor1Direction);
+            potatoCannonTwo.setPower(0 * motor2Direction);
         }
 
     }
