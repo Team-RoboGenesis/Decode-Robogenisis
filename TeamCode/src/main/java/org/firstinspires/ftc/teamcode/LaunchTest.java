@@ -8,11 +8,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class LaunchTest extends OpMode {
 
     private DcMotor potatoCannon = null;
+    private DcMotor potatoCannonTwo = null;
 
     @Override
     public void init() {
 
         potatoCannon = hardwareMap.get(DcMotor.class, "flywheel");
+        potatoCannonTwo = hardwareMap.get(DcMotor.class, "flywheelTwo");
 
     }
 
@@ -22,14 +24,22 @@ public class LaunchTest extends OpMode {
         if (gamepad1.y)
         {
             potatoCannon.setPower(-1);
+            potatoCannonTwo.setPower(1);
         }
         else if (gamepad1.b)
         {
-            potatoCannon.setPower(-0.6666666666666666666666666666666666666666666666);
+            potatoCannon.setPower(-2/3);
+            potatoCannonTwo.setPower(2/3);
         }
         else if (gamepad1.a)
         {
-            potatoCannon.setPower(-0.3333333333333333333333333333333333333333333333);
+            potatoCannon.setPower(-1/3);
+            potatoCannonTwo.setPower(1/3);
+        }
+        else if (gamepad1.options)
+        {
+            potatoCannon.setPower(-0);
+            potatoCannonTwo.setPower(0);
         }
 
     }
