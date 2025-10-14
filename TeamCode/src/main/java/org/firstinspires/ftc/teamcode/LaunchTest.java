@@ -10,7 +10,7 @@ public class LaunchTest extends OpMode {
     private DcMotor potatoCannon = null;
     private DcMotor potatoCannonTwo = null;
     private int motor1Direction = 1;
-    private int motor2Direction = motor1Direction * -1;
+    private int motor2Direction = 0 * motor1Direction * -1;
 
     @Override
     public void init() {
