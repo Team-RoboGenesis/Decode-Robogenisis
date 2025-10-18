@@ -17,19 +17,19 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.List;
 
-@TeleOp(name = "Chomps")
+@TeleOp(name = "Teleop")
 public class Teleop extends LinearOpMode {
 
     private DcMotor leftFront = null;
     private DcMotor rightFront = null;
     private DcMotor leftBack = null;
     private DcMotor rightBack = null;
-    private DcMotor leftFlywheel = null;
-    private DcMotor rightFlywheel = null;
-    private Servo stopper = null;
-    private Servo led = null;
+//    private DcMotor leftFlywheel = null;
+//    private DcMotor rightFlywheel = null;
+//    private Servo stopper = null;
+//    private Servo led = null;
     private Limelight3A limelight;
-    private Servo limeAlign = null;
+//    private Servo limeAlign = null;
     private double servoPos = 0;
     private double targetPos = 0;
 
@@ -42,12 +42,12 @@ public class Teleop extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
-        leftFlywheel = hardwareMap.get(DcMotor.class, "leftFlywheel");
-        rightFlywheel = hardwareMap.get(DcMotor.class, "rightFlywheel");
-        stopper = hardwareMap.get(Servo.class, "stopper");
-        led = hardwareMap.get(Servo.class, "led");
+//        leftFlywheel = hardwareMap.get(DcMotor.class, "leftFlywheel");
+//        rightFlywheel = hardwareMap.get(DcMotor.class, "rightFlywheel");
+//        stopper = hardwareMap.get(Servo.class, "stopper");
+//        led = hardwareMap.get(Servo.class, "led");
         limelight = hardwareMap.get(Limelight3A.class, "Benny");
-        limeAlign = hardwareMap.get(Servo.class, "align");
+//        limeAlign = hardwareMap.get(Servo.class, "align");
 
         telemetry.setMsTransmissionInterval(11);
         limelight.pipelineSwitch(0);
@@ -59,6 +59,8 @@ public class Teleop extends LinearOpMode {
         // See the note about this earlier on this page.
         rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
+//        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Retrieve the IMU from the hardware map
         IMU imu = hardwareMap.get(IMU.class, "imu");
@@ -108,7 +110,7 @@ public class Teleop extends LinearOpMode {
             rightFront.setPower(frontRightPower);
             rightBack.setPower(backRightPower);
             LLResult result = limelight.getLatestResult();
-            servoPos = limeAlign.getPosition();
+//            servoPos = limeAlign.getPosition();
             targetPos = servoPos;
 
             if (result != null) {
@@ -123,17 +125,17 @@ public class Teleop extends LinearOpMode {
 
 
                     while (opModeIsActive()) {
-                        if (result.getTx() <= -3) {
-                            limeAlign.setPosition(targetPos + 0.01);
-                            targetPos = targetPos + 0.02;
-                            Thread.sleep(50);
-                        }
+//                        if (result.getTx() <= -3) {
+////                            limeAlign.setPosition(targetPos + 0.01);
+//                            targetPos = targetPos + 0.02;
+//                            Thread.sleep(50);
+//                        }
 
-                        if (result.getTx() >= 3) {
-                            limeAlign.setPosition(targetPos - 0.01);
-                            targetPos = targetPos - 0.02;
-                            Thread.sleep(50);
-                        }
+//                        if (result.getTx() >= 3) {
+//                            limeAlign.setPosition(targetPos - 0.01);
+//                            targetPos = targetPos - 0.02;
+//                            Thread.sleep(50);
+//                        }
 
                         LLStatus status = limelight.getStatus();
                         telemetry.addData("Name", "%s",

@@ -6,19 +6,34 @@ import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.List;
 
-@Autonomous(name = "limelightTest")
+@TeleOp(name = "limelightTest")
 public class LimelightTest extends LinearOpMode {
 
 
-    private Servo limeAlign = null;
+//    private Servo limeAlign = null;
     private double servoPos = 0;
     private double targetPos = 0;
+    private DcMotor rightFront = null;
+    private DcMotor rightBack = null;
+    private DcMotor leftFront = null;
+    private DcMotor leftBack = null;
+
+    private void turn (double power)
+    {
+        rightFront.setPower(power);
+        leftFront.setPower(-power);
+        rightBack.setPower(power);
+        leftBack.setPower(-power);
+    }
 
     private Limelight3A limelight;
 
@@ -27,12 +42,22 @@ public class LimelightTest extends LinearOpMode {
 
 
         limelight = hardwareMap.get(Limelight3A.class, "Benny");
+        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+        leftBack = hardwareMap.get(DcMotor.class, "leftBack");
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
+//        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
 
         telemetry.setMsTransmissionInterval(11);
-        limeAlign = hardwareMap.get(Servo.class, "align");
+//        limeAlign = hardwareMap.get(Servo.class, "align");
         limelight.pipelineSwitch(0);
 
-        limeAlign.setPosition(0.5);
+//        limeAlign.setPosition(0.5);
 
         /*
          * Starts polling for data.
@@ -44,7 +69,7 @@ public class LimelightTest extends LinearOpMode {
 
         while (opModeIsActive()) {
             LLResult result = limelight.getLatestResult();
-            servoPos = limeAlign.getPosition();
+//            servoPos = limeAlign.getPosition();
             targetPos = servoPos;
 
             if (result != null) {
@@ -61,16 +86,29 @@ public class LimelightTest extends LinearOpMode {
 
 
                     while (opModeIsActive()) {
-                          if(result.getTx() <= -3) {
-                              limeAlign.setPosition(targetPos+0.01);
-                              targetPos = targetPos+0.02;
-                              Thread.sleep(50);
-                          }
+//                          if(result.getTx() <= -3) {
+//                              limeAlign.setPosition(targetPos+0.01);
+//                              targetPos = targetPos+0.02;
+//                              Thread.sleep(50);
+//                          }
 
-                          if(result.getTx() >= 3) {
-                              limeAlign.setPosition(targetPos-0.01);
-                              targetPos = targetPos -0.02;
-                              Thread.sleep(50);
+//                          if(result.getTx() >= 3) {
+//                              limeAlign.setPosition(targetPos-0.01);
+//                              targetPos = targetPos -0.02;
+//                              Thread.sleep(50);
+//                          }
+
+                          if (gamepad1.right_bumper) {
+                              if (result.getTx() >= 5) {
+                                  turn(0.3);
+                              }
+                              else if (result.getTx() <= -5) {
+                                  turn(-0.3);
+
+                              }
+                              else {
+                                  turn(0);
+                              }
                           }
 
                         LLStatus status = limelight.getStatus();
