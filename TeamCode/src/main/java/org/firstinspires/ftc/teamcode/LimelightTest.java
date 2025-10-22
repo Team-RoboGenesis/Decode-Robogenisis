@@ -11,11 +11,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.List;
 
 @TeleOp(name = "limelightTest")
+
 public class LimelightTest extends LinearOpMode {
 
 
@@ -46,10 +48,14 @@ public class LimelightTest extends LinearOpMode {
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
 //        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+ //    leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
 
@@ -98,18 +104,39 @@ public class LimelightTest extends LinearOpMode {
 //                              Thread.sleep(50);
 //                          }
 
-                          if (gamepad1.right_bumper) {
-                              if (result.getTx() >= 5) {
-                                  turn(0.3);
-                              }
-                              else if (result.getTx() <= -5) {
-                                  turn(-0.3);
+                        double y = gamepad1.left_stick_y; // Remember, Y stick is reversed!
+                        double x = -gamepad1.left_stick_x;
+                        double rx = -gamepad1.right_stick_x;
+                        boolean if1 = result.getTx() >= 5;
+                        boolean if2 = result.getTx() <= -5;
 
-                              }
-                              else {
-                                  turn(0);
-                              }
-                          }
+                        if (gamepad1.right_bumper)
+                        {
+                            if (if1) {
+                                turn(0.4);
+                            }
+                            else if (if2) {
+                                turn(-0.4);
+                            }
+                            else {
+                                turn(0);
+                            }
+                        }
+
+                        if(x != 0 || y != 0 || rx != 0)
+                        {
+                            leftFront.setPower(y + x + rx);
+                            leftBack.setPower(y - x + rx);
+                            rightFront.setPower(y - x - rx);
+                            rightBack.setPower(y + x - rx);
+                        }
+                        else if(!gamepad1.right_bumper)
+                        {
+                            leftFront.setPower(0);
+                            leftBack.setPower(0);
+                            rightFront.setPower(0);
+                            rightBack.setPower(0);
+                        }
 
                         LLStatus status = limelight.getStatus();
                         telemetry.addData("Name", "%s",
