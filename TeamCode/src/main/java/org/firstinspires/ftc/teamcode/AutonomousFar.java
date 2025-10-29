@@ -42,8 +42,9 @@ public class AutonomousFar extends LinearOpMode {
         gate.setPosition(0.65);
         Thread.sleep(500);
         gate.setPosition(0.1);
+        flywheel.setPower(-1);
+        //gate.setPosition(0.65);
+        Thread.sleep(500);
         flywheel.setPower(0);
-        gate.setPosition(0.65);
-        Thread.sleep(7000);
     }
 }
