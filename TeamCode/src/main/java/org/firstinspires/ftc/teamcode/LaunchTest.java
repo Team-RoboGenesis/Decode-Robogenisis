@@ -47,7 +47,12 @@ public class LaunchTest extends OpMode {
         }
         else if (gamepad1.dpad_down) {
             actuator.setPosition(0.65);
-
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            actuator.setPosition(0.1);
         }
         else if (gamepad1.b){
             potatoCannon.setPower(0.6);
