@@ -17,21 +17,29 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.List;
 
-@TeleOp(name = "Chomps")
+@TeleOp(name = "Teleop")
 public class Teleop extends LinearOpMode {
 
     private DcMotor leftFront = null;
     private DcMotor rightFront = null;
     private DcMotor leftBack = null;
     private DcMotor rightBack = null;
-    private DcMotor leftFlywheel = null;
-    private DcMotor rightFlywheel = null;
-    private Servo stopper = null;
-    private Servo led = null;
+    private DcMotor potatoCannon = null;
+    private DcMotor potatoCannonTwo = null;
+    //    private DcMotor leftFlywheel = null;
+//    private DcMotor rightFlywheel = null;
+//    private Servo stopper = null;
+//    private Servo led = null;
     private Limelight3A limelight;
-    private Servo limeAlign = null;
+    //    private Servo limeAlign = null;
+    private Servo led1 = null;
+    private Servo led2 = null;
+    private Servo led3 = null;
+    private Servo actuator = null;
     private double servoPos = 0;
     private double targetPos = 0;
+    private double GREEN = 0.456;
+    private double PURPLE = 0.721;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -42,12 +50,16 @@ public class Teleop extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
-        leftFlywheel = hardwareMap.get(DcMotor.class, "leftFlywheel");
-        rightFlywheel = hardwareMap.get(DcMotor.class, "rightFlywheel");
-        stopper = hardwareMap.get(Servo.class, "stopper");
-        led = hardwareMap.get(Servo.class, "led");
+        potatoCannon = hardwareMap.get(DcMotor.class, "flywheel");
+        potatoCannonTwo = hardwareMap.get(DcMotor.class, "flywheelTwo");
+        actuator = hardwareMap.get(Servo.class, "gate");
+        led1 = hardwareMap.get(Servo.class, "led1");
+//        leftFlywheel = hardwareMap.get(DcMotor.class, "leftFlywheel");
+//        rightFlywheel = hardwareMap.get(DcMotor.class, "rightFlywheel");
+//        stopper = hardwareMap.get(Servo.class, "stopper");
+//        led = hardwareMap.get(Servo.class, "led");
         limelight = hardwareMap.get(Limelight3A.class, "Benny");
-        limeAlign = hardwareMap.get(Servo.class, "align");
+//        limeAlign = hardwareMap.get(Servo.class, "align");
 
         telemetry.setMsTransmissionInterval(11);
         limelight.pipelineSwitch(0);
@@ -57,8 +69,10 @@ public class Teleop extends LinearOpMode {
         // If your robot moves backwards when commanded to go forwards,
         // reverse the left side instead.
         // See the note about this earlier on this page.
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // Retrieve the IMU from the hardware map
         IMU imu = hardwareMap.get(IMU.class, "imu");
@@ -108,8 +122,43 @@ public class Teleop extends LinearOpMode {
             rightFront.setPower(frontRightPower);
             rightBack.setPower(backRightPower);
             LLResult result = limelight.getLatestResult();
-            servoPos = limeAlign.getPosition();
+//            servoPos = limeAlign.getPosition();
             targetPos = servoPos;
+
+            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+            for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                if (fr.getFiducialId() == 21) {
+                    led1.setPosition(GREEN);
+                    led2.setPosition(PURPLE);
+                    led3.setPosition(PURPLE);
+                } else if (fr.getFiducialId() == 22) {
+                    led1.setPosition(PURPLE);
+                    led2.setPosition(GREEN);
+                    led3.setPosition(PURPLE);
+                } else if (fr.getFiducialId() == 23) {
+                    led1.setPosition(PURPLE);
+                    led2.setPosition(PURPLE);
+                    led3.setPosition(GREEN);
+                }
+            }
+
+            if (gamepad1.dpad_down) {
+                actuator.setPosition(0.65);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                actuator.setPosition(0.1);
+            } else if (gamepad1.b) {
+                potatoCannon.setPower(0.6);
+
+            } else if (gamepad1.options) {
+                potatoCannon.setPower(0);
+
+            } else if (gamepad1.y) {
+                potatoCannon.setPower(0.7);
+            }
 
             if (result != null) {
                 if (result.isValid()) {
@@ -123,17 +172,17 @@ public class Teleop extends LinearOpMode {
 
 
                     while (opModeIsActive()) {
-                        if (result.getTx() <= -3) {
-                            limeAlign.setPosition(targetPos + 0.01);
-                            targetPos = targetPos + 0.02;
-                            Thread.sleep(50);
-                        }
+//                        if (result.getTx() <= -3) {
+////                            limeAlign.setPosition(targetPos + 0.01);
+//                            targetPos = targetPos + 0.02;
+//                            Thread.sleep(50);
+//                        }
 
-                        if (result.getTx() >= 3) {
-                            limeAlign.setPosition(targetPos - 0.01);
-                            targetPos = targetPos - 0.02;
-                            Thread.sleep(50);
-                        }
+//                        if (result.getTx() >= 3) {
+//                            limeAlign.setPosition(targetPos - 0.01);
+//                            targetPos = targetPos - 0.02;
+//                            Thread.sleep(50);
+//                        }
 
                         LLStatus status = limelight.getStatus();
                         telemetry.addData("Name", "%s",
@@ -181,7 +230,7 @@ public class Teleop extends LinearOpMode {
                                 }
 
                                 // Access fiducial results
-                                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+//                                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
                                 for (LLResultTypes.FiducialResult fr : fiducialResults) {
                                     telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
                                 }
