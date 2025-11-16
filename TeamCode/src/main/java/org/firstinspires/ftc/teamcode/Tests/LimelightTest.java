@@ -1,43 +1,30 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Tests;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.List;
 
-@TeleOp(name = "limelightTeleop")
+@TeleOp(name = "limelightTest")
 
-public class LimelightTeleop extends LinearOpMode {
+public class LimelightTest extends LinearOpMode {
 
 
-    //    private Servo limeAlign = null;
-    private DcMotor leftFront = null;
+//    private Servo limeAlign = null;
+    private double servoPos = 0;
+    private double targetPos = 0;
     private DcMotor rightFront = null;
-    private DcMotor leftBack = null;
     private DcMotor rightBack = null;
-    private DcMotor potatoCannon = null;
-    private DcMotor potatoCannonTwo = null;
-    //    private DcMotor leftFlywheel = null;
-//    private DcMotor rightFlywheel = null;
-//    private Servo stopper = null;
-//    private Servo led = null;
-    private Limelight3A limelight;
-    //    private Servo limeAlign = null;
-    private Servo led1 = null;
-    private Servo led2 = null;
-    private Servo led3 = null;
-    private Servo actuator = null;
+    private DcMotor leftFront = null;
+    private DcMotor leftBack = null;
 
     private void turn (double power)
     {
@@ -47,20 +34,17 @@ public class LimelightTeleop extends LinearOpMode {
         leftBack.setPower(power);
     }
 
+    private Limelight3A limelight;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
 
-        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+        limelight = hardwareMap.get(Limelight3A.class, "Benny");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
-        potatoCannon = hardwareMap.get(DcMotor.class, "flywheel");
-        actuator = hardwareMap.get(Servo.class, "gate");
-        led1 = hardwareMap.get(Servo.class, "led1");
-        led2 = hardwareMap.get(Servo.class, "led2");
-        led3 = hardwareMap.get(Servo.class, "led3");
-        limelight = hardwareMap.get(Limelight3A.class, "Benny");
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -89,6 +73,7 @@ public class LimelightTeleop extends LinearOpMode {
         while (opModeIsActive()) {
             LLResult result = limelight.getLatestResult();
 //            servoPos = limeAlign.getPosition();
+            targetPos = servoPos;
 
             if (result != null) {
                 if (result.isValid()) {
@@ -104,12 +89,23 @@ public class LimelightTeleop extends LinearOpMode {
 
 
                     while (opModeIsActive()) {
+//                          if(result.getTx() <= -3) {
+//                              limeAlign.setPosition(targetPos+0.01);
+//                              targetPos = targetPos+0.02;
+//                              Thread.sleep(50);
+//                          }
 
-                        double y = -gamepad1.left_stick_y; // Remember, Y stick is reversed!
-                        double x = gamepad1.left_stick_x;
+//                          if(result.getTx() >= 3) {
+//                              limeAlign.setPosition(targetPos-0.01);
+//                              targetPos = targetPos -0.02;
+//                              Thread.sleep(50);
+//                          }
+
+                        double y = gamepad1.left_stick_y; // Remember, Y stick is reversed!
+                        double x = -gamepad1.left_stick_x;
                         double rx = -gamepad1.right_stick_x;
-                        boolean if1 = result.getTx() >= 8;
-                        boolean if2 = result.getTx() <= 0;
+                        boolean if1 = result.getTx() >= 5;
+                        boolean if2 = result.getTx() <= -5;
 
                         if (gamepad1.right_bumper)
                         {
@@ -137,30 +133,6 @@ public class LimelightTeleop extends LinearOpMode {
                             leftBack.setPower(0);
                             rightFront.setPower(0);
                             rightBack.setPower(0);
-                        }
-
-                        if (gamepad2.dpad_down) {
-                            actuator.setPosition(0.65);
-                            try {
-                                Thread.sleep(300);
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
-                            actuator.setPosition(0.1);
-                        } else if (gamepad2.b) {
-                            potatoCannon.setPower(0.6);
-
-                        } else if (gamepad2.x) {
-                            potatoCannon.setPower(0);
-
-                        } else if (gamepad2.y) {
-                            potatoCannon.setPower(0.7);
-                        }
-                        else if (gamepad2.dpad_up)
-                        {
-                            actuator.setPosition(0.65);
-                        } else if (gamepad2.a) {
-                            potatoCannon.setPower(0.63);
                         }
 
                         LLStatus status = limelight.getStatus();
@@ -228,7 +200,7 @@ public class LimelightTeleop extends LinearOpMode {
                     limelight.stop();
                 }
             }
+                }
+            }
         }
-    }
-}
 

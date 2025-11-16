@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autonomice;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -25,15 +25,15 @@ public class AutonomousFar extends LinearOpMode {
         flywheel.setPower(power);
         Thread.sleep(7000);
         gate.setPosition(0.65);
-        Thread.sleep(500);
+        Thread.sleep(300);
         gate.setPosition(0.1);
         Thread.sleep(3000);
         gate.setPosition(0.65);
-        Thread.sleep(500);
+        Thread.sleep(300);
         gate.setPosition(0.1);
         Thread.sleep(3000);
         gate.setPosition(0.65);
-        Thread.sleep(500);
+        Thread.sleep(300);
         gate.setPosition(0.1);
         flywheel.setPower(-1);
         //gate.setPosition(0.65);

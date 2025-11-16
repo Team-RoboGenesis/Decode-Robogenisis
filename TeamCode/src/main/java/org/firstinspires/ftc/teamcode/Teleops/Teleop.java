@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Teleops;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -43,6 +43,12 @@ public class Teleop extends LinearOpMode {
     private double led1Color = 0;
     private double led2Color = 0;
     private double led3Color = 0;
+    private double OPEN = 0.65;
+    private double CLOSED = 0.1;
+    private double HIGH_POWER = 0.7;
+    private double LOW_POWER = 0.6;
+    private double MEDIUM_POWER = 0.63;
+    private double OFF = 0;
 
 //    private void turn (double power)
 //    {
@@ -181,28 +187,33 @@ public class Teleop extends LinearOpMode {
 //            }
 
             if (gamepad2.dpad_down) {
-                actuator.setPosition(0.65);
+                actuator.setPosition(OPEN);
                 try {
                     Thread.sleep(300);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                actuator.setPosition(0.1);
-            } else if (gamepad2.b) {
-                potatoCannon.setPower(0.6);
-
-            } else if (gamepad2.x) {
-                potatoCannon.setPower(0);
-
-            } else if (gamepad2.y) {
-                potatoCannon.setPower(0.7);
+                actuator.setPosition(CLOSED);
+            }
+            else if (gamepad2.b)
+            {
+                potatoCannon.setPower(LOW_POWER);
+            }
+            else if (gamepad2.a)
+            {
+                potatoCannon.setPower(MEDIUM_POWER);
+            }
+            else if (gamepad2.y)
+            {
+                potatoCannon.setPower(HIGH_POWER);
+            }
+            else if (gamepad2.x)
+            {
+                potatoCannon.setPower(OFF);
             }
             else if (gamepad2.dpad_up)
             {
-                actuator.setPosition(0.65);
-            }
-            else if (gamepad2.a) {
-                potatoCannon.setPower(0.63);
+                actuator.setPosition(OPEN);
             }
 //            if (result != null)
 //            {
