@@ -72,7 +72,7 @@ public class Teleop extends LinearOpMode {
         led1 = hardwareMap.get(Servo.class, "led1");
         led2 = hardwareMap.get(Servo.class, "led2");
         led3 = hardwareMap.get(Servo.class, "led3");
-        limelight = hardwareMap.get(Limelight3A.class, "Benny");
+//        limelight = hardwareMap.get(Limelight3A.class, "Benny");
 
         telemetry.setMsTransmissionInterval(11);
         limelight.pipelineSwitch(0);

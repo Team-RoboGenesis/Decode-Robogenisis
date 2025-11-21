@@ -18,7 +18,7 @@ public class AutonomousFar extends LinearOpMode {
         gate = hardwareMap.get(Servo.class, "gate");
 
         flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        double power = 0.725;
+        double power = 0.55;
 
         gate.setPosition(0.1);
         waitForStart();
