@@ -30,7 +30,7 @@ public class Teleop extends LinearOpMode {
 //    private DcMotor rightFlywheel = null;
 //    private Servo stopper = null;
 //    private Servo led = null;
-    private Limelight3A limelight;
+//    private Limelight3A limelight;
 //    private Servo limeAlign = null;
     private Servo led1 = null;
     private Servo led2 = null;
@@ -75,7 +75,7 @@ public class Teleop extends LinearOpMode {
 //        limelight = hardwareMap.get(Limelight3A.class, "Benny");
 
         telemetry.setMsTransmissionInterval(11);
-        limelight.pipelineSwitch(0);
+//        limelight.pipelineSwitch(0);
 
 
         // Reverse the right side motors. This may be wrong for your setup.
@@ -138,11 +138,11 @@ public class Teleop extends LinearOpMode {
             rightBack.setPower(backRightPower);
 
 //            limelight.start();
-            LLResult result = limelight.getLatestResult();
+//            LLResult result = limelight.getLatestResult();
 //            servoPos = limeAlign.getPosition();
             targetPos = servoPos;
 
-            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+//            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
 //            for (LLResultTypes.FiducialResult fr : fiducialResults) {
 //                if (fr.getFiducialId() == 21) {
 //                    led1Color = GREEN;
@@ -215,6 +215,24 @@ public class Teleop extends LinearOpMode {
             {
                 actuator.setPosition(OPEN);
             }
+            else if (gamepad1.dpad_left)
+            {
+                led1.setPosition(GREEN);
+                led2.setPosition(PURPLE);
+                led3.setPosition(PURPLE);
+            }
+            else if (gamepad1.dpad_up)
+            {
+                led1.setPosition(PURPLE);
+                led2.setPosition(GREEN);
+                led3.setPosition(PURPLE);
+            }
+            else if (gamepad1.dpad_right)
+            {
+                led1.setPosition(PURPLE);
+                led2.setPosition(PURPLE);
+                led3.setPosition(GREEN);
+            }
 //            if (result != null)
 //            {
 //                telemetry.addData("tx", result.getTx());
@@ -225,89 +243,89 @@ public class Teleop extends LinearOpMode {
 //            }
 
 
-            if (result != null) {
-                    if (result.isValid()) {
-
-                        Pose3D botpose = result.getBotpose();
-
-                        while (opModeIsActive()) {
-//                        if (result.getTx() <= -3) {
-////                            limeAlign.setPosition(targetPos + 0.01);
-//                            targetPos = targetPos + 0.02;
-//                            Thread.sleep(50);
+//            if (result != null) {
+//                    if (result.isValid()) {
+//
+//                        Pose3D botpose = result.getBotpose();
+//
+//                        while (opModeIsActive()) {
+////                        if (result.getTx() <= -3) {
+//////                            limeAlign.setPosition(targetPos + 0.01);
+////                            targetPos = targetPos + 0.02;
+////                            Thread.sleep(50);
+////                        }
+//
+////                        if (result.getTx() >= 3) {
+////                            limeAlign.setPosition(targetPos - 0.01);
+////                            targetPos = targetPos - 0.02;
+////                            Thread.sleep(50);
+////                        }
+//
+//                            LLStatus status = limelight.getStatus();
+//                            telemetry.addData("Name", "%s",
+//                                    status.getName());
+//                            telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
+//                                    status.getTemp(), status.getCpu(), (int) status.getFps());
+//                            telemetry.addData("Pipeline", "Index: %d, Type: %s",
+//                                    status.getPipelineIndex(), status.getPipelineType());
+//
+//                            result = limelight.getLatestResult();
+//                            if (result != null) {
+//                                // Access general information
+//                                botpose = result.getBotpose();
+//                                double captureLatency = result.getCaptureLatency();
+//                                double targetingLatency = result.getTargetingLatency();
+//                                double parseLatency = result.getParseLatency();
+//                                telemetry.addData("LL Latency", captureLatency + targetingLatency);
+//                                telemetry.addData("Parse Latency", parseLatency);
+//                                telemetry.addData("PythonOutput", java.util.Arrays.toString(result.getPythonOutput()));
+//
+//                                if (result.isValid()) {
+//                                    telemetry.addData("tx", result.getTx());
+//                                    telemetry.addData("txnc", result.getTxNC());
+//                                    telemetry.addData("ty", result.getTy());
+//                                    telemetry.addData("tync", result.getTyNC());
+//
+//                                    telemetry.addData("Botpose", botpose.toString());
+//
+//                                    // Access barcode results
+//                                    List<LLResultTypes.BarcodeResult> barcodeResults = result.getBarcodeResults();
+//                                    for (LLResultTypes.BarcodeResult br : barcodeResults) {
+//                                        telemetry.addData("Barcode", "Data: %s", br.getData());
+//                                    }
+//
+//                                    // Access classifier results
+//                                    List<LLResultTypes.ClassifierResult> classifierResults = result.getClassifierResults();
+//                                    for (LLResultTypes.ClassifierResult cr : classifierResults) {
+//                                        telemetry.addData("Classifier", "Class: %s, Confidence: %.2f", cr.getClassName(), cr.getConfidence());
+//                                    }
+//
+//                                    // Access detector results
+//                                    List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
+//                                    for (LLResultTypes.DetectorResult dr : detectorResults) {
+//                                        telemetry.addData("Detector", "Class: %s, Area: %.2f", dr.getClassName(), dr.getTargetArea());
+//                                    }
+//
+//                                    // Access fiducial results
+////                                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+//                                    for (LLResultTypes.FiducialResult fr : fiducialResults) {
+//                                        telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
+//                                    }
+//
+//                                    // Access color results
+//                                    List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
+//                                    for (LLResultTypes.ColorResult cr : colorResults) {
+//                                        telemetry.addData("Color", "X: %.2f, Y: %.2f", cr.getTargetXDegrees(), cr.getTargetYDegrees());
+//                                    }
+//                                }
+//                            } else {
+//                                telemetry.addData("Limelight", "No data available");
+//                            }
+//                            telemetry.update();
 //                        }
-
-//                        if (result.getTx() >= 3) {
-//                            limeAlign.setPosition(targetPos - 0.01);
-//                            targetPos = targetPos - 0.02;
-//                            Thread.sleep(50);
-//                        }
-
-                            LLStatus status = limelight.getStatus();
-                            telemetry.addData("Name", "%s",
-                                    status.getName());
-                            telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
-                                    status.getTemp(), status.getCpu(), (int) status.getFps());
-                            telemetry.addData("Pipeline", "Index: %d, Type: %s",
-                                    status.getPipelineIndex(), status.getPipelineType());
-
-                            result = limelight.getLatestResult();
-                            if (result != null) {
-                                // Access general information
-                                botpose = result.getBotpose();
-                                double captureLatency = result.getCaptureLatency();
-                                double targetingLatency = result.getTargetingLatency();
-                                double parseLatency = result.getParseLatency();
-                                telemetry.addData("LL Latency", captureLatency + targetingLatency);
-                                telemetry.addData("Parse Latency", parseLatency);
-                                telemetry.addData("PythonOutput", java.util.Arrays.toString(result.getPythonOutput()));
-
-                                if (result.isValid()) {
-                                    telemetry.addData("tx", result.getTx());
-                                    telemetry.addData("txnc", result.getTxNC());
-                                    telemetry.addData("ty", result.getTy());
-                                    telemetry.addData("tync", result.getTyNC());
-
-                                    telemetry.addData("Botpose", botpose.toString());
-
-                                    // Access barcode results
-                                    List<LLResultTypes.BarcodeResult> barcodeResults = result.getBarcodeResults();
-                                    for (LLResultTypes.BarcodeResult br : barcodeResults) {
-                                        telemetry.addData("Barcode", "Data: %s", br.getData());
-                                    }
-
-                                    // Access classifier results
-                                    List<LLResultTypes.ClassifierResult> classifierResults = result.getClassifierResults();
-                                    for (LLResultTypes.ClassifierResult cr : classifierResults) {
-                                        telemetry.addData("Classifier", "Class: %s, Confidence: %.2f", cr.getClassName(), cr.getConfidence());
-                                    }
-
-                                    // Access detector results
-                                    List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
-                                    for (LLResultTypes.DetectorResult dr : detectorResults) {
-                                        telemetry.addData("Detector", "Class: %s, Area: %.2f", dr.getClassName(), dr.getTargetArea());
-                                    }
-
-                                    // Access fiducial results
-//                                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-                                    for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                                        telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
-                                    }
-
-                                    // Access color results
-                                    List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
-                                    for (LLResultTypes.ColorResult cr : colorResults) {
-                                        telemetry.addData("Color", "X: %.2f, Y: %.2f", cr.getTargetXDegrees(), cr.getTargetYDegrees());
-                                    }
-                                }
-                            } else {
-                                telemetry.addData("Limelight", "No data available");
-                            }
-                            telemetry.update();
-                        }
-                        limelight.stop();
-                    }
-                }
+//                        limelight.stop();
+//                    }
+//                }
             }
         }
     }
