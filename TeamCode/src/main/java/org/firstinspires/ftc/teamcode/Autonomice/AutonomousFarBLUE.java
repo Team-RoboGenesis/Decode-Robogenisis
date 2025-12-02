@@ -33,7 +33,7 @@ public class AutonomousFarBLUE extends LinearOpMode {
 
 
         flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        double power = 0.62;
+        double power = 0.69;
 
         gate.setPosition(0.1);
         waitForStart();
@@ -57,9 +57,9 @@ public class AutonomousFarBLUE extends LinearOpMode {
 
         leftFront.setPower(0.45);
         rightBack.setPower(0.45);
-        rightFront.setPower(-0.45);
-        leftBack.setPower(-0.45);
-        Thread.sleep(3000);
+        rightFront.setPower(0.45);
+        leftBack.setPower(0.45);
+        Thread.sleep(750);
         leftFront.setPower(0);
         rightFront.setPower(0);
         leftBack.setPower(0);

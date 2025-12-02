@@ -33,7 +33,18 @@ public class AutonomousCloseBLUE extends LinearOpMode {
 
 
         flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        double power = 0.55;
+        double power = 0.567;
+
+        waitForStart();
+        leftFront.setPower(-0.45);
+        rightFront.setPower(-0.45);
+        leftBack.setPower(-0.45);
+        rightBack.setPower(-0.45);
+        Thread.sleep(1250);
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
 
         gate.setPosition(0.1);
         waitForStart();
@@ -54,26 +65,6 @@ public class AutonomousCloseBLUE extends LinearOpMode {
         //gate.setPosition(0.65);
         Thread.sleep(500);
         flywheel.setPower(0);
-
-        leftFront.setPower(-0.45);
-        rightFront.setPower(0.45);
-        leftBack.setPower(0.45);
-        rightBack.setPower(-0.45);
-        Thread.sleep(4250);
-        leftFront.setPower(0);
-        rightFront.setPower(0);
-        leftBack.setPower(0);
-        rightBack.setPower(0);
-        Thread.sleep(300);
-        leftFront.setPower(-0.4);
-        rightFront.setPower(-0.4);
-        leftBack.setPower(-0.4);
-        rightBack.setPower(-0.4);
-        Thread.sleep(3000);
-        leftFront.setPower(0);
-        rightFront.setPower(0);
-        leftBack.setPower(0);
-        rightBack.setPower(0);
 
     }
 }
