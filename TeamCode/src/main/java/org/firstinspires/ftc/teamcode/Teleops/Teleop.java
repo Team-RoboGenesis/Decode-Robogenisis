@@ -217,21 +217,26 @@ public class Teleop extends LinearOpMode {
             }
             else if (gamepad1.dpad_left)
             {
-                led1.setPosition(GREEN);
+                led1.setPosition(PURPLE);
                 led2.setPosition(PURPLE);
-                led3.setPosition(PURPLE);
+                led3.setPosition(GREEN);
             }
             else if (gamepad1.dpad_up)
             {
-                led1.setPosition(PURPLE);
-                led2.setPosition(GREEN);
+                led1.setPosition(GREEN);
+                led2.setPosition(PURPLE);
                 led3.setPosition(PURPLE);
             }
             else if (gamepad1.dpad_right)
             {
                 led1.setPosition(PURPLE);
-                led2.setPosition(PURPLE);
-                led3.setPosition(GREEN);
+                led2.setPosition(GREEN);
+                led3.setPosition(PURPLE);
+            } else if (gamepad1.dpad_down)
+            {
+                led1.setPosition(0);
+                led2.setPosition(0);
+                led3.setPosition(0);
             }
 //            if (result != null)
 //            {
@@ -249,17 +254,6 @@ public class Teleop extends LinearOpMode {
 //                        Pose3D botpose = result.getBotpose();
 //
 //                        while (opModeIsActive()) {
-////                        if (result.getTx() <= -3) {
-//////                            limeAlign.setPosition(targetPos + 0.01);
-////                            targetPos = targetPos + 0.02;
-////                            Thread.sleep(50);
-////                        }
-//
-////                        if (result.getTx() >= 3) {
-////                            limeAlign.setPosition(targetPos - 0.01);
-////                            targetPos = targetPos - 0.02;
-////                            Thread.sleep(50);
-////                        }
 //
 //                            LLStatus status = limelight.getStatus();
 //                            telemetry.addData("Name", "%s",
