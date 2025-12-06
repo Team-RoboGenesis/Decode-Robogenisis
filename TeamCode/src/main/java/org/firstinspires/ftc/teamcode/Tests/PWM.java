@@ -14,7 +14,7 @@ public class PWM extends OpMode
     private Servo led3 = null;
     private double green = 0;
     private double purple = 0.71;
-    private double delete = 0;
+    private double delete = 0.3;
 
     @Override
     public void init() {
@@ -26,15 +26,13 @@ public class PWM extends OpMode
     @Override
     public void loop() {
         if(gamepad1.a) {
-            while(true) {
+            //random
                 led1.setPosition(0.1 + (Math.random() * (0.8 - 0.1)));
                 led2.setPosition(0.1 + (Math.random() * (0.8 - 0.1)));
                 led3.setPosition(0.1 + (Math.random() * (0.8 - 0.1)));
-            }
         }
         if(gamepad1.y){
             //scroll
-            while(true){
                 led1.setPosition(0.5);
                 led2.setPosition(0.8);
                 led3.setPosition(0.8);
@@ -59,30 +57,32 @@ public class PWM extends OpMode
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-            }
+
         }
         if(gamepad1.b) {
-            while(true) {
+            //slow increase
                 led1.setPosition(delete);
                 led2.setPosition(delete);
                 led3.setPosition(delete);
                 delete += 0.01;
-                if (delete > 0.7) delete = 0;
-                if (delete < 0.3) delete = 0.3;
+                if (delete >= 0.7) {
+                    while(delete >= 0.3){
+                        led1.setPosition(delete);
+                        led2.setPosition(delete);
+                        led3.setPosition(delete);
+                        delete += -0.01;
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                led1.setPosition(purple);
-                led2.setPosition(purple);
-                led3.setPosition(purple);
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
         }
 
     }
