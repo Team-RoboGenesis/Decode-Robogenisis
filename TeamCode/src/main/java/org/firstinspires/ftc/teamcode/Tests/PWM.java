@@ -118,23 +118,31 @@ public class PWM extends OpMode
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                if (!led1Done) led1col += 0.01;
-                if (!led2Done) led2col += 0.01;
-                if (!led3Done) led3col += 0.01;
+                if (!led1Done) led1col += num;
+                if (!led2Done) led2col += num;
+                if (!led3Done) led3col += num;
 
-                if (led1col >= 0.7) led1col = 0.3;
-                if (led2col >= 0.7) led2col = 0.3;
-                if (led3col >= 0.7) led3col = 0.3;
+                if (led1col >= 0.7 || led2col >= 0.7 || led3col >= 0.7) num = -0.01;
+                if (led1col <= 0.3 || led2col <= 0.3 || led3col <= 0.3) num = 0.01;
 
                 if (gamepad1.x) led1Done = true;
                 if (gamepad1.a) led2Done = true;
                 if (gamepad1.b) led3Done = true;
 
                 if (led1Done && led2Done && led3Done)
-                {
+                { //math
                     diff12 = Math.abs(led1col - led2col);
                     diff13 = Math.abs(led1col - led3col);
                     diff23 = Math.abs(led2col - led3col);
+                    //fake loading animation
+                    led1.setPosition(0);
+                    led3.setPosition(0);
+                    led2.setPosition(0);
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                     led1.setPosition(1);
                     led3.setPosition(0);
                     led2.setPosition(0);
@@ -159,8 +167,9 @@ public class PWM extends OpMode
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
+
                     if (diff23 != 0 && diff12 + diff13 + diff23 < 1)
-                    {
+                    { // winning animation
                         led1.setPosition(0.5);
                         led3.setPosition(0.5);
                         led2.setPosition(0.5);
@@ -185,8 +194,9 @@ public class PWM extends OpMode
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
-                        System.exit(1);
-                    } else {
+                    }
+                    else
+                    { //losing animation
                         led1.setPosition(0.277);
                         led3.setPosition(0.277);
                         led2.setPosition(0.277);
@@ -211,7 +221,6 @@ public class PWM extends OpMode
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
-                        System.exit(1);
 //                    }
 //                }
 
@@ -234,6 +243,7 @@ public class PWM extends OpMode
 //                if(gamepad1.a && ledDis == 1) ledDis = 2;
 //                if(gamepad1.b && ledDis == 2) ledDis = 3;
             }
+                    System.exit(1);
         }
         telemetry.addData("A?:", gamepad1.a);
         telemetry.addData("B?:", gamepad1.b);
