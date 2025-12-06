@@ -38,86 +38,89 @@ public class PWM extends OpMode
 
     @Override
     public void loop() {
-        if(gamepad1.a) {
-            //random
-                led1.setPosition(0.1 + (Math.random() * (0.8 - 0.1)));
-                led2.setPosition(0.1 + (Math.random() * (0.8 - 0.1)));
-                led3.setPosition(0.1 + (Math.random() * (0.8 - 0.1)));
-        }
-        if(gamepad1.x){
-            //scroll
-                led1.setPosition(0.5);
-                led2.setPosition(0.8);
-                led3.setPosition(0.8);
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-                led1.setPosition(0.8);
-                led2.setPosition(0.5);
-                led3.setPosition(0.8);
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-                led1.setPosition(0.8);
-                led2.setPosition(0.8);
-                led3.setPosition(0.5);
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-
-        }
-        if(gamepad1.b) {
-            //RGB lights
-                led1.setPosition(delete);
-                led2.setPosition(delete);
-                led3.setPosition(delete);
-                delete += 0.01;
-                if (delete >= 0.7) {
-                    while(delete >= 0.3){
-                        led1.setPosition(delete);
-                        led2.setPosition(delete);
-                        led3.setPosition(delete);
-                        delete += -0.01;
-                        try {
-                            Thread.sleep(50);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-        }
-        if(gamepad1.y){
-            while(true){
+//        if(gamepad1.a) {
+//            //random
+//                led1.setPosition(0.1 + (Math.random() * (0.8 - 0.1)));
+//                led2.setPosition(0.1 + (Math.random() * (0.8 - 0.1)));
+//                led3.setPosition(0.1 + (Math.random() * (0.8 - 0.1)));
+//        }
+//        if(gamepad1.x){
+//            //scroll
+//                led1.setPosition(0.5);
+//                led2.setPosition(0.8);
+//                led3.setPosition(0.8);
+//                try {
+//                    Thread.sleep(500);
+//                } catch (InterruptedException e) {
+//                    Thread.currentThread().interrupt();
+//                }
+//                led1.setPosition(0.8);
+//                led2.setPosition(0.5);
+//                led3.setPosition(0.8);
+//                try {
+//                    Thread.sleep(500);
+//                } catch (InterruptedException e) {
+//                    Thread.currentThread().interrupt();
+//                }
+//                led1.setPosition(0.8);
+//                led2.setPosition(0.8);
+//                led3.setPosition(0.5);
+//                try {
+//                    Thread.sleep(500);
+//                } catch (InterruptedException e) {
+//                    Thread.currentThread().interrupt();
+//                }
+//
+//        }
+//        if(gamepad1.b) {
+//            //RGB lights
+//                led1.setPosition(delete);
+//                led2.setPosition(delete);
+//                led3.setPosition(delete);
+//                delete += 0.01;
+//                if (delete >= 0.7) {
+//                    while(delete >= 0.3){
+//                        led1.setPosition(delete);
+//                        led2.setPosition(delete);
+//                        led3.setPosition(delete);
+//                        delete += -0.01;
+//                        try {
+//                            Thread.sleep(50);
+//                        } catch (InterruptedException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//                    }
+//                }
+//                try {
+//                    Thread.sleep(50);
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
+//        }
+//        if(gamepad1.y){
+//            while(true){
                 //RGB game
-                telemetry.addData("A?:", gamepad1.a);
-                telemetry.addData("B?:", gamepad1.b);
-                telemetry.addData("X?:", gamepad1.x);
+                telemetry.addData("A?", gamepad1.a);
+                telemetry.addData("B?", gamepad1.b);
+                telemetry.addData("X?", gamepad1.x);
+                telemetry.addData("led1", led1col);
+                telemetry.addData("led2", led2col);
+                telemetry.addData("led3", led3col);
                 telemetry.update();
 
 //                if (delete >= 0.7) num = -0.01;
 //                if (delete <= 0.3) num = 0.01;
-                if (!led1Done) led1.setPosition(led1col);
-                if (!led2Done) led2.setPosition(led3col);
-                if (!led3Done) led2.setPosition(led2col);
+                led1.setPosition(led1col);
+                led3.setPosition(led3col);
+                led2.setPosition(led2col);
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                if (led1col >= 0.3) led1col += 0.01;
-                if (led2col >= 0.3) led2col += 0.01;
-                if (led3col >= 0.3) led3col += 0.01;
+                if (!led1Done) led1col += 0.01;
+                if (!led2Done) led2col += 0.01;
+                if (!led3Done) led3col += 0.01;
 
                 if (led1col >= 0.7) led1col = 0.3;
                 if (led2col >= 0.7) led2col = 0.3;
@@ -132,13 +135,88 @@ public class PWM extends OpMode
                     diff12 = Math.abs(led1col - led2col);
                     diff13 = Math.abs(led1col - led3col);
                     diff23 = Math.abs(led2col - led3col);
-                }
-                if (diff23 != 0 && diff12 + diff13 + diff23 < 1)
-                {
-                    isWIn = true;
-                }
+                    led1.setPosition(1);
+                    led3.setPosition(0);
+                    led2.setPosition(0);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    led1.setPosition(0);
+                    led3.setPosition(1);
+                    led2.setPosition(0);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    led1.setPosition(0);
+                    led3.setPosition(0);
+                    led2.setPosition(1);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (diff23 != 0 && diff12 + diff13 + diff23 < 1)
+                    {
+                        led1.setPosition(0.5);
+                        led3.setPosition(0.5);
+                        led2.setPosition(0.5);
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        led1.setPosition(0);
+                        led3.setPosition(0);
+                        led2.setPosition(0);
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        led1.setPosition(0.5);
+                        led3.setPosition(0.5);
+                        led2.setPosition(0.5);
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        System.exit(1);
+                    } else {
+                        led1.setPosition(0.277);
+                        led3.setPosition(0.277);
+                        led2.setPosition(0.277);
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        led1.setPosition(0);
+                        led3.setPosition(0);
+                        led2.setPosition(0);
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        led1.setPosition(0.277);
+                        led3.setPosition(0.277);
+                        led2.setPosition(0.277);
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        System.exit(1);
+//                    }
+//                }
 
-                telemetry.addData("win?", isWIn);
+
+
 
 
 //                if(!(ledDis >= 1)) led1.setPosition(delete);
