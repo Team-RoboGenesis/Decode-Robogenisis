@@ -108,8 +108,8 @@ public class PWM extends OpMode
 //                if (delete >= 0.7) num = -0.01;
 //                if (delete <= 0.3) num = 0.01;
                 if (!led1Done) led1.setPosition(led1col);
-                if (led1Done && !led2Done) led2.setPosition(led3col);
-                if (!led3Done && led2Done) led2.setPosition(led2col);
+                if (!led2Done) led2.setPosition(led3col);
+                if (!led3Done) led2.setPosition(led2col);
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
@@ -133,11 +133,12 @@ public class PWM extends OpMode
                     diff13 = Math.abs(led1col - led3col);
                     diff23 = Math.abs(led2col - led3col);
                 }
-                if (diff23 != 0)
+                if (diff23 != 0 && diff12 + diff13 + diff23 < 1)
                 {
-                    
+                    isWIn = true;
                 }
 
+                telemetry.addData("win?", isWIn);
 
 
 //                if(!(ledDis >= 1)) led1.setPosition(delete);
