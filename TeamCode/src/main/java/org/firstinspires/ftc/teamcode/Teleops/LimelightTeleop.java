@@ -118,6 +118,8 @@ public class LimelightTeleop extends LinearOpMode {
 
             double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
+            double yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+
             // Rotate the movement direction counter to the bot's rotation
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
             double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
@@ -180,26 +182,15 @@ public class LimelightTeleop extends LinearOpMode {
                         boolean if1 = result.getTx() >= 6;
                         boolean if2 = result.getTx() <= 0;
 
-                        if (gamepad1.right_bumper)
-                        {
-                            if (if1) {
-                                turn(0.3);
-                                Thread.sleep(20);
-                                if (if2 == false && if1 == false) {
-                                    turn(0);
-                                }
-                            }
-                            else if (if2) {
-                                turn(-0.3);
-                                Thread.sleep(20);
-                                if (if2 == false && if1 == false) {
-                                    turn(0);
-                                }
-                            }
-                            else {
-                                turn(0);
-                            }
-                        }
+//                        if (gamepad1.right_bumper)
+//                        {
+//                            if (yaw > 100)
+//                            {
+//                                turn(0.34);
+//                            }
+//                        }
+
+                        telemetry.addData("Yaw: ", yaw);
 
                         if(x != 0 || y != 0 || rx != 0)
                         {

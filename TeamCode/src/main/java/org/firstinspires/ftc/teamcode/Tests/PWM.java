@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "led")
+@TeleOp(name = "'aw dang it'")
 public class PWM extends OpMode
 {
 
@@ -27,6 +27,7 @@ public class PWM extends OpMode
     private double diff13 = 0;
     private double diff23 = 0;
     private boolean isWIn = false;
+    private double rigVal = 0.2;
 
 
     @Override
@@ -168,7 +169,7 @@ public class PWM extends OpMode
                         throw new RuntimeException(e);
                     }
 
-                    if (diff23 != 0 && diff12 + diff13 + diff23 < 0.1)
+                    if (diff23 != 0 && diff12 + diff13 + diff23 < rigVal)
                     { // winning animation
                         led1.setPosition(0.5);
                         led3.setPosition(0.5);
@@ -194,12 +195,23 @@ public class PWM extends OpMode
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
+                        led1Done = false;
+                        led2Done = false;
+                        led3Done = false;
+                        led1col = 0.3;
+                        led2col = led1col;
+                        led3col = led1col;
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                     else if(!(diff23 != 0 && diff12 + diff13 + diff23 < 0.1))
                     { //losing animation
-                        led1.setPosition(0.277);
-                        led3.setPosition(0.277);
-                        led2.setPosition(0.277);
+                        led1.setPosition(0.3);
+                        led3.setPosition(0.3);
+                        led2.setPosition(0.3);
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException e) {
@@ -213,11 +225,22 @@ public class PWM extends OpMode
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
-                        led1.setPosition(0.277);
-                        led3.setPosition(0.277);
-                        led2.setPosition(0.277);
+                        led1.setPosition(0.3);
+                        led3.setPosition(0.3);
+                        led2.setPosition(0.3);
                         try {
                             Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        led1Done = false;
+                        led2Done = false;
+                        led3Done = false;
+                        led1col = 0.3;
+                        led2col = led1col;
+                        led3col = led1col;
+                        try {
+                            Thread.sleep(3000);
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
@@ -243,10 +266,7 @@ public class PWM extends OpMode
 //                if(gamepad1.a && ledDis == 1) ledDis = 2;
 //                if(gamepad1.b && ledDis == 2) ledDis = 3;
             }
-        }
-        telemetry.addData("A?:", gamepad1.a);
-        telemetry.addData("B?:", gamepad1.b);
-        telemetry.addData("X?:", gamepad1.x);
+                }
         telemetry.update();
     }
 }
