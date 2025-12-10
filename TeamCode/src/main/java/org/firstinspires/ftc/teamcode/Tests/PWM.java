@@ -168,7 +168,7 @@ public class PWM extends OpMode
                         throw new RuntimeException(e);
                     }
 
-                    if (diff23 != 0 && diff12 + diff13 + diff23 < 1)
+                    if (diff23 != 0 && diff12 + diff13 + diff23 < 0.1)
                     { // winning animation
                         led1.setPosition(0.5);
                         led3.setPosition(0.5);
@@ -195,7 +195,7 @@ public class PWM extends OpMode
                             throw new RuntimeException(e);
                         }
                     }
-                    else
+                    else if(!(diff23 != 0 && diff12 + diff13 + diff23 < 0.1))
                     { //losing animation
                         led1.setPosition(0.277);
                         led3.setPosition(0.277);
@@ -243,7 +243,6 @@ public class PWM extends OpMode
 //                if(gamepad1.a && ledDis == 1) ledDis = 2;
 //                if(gamepad1.b && ledDis == 2) ledDis = 3;
             }
-                    System.exit(1);
         }
         telemetry.addData("A?:", gamepad1.a);
         telemetry.addData("B?:", gamepad1.b);

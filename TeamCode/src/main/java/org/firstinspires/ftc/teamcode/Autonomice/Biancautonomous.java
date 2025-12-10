@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@Autonomous(name = "AutonomousFarRED")
+@Autonomous(name = "Biancautonomous")
 public class Biancautonomous extends LinearOpMode {
 
     private DcMotor flywheel = null;
