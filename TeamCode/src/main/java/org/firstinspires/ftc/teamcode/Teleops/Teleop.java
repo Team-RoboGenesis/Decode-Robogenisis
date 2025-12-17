@@ -46,8 +46,8 @@ public class Teleop extends LinearOpMode {
     private double OPEN = 0.65;
     private double CLOSED = 0.1;
     private double HIGH_POWER = 0.7;
-    private double LOW_POWER = 0.6;
-    private double MEDIUM_POWER = 0.63;
+    private double LOW_POWER = 0.57;
+    private double MEDIUM_POWER = 0.65;
     private double OFF = 0;
 
 //    private void turn (double power)

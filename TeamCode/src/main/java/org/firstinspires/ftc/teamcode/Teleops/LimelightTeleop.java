@@ -4,12 +4,15 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.List;
@@ -36,6 +39,12 @@ public class LimelightTeleop extends LinearOpMode {
     private Servo led2 = null;
     private Servo led3 = null;
     private Servo actuator = null;
+
+    private double GREEN = 0.456;
+    private double PURPLE = 0.721;
+    private double led1Color = 0;
+    private double led2Color = 0;
+    private double led3Color = 0;
 
     private void turn (double power)
     {
@@ -68,6 +77,15 @@ public class LimelightTeleop extends LinearOpMode {
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        IMU imu = hardwareMap.get(IMU.class, "imu");
+        // Adjust the orientation parameters to match your robot
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
+        // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
+        imu.initialize(parameters);
+        imu.resetYaw();
+
 
 
         telemetry.setMsTransmissionInterval(11);
@@ -86,48 +104,100 @@ public class LimelightTeleop extends LinearOpMode {
 
         while (opModeIsActive()) {
             LLResult result = limelight.getLatestResult();
-//            servoPos = limeAlign.getPosition();
 
-            if (result != null) {
-                if (result.isValid()) {
+            double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
+            double x = gamepad1.left_stick_x;
+            double rx = gamepad1.right_stick_x;
 
-                    Pose3D botpose = result.getBotpose();
-                    telemetry.addData("tx", result.getTx());
-                    telemetry.addData("ty", result.getTy());
-                    telemetry.addData("Botpose", botpose.toString());
-                    telemetry.addData("april Id", result.getBarcodeResults());
-                    telemetry.addData(">", "Robot Ready.  Press Play.");
+            // This button choice was made so that it is hard to hit on accident,
+            // it can be freely changed based on preference.
+            // The equivalent button is start on Xbox-style controllers.
+            if (gamepad1.options) {
+                imu.resetYaw();
+            }
+
+            double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
+            double yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+
+            // Rotate the movement direction counter to the bot's rotation
+            double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
+            double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
+
+            rotX = rotX * 1.1;  // Counteract imperfect strafing
+
+            // Denominator is the largest motor power (absolute value) or 1
+            // This ensures all the powers maintain the same ratio,
+            // but only if at least one is out of the range [-1, 1]
+            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
+            double frontLeftPower = (rotY + rotX + rx) / denominator;
+            double backLeftPower = (rotY - rotX + rx) / denominator;
+            double frontRightPower = (rotY - rotX - rx) / denominator;
+            double backRightPower = (rotY + rotX - rx) / denominator;
+
+//            if (result != null) {
+                double tx = result.getTx();
+                double ty = result.getTy();
+
+//                List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+
+//                int tagId = fiducials.get(0).getFiducialId();
+
+//                if (tagId == 21) {
+//                    led1Color = GREEN;
+//                    led2Color = PURPLE;
+//                    led3Color = PURPLE;
+//                }
+//                else if (tagId == 22) {
+//                    led1Color = PURPLE;
+//                    led2Color = GREEN;
+//                    led3Color = PURPLE;
+//                }
+//                else if (tagId == 23) {
+//                    led1Color = PURPLE;
+//                    led2Color = PURPLE;
+//                    led3Color = GREEN;
+//                }
+//            }
+
+            led1.setPosition(led1Color);
+            led2.setPosition(led2Color);
+            led3.setPosition(led3Color);
+//                if (result.isValid()) {
+//
+//
+//
+//                    Pose3D botpose = result.getBotpose();
+//                    telemetry.addData("tx", result.getTx());
+//                    telemetry.addData("ty", result.getTy());
+//                    telemetry.addData("Botpose", botpose.toString());
+//                    telemetry.addData("april Id", result.getBarcodeResults());
+//                    telemetry.addData(">", "Robot Ready.  Press Play.");
 
 
 
 
                     while (opModeIsActive()) {
 
-                        double y = -gamepad1.left_stick_y; // Remember, Y stick is reversed!
-                        double x = gamepad1.left_stick_x;
-                        double rx = -gamepad1.right_stick_x;
-                        boolean if1 = result.getTx() >= 8;
+                        boolean if1 = result.getTx() >= 6;
                         boolean if2 = result.getTx() <= 0;
 
-                        if (gamepad1.right_bumper)
-                        {
-                            if (if1) {
-                                turn(0.3);
-                            }
-                            else if (if2) {
-                                turn(-0.3);
-                            }
-                            else {
-                                turn(0);
-                            }
-                        }
+//                        if (gamepad1.right_bumper)
+//                        {
+//                            if (yaw > 100)
+//                            {
+//                                turn(0.34);
+//                            }
+//                        }
+
+                        telemetry.addData("Yaw: ", yaw);
 
                         if(x != 0 || y != 0 || rx != 0)
                         {
-                            leftFront.setPower(y + x + rx);
-                            leftBack.setPower(y - x + rx);
-                            rightFront.setPower(y - x - rx);
-                            rightBack.setPower(y + x - rx);
+                            leftFront.setPower(frontLeftPower);
+                            leftBack.setPower(backLeftPower);
+                            rightFront.setPower(frontRightPower);
+                            rightBack.setPower(backRightPower);
                         }
                         else if(!gamepad1.right_bumper)
                         {
@@ -162,23 +232,11 @@ public class LimelightTeleop extends LinearOpMode {
                         }
 
                         LLStatus status = limelight.getStatus();
-                        telemetry.addData("Name", "%s",
-                                status.getName());
-                        telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
-                                status.getTemp(), status.getCpu(),(int)status.getFps());
-                        telemetry.addData("Pipeline", "Index: %d, Type: %s",
-                                status.getPipelineIndex(), status.getPipelineType());
 
                         result = limelight.getLatestResult();
                         if (result != null) {
                             // Access general information
-                            botpose = result.getBotpose();
-                            double captureLatency = result.getCaptureLatency();
-                            double targetingLatency = result.getTargetingLatency();
-                            double parseLatency = result.getParseLatency();
-                            telemetry.addData("LL Latency", captureLatency + targetingLatency);
-                            telemetry.addData("Parse Latency", parseLatency);
-                            telemetry.addData("PythonOutput", java.util.Arrays.toString(result.getPythonOutput()));
+//                            botpose = result.getBotpose();
 
                             if (result.isValid()) {
                                 telemetry.addData("tx", result.getTx());
@@ -186,36 +244,11 @@ public class LimelightTeleop extends LinearOpMode {
                                 telemetry.addData("ty", result.getTy());
                                 telemetry.addData("tync", result.getTyNC());
 
-                                telemetry.addData("Botpose", botpose.toString());
+//                                telemetry.addData("Botpose", botpose.toString());
 
-                                // Access barcode results
-                                List<LLResultTypes.BarcodeResult> barcodeResults = result.getBarcodeResults();
-                                for (LLResultTypes.BarcodeResult br : barcodeResults) {
-                                    telemetry.addData("Barcode", "Data: %s", br.getData());
-                                }
-
-                                // Access classifier results
-                                List<LLResultTypes.ClassifierResult> classifierResults = result.getClassifierResults();
-                                for (LLResultTypes.ClassifierResult cr : classifierResults) {
-                                    telemetry.addData("Classifier", "Class: %s, Confidence: %.2f", cr.getClassName(), cr.getConfidence());
-                                }
-
-                                // Access detector results
-                                List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
-                                for (LLResultTypes.DetectorResult dr : detectorResults) {
-                                    telemetry.addData("Detector", "Class: %s, Area: %.2f", dr.getClassName(), dr.getTargetArea());
-                                }
-
-                                // Access fiducial results
                                 List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
                                 for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                                    telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(),fr.getTargetXDegrees(), fr.getTargetYDegrees());
-                                }
-
-                                // Access color results
-                                List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
-                                for (LLResultTypes.ColorResult cr : colorResults) {
-                                    telemetry.addData("Color", "X: %.2f, Y: %.2f", cr.getTargetXDegrees(), cr.getTargetYDegrees());
+                                    telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
                                 }
                             }
                         } else {
@@ -227,6 +260,5 @@ public class LimelightTeleop extends LinearOpMode {
                 }
             }
         }
-    }
-}
+//    }
 
