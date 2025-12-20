@@ -18,9 +18,9 @@ public class stormFeildCentric extends LinearOpMode {
         // Declare our motors
         // Make sure your ID's match your configuration
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
-        DcMotor backLeftMotor = hardwareMap.dcMotor.get("leftRear");
+        DcMotor backLeftMotor = hardwareMap.dcMotor.get("leftBack");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("rightFront");
-        DcMotor backRightMotor = hardwareMap.dcMotor.get("rightRear");
+        DcMotor backRightMotor = hardwareMap.dcMotor.get("rightBack");
 
         frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
