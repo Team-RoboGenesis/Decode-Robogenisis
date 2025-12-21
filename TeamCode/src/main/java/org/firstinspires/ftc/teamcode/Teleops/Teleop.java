@@ -88,6 +88,8 @@ public class Teleop extends LinearOpMode {
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
         potatoCannon.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        potatoCannon.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        potatoCannon.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Retrieve the IMU from the hardware map
         IMU imu = hardwareMap.get(IMU.class, "imu");
