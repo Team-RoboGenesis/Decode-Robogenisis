@@ -50,13 +50,13 @@ public class Teleop extends LinearOpMode {
     private double MEDIUM_POWER = 0.65;
     private double OFF = 0;
 
-//    private void turn (double power)
-//    {
-//        rightFront.setPower(power);
-//        leftFront.setPower(-power);
-//        rightBack.setPower(power);
-//        leftBack.setPower(-power);
-//    }
+    private void turn (double power)
+    {
+        rightFront.setPower(power);
+        leftFront.setPower(-power);
+        rightBack.setPower(power);
+        leftBack.setPower(-power);
+    }
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -165,21 +165,21 @@ public class Teleop extends LinearOpMode {
 //            led2.setPosition(led2Color);
 //            led3.setPosition(led3Color);
 
-//            boolean if1 = result.getTx() >= 5;
-//            boolean if2 = result.getTx() <= -5;
+            boolean if1 = imu.getRobotYawPitchRollAngles().getYaw() >= -54;
+            boolean if2 = imu.getRobotYawPitchRollAngles().getYaw() <= -64;
 
-//            if (gamepad1.right_bumper)
-//            {
-//                if (if1) {
-//                    turn(0.4);
-//                }
-//                else if (if2) {
-//                    turn(-0.4);
-//                }
-//                else {
-//                    turn(0);
-//                }
-//            }
+            if (gamepad1.right_bumper)
+            {
+                if (if1) {
+                    turn(-0.4);
+                }
+                else if (if2) {
+                    turn(0.4);
+                }
+                else {
+                    turn(0);
+                }
+            }
 //            else if(!gamepad1.right_bumper)
 //            {
 //                leftFront.setPower(0);
@@ -187,6 +187,8 @@ public class Teleop extends LinearOpMode {
 //                rightFront.setPower(0);
 //                rightBack.setPower(0);
 //            }
+            telemetry.addData("YAWWWW: ", imu.getRobotYawPitchRollAngles().getYaw());
+            telemetry.update();
 
             if (gamepad2.dpad_down) {
                 actuator.setPosition(OPEN);
