@@ -18,7 +18,7 @@ public class EncoderTest extends LinearOpMode
         potatoCannon.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         waitForStart();
 
-        
+
         while (opModeIsActive()) {
             if (gamepad1.y)
             {
