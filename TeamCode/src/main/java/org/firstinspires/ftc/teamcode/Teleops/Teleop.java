@@ -25,13 +25,6 @@ public class Teleop extends LinearOpMode {
     private DcMotor leftBack = null;
     private DcMotor rightBack = null;
     private DcMotor potatoCannon = null;
-    private DcMotor potatoCannonTwo = null;
-//    private DcMotor leftFlywheel = null;
-//    private DcMotor rightFlywheel = null;
-//    private Servo stopper = null;
-//    private Servo led = null;
-//    private Limelight3A limelight;
-//    private Servo limeAlign = null;
     private Servo led1 = null;
     private Servo led2 = null;
     private Servo led3 = null;
