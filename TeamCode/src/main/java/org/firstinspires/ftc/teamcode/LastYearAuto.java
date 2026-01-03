@@ -104,7 +104,7 @@ public class LastYearAuto extends LinearOpMode {
 //        MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 //        TrajectoryActionBuilder scoreFirstBasket = drive.actionBuilder(drive.pose)
 //                .strafeToLinearHeading(new Vector2d(-72, -45), Math.toRadians(-135));
-//
+
 //        TrajectoryActionBuilder firstSampleGrab = scoreFirstBasket.endTrajectory().fresh()
 //                .strafeToLinearHeading(new Vector2d(-62, -24), Math.toRadians(90));
 //
