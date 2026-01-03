@@ -24,7 +24,6 @@ public class Teleop extends LinearOpMode {
     private DcMotor rightFront = null;
     private DcMotor leftBack = null;
     private DcMotor rightBack = null;
-    private DcMotor potatoCannon = null;
     private DcMotor potatoCannonTwo = null;
     //    private DcMotor leftFlywheel = null;
 //    private DcMotor rightFlywheel = null;
@@ -50,7 +49,7 @@ public class Teleop extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
-        potatoCannon = hardwareMap.get(DcMotor.class, "flywheel");
+        DcMotor potatoCannon = hardwareMap.get(DcMotor.class, "flywheel");
         potatoCannonTwo = hardwareMap.get(DcMotor.class, "flywheelTwo");
         actuator = hardwareMap.get(Servo.class, "gate");
         led1 = hardwareMap.get(Servo.class, "led1");
