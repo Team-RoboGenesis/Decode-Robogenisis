@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@Autonomous  (name = "AutoFarBLUE")
-public class AutoFarBLUE extends LinearOpMode
+@Autonomous  (name = "PlayAuto")
+public class FunAutoPlay extends LinearOpMode
 {
     private DcMotor flywheel = null;
     private Servo actuator = null;
@@ -45,25 +45,22 @@ public class AutoFarBLUE extends LinearOpMode
         LED2 = hardwareMap.get(Servo.class,"led2");
         LED3 = hardwareMap.get(Servo.class,"led3");
 
-        Pose2d beginPose = new Pose2d(0, -63, 90);
+        Pose2d beginPose = new Pose2d(-0, -63, Math.PI/2);
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
         waitForStart();
 
         Actions.runBlocking(
                 drive.actionBuilder(beginPose)
-                        .splineToLinearHeading(new Pose2d(-3.96, -52.30, Math.toRadians(140.00)), Math.toRadians(140.97))
+                        .splineTo(new Vector2d(-3.55, 43.36), Math.toRadians(69.74))
+                        .splineTo(new Vector2d(34.02, -34.63), Math.toRadians(-64.28))
+                        .splineTo(new Vector2d(-52.30, 20.01), Math.toRadians(147.67))
+                        .splineTo(new Vector2d(-27.32, 22.65), Math.toRadians(-8.77))
+                        .splineTo(new Vector2d(51.08, 15.33), Math.toRadians(-2.59))
+                        .splineTo(new Vector2d(42.96, -2.94), Math.toRadians(208.82))
+                        .splineTo(new Vector2d(-37.88, -47.42), Math.toRadians(218.71))
                         .build());
 
-
-
-        flywheel.setPower(0.7);
-        Thread.sleep(4000);
-        actuator.setPosition(0.65);
-        actuator.setPosition(0.1);
-        flywheel.setPower(0);
-//        sleep(300);
-//        actuator.setPosition(0.1);
 //        spinUp();
 //        sleep(1000);
 //        launchBall();
