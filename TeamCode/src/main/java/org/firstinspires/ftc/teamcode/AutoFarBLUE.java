@@ -19,31 +19,17 @@ public class AutoFarBLUE extends LinearOpMode
     private Servo LED3 = null;
     private Servo LED2;
 
-    private void spinUp()
-    {
-        flywheel.setPower(0.6);
-    }
-
-    private void launchBall()
-    {
-        actuator.setPosition(0.65);
-        try {
-            Thread.sleep(300);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        actuator.setPosition(0.1);
-    }
-
     @Override
     public void runOpMode() throws InterruptedException
     {
-        DcMotor flywheel;
         flywheel = hardwareMap.get(DcMotor.class, "flywheel");
         actuator = hardwareMap.get(Servo.class, "gate");
         LED1 = hardwareMap.get(Servo.class,"led1");
         LED2 = hardwareMap.get(Servo.class,"led2");
         LED3 = hardwareMap.get(Servo.class,"led3");
+
+        actuator.setPosition(0.1);
+        actuator.setPosition(0.65);
 
         Pose2d beginPose = new Pose2d(0, -63, 90);
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
@@ -58,8 +44,7 @@ public class AutoFarBLUE extends LinearOpMode
 
 
         flywheel.setPower(0.7);
-        Thread.sleep(4000);
-        actuator.setPosition(0.65);
+        sleep(4000);
         actuator.setPosition(0.1);
         flywheel.setPower(0);
 //        sleep(300);
