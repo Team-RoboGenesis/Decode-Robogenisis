@@ -33,7 +33,7 @@ public class AutonomousCloseBLUE extends LinearOpMode {
 
 
         flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        double power = 0.567;
+        double power = 0.555;
 
         waitForStart();
         leftFront.setPower(-0.45);

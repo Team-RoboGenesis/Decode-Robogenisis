@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@Autonomous(name = "AutonomousFarBLUE")
+@Autonomous(name = "AutonomousFar")
 public class AutonomousFarBLUE extends LinearOpMode {
 
     private DcMotor flywheel = null;
@@ -33,7 +33,7 @@ public class AutonomousFarBLUE extends LinearOpMode {
 
 
         flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        double power = 0.665;
+        double power = 0.635;
 
         gate.setPosition(0.1);
         waitForStart();
@@ -48,7 +48,7 @@ public class AutonomousFarBLUE extends LinearOpMode {
         gate.setPosition(0.1);
         Thread.sleep(3000);
         gate.setPosition(0.65);
-        Thread.sleep(300);
+        Thread.sleep(600);
         gate.setPosition(0.1);
         flywheel.setPower(-1);
         //gate.setPosition(0.65);
