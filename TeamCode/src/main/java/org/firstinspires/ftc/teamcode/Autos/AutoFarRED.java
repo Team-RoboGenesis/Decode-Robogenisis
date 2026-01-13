@@ -13,10 +13,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
 @Autonomous  (name = "AutoFarBLUE")
-public class AutoFarBLUE extends LinearOpMode
+public class AutoFarRED extends LinearOpMode
 {
     private DcMotor flywheel = null;
     private DcMotor turret = null;
+    private DcMotor intake = null;
     private Servo actuator = null;
     private Servo LED1 = null;
     private Servo LED3 = null;
@@ -26,12 +27,25 @@ public class AutoFarBLUE extends LinearOpMode
     private static final double PURPLE = 0.721;
     private static final double OPEN = 0.65;
     private static final double CLOSED = 0.1;
-    private static final double HIGH_POWER = 0.7;
+    private static final double HIGH_POWER = 0.66;
     private static final double LOW_POWER = 0.57;
+    private static final double INTAKE_SPEED = 1;
     private static final int SHOOT_POSE = 0;
 
+    private void spinUp()
+    {
+        flywheel.setPower(HIGH_POWER);
+    }
     private void shootThreeBalls()
     {
+        actuator.setPosition(OPEN);
+        sleep(300);
+        actuator.setPosition(CLOSED);
+        sleep(300);
+        actuator.setPosition(OPEN);
+        sleep(300);
+        actuator.setPosition(CLOSED);
+        sleep(300);
         actuator.setPosition(OPEN);
         sleep(300);
         actuator.setPosition(CLOSED);
@@ -50,8 +64,9 @@ public class AutoFarBLUE extends LinearOpMode
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        turret.setTargetPosition(0);
+        turret.setPower(0.5);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        turret.setPower(1);
 
         Pose2d beginPose = new Pose2d(62, 15, Math.PI);
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
@@ -68,6 +83,16 @@ public class AutoFarBLUE extends LinearOpMode
         Action firstGrab = intakeThree.build();
 
         waitForStart();
+        spinUp();
+        turret.setTargetPosition(SHOOT_POSE);
+        sleep(4000);
+        Actions.runBlocking(firstScore);
+        shootThreeBalls();
+        intake.setPower(INTAKE_SPEED);
+        Actions.runBlocking(firstGrab);
+        shootThreeBalls();
+
+
 
     }
 }
