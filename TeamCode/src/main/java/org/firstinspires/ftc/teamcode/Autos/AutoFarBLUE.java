@@ -16,29 +16,42 @@ import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 public class AutoFarBLUE extends LinearOpMode
 {
     private DcMotor flywheel = null;
+    private DcMotor turret = null;
     private Servo actuator = null;
-    private double GREEN = 0.456;
-    private double PURPLE = 0.721;
-    private int SHOOT_POSE = 0;
     private Servo LED1 = null;
     private Servo LED3 = null;
     private Servo LED2;
 
+    private static final double GREEN = 0.456;
+    private static final double PURPLE = 0.721;
+    private static final double OPEN = 0.65;
+    private static final double CLOSED = 0.1;
+    private static final double HIGH_POWER = 0.7;
+    private static final double LOW_POWER = 0.57;
+    private static final int SHOOT_POSE = 0;
+
     private void shootThreeBalls()
     {
-        actuator.setPosition(0.65);
+        actuator.setPosition(OPEN);
         sleep(300);
-        actuator.setPosition(0.1);
+        actuator.setPosition(CLOSED);
     }
 
     @Override
     public void runOpMode() throws InterruptedException
     {
+        turret = hardwareMap.get(DcMotor.class, "turret");
         flywheel = hardwareMap.get(DcMotor.class, "flywheel");
         actuator = hardwareMap.get(Servo.class, "gate");
         LED1 = hardwareMap.get(Servo.class,"led1");
         LED2 = hardwareMap.get(Servo.class,"led2");
         LED3 = hardwareMap.get(Servo.class,"led3");
+
+        turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        turret.setPower(1);
 
         Pose2d beginPose = new Pose2d(62, 15, Math.PI);
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
