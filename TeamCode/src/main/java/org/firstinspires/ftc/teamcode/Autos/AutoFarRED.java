@@ -30,25 +30,47 @@ public class AutoFarRED extends LinearOpMode
     private static final double HIGH_POWER = 0.66;
     private static final double LOW_POWER = 0.57;
     private static final double INTAKE_SPEED = 1;
+    private static final double FAR_SPEED = 4100;
     private static final int SHOOT_POSE = 0;
+    private double RPM = 0;
+
+    double ticksPerRotation = 25.5;
 
     private void spinUp()
     {
         flywheel.setPower(HIGH_POWER);
     }
+    private boolean shootBall()
+    {
+        if (RPM <= FAR_SPEED)
+        {
+            return false;
+        }
+        actuator.setPosition(OPEN);
+        sleep(300);
+        actuator.setPosition(CLOSED);
+        sleep(300);
+        return true;
+    }
+
     private void shootThreeBalls()
     {
-        actuator.setPosition(OPEN);
-        sleep(300);
-        actuator.setPosition(CLOSED);
-        sleep(300);
-        actuator.setPosition(OPEN);
-        sleep(300);
-        actuator.setPosition(CLOSED);
-        sleep(300);
-        actuator.setPosition(OPEN);
-        sleep(300);
-        actuator.setPosition(CLOSED);
+        int shootCount = 0;
+        int ticks = 0;
+        int previousTicks = 0;
+        boolean isSuccessful = false;
+        while (shootCount < 3)
+        {
+            previousTicks = flywheel.getCurrentPosition();
+            sleep(100);
+            ticks = flywheel.getCurrentPosition() - previousTicks;
+            RPM = (ticks / ticksPerRotation) * 600;
+            isSuccessful = shootBall();
+            if (isSuccessful)
+            {
+                shootCount += 1;
+            }
+        }
     }
 
     @Override
@@ -60,6 +82,9 @@ public class AutoFarRED extends LinearOpMode
         LED1 = hardwareMap.get(Servo.class,"led1");
         LED2 = hardwareMap.get(Servo.class,"led2");
         LED3 = hardwareMap.get(Servo.class,"led3");
+
+        flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -83,9 +108,10 @@ public class AutoFarRED extends LinearOpMode
         Action firstGrab = intakeThree.build();
 
         waitForStart();
+
+
         spinUp();
         turret.setTargetPosition(SHOOT_POSE);
-        sleep(4000);
         Actions.runBlocking(firstScore);
         shootThreeBalls();
         intake.setPower(INTAKE_SPEED);
