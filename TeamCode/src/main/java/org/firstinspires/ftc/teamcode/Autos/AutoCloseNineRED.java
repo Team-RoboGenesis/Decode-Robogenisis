@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.Autos;
 
-import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,12 +10,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@Autonomous  (name = "SixFarRed")
-public class AutoFarRED extends LinearOpMode
-{
+@Autonomous(name = "NineCloseRed")
+public class AutoCloseNineRED extends LinearOpMode {
     private DcMotor flywheel = null;
     private DcMotor turret = null;
     private DcMotor intake = null;
+    private DcMotor transfer = null;
     private Servo actuator = null;
     private Servo LED1 = null;
     private Servo LED2 = null;
@@ -31,7 +29,8 @@ public class AutoFarRED extends LinearOpMode
     private static final double LOW_POWER = 0.57;
     private static final double INTAKE_SPEED = 1;
     private static final double FAR_SPEED = 4100;
-    private static final int SHOOT_POSE = 0;
+    private static final int FIRST_SHOOT_POSE = 0;
+    private static final int SECOND_SHOOT_POSE = 0;
     private double RPM = 0;
 
     double ticksPerRotation = 25.5;
@@ -51,6 +50,11 @@ public class AutoFarRED extends LinearOpMode
         actuator.setPosition(CLOSED);
         sleep(300);
         return true;
+    }
+
+    private void spinIntake()
+    {
+        intake.setPower(1);
     }
 
     private void shootThreeBalls()
@@ -73,11 +77,17 @@ public class AutoFarRED extends LinearOpMode
         }
     }
 
+    private void turretFirstPos()
+    {
+        turret.setTargetPosition(FIRST_SHOOT_POSE);
+    }
+
     @Override
     public void runOpMode() throws InterruptedException
     {
         turret = hardwareMap.get(DcMotor.class, "turret");
         flywheel = hardwareMap.get(DcMotor.class, "flywheel");
+        transfer = hardwareMap.get(DcMotor.class, "transfer");
         actuator = hardwareMap.get(Servo.class, "gate");
         LED1 = hardwareMap.get(Servo.class,"led1");
         LED2 = hardwareMap.get(Servo.class,"led2");
@@ -97,28 +107,21 @@ public class AutoFarRED extends LinearOpMode
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
         TrajectoryActionBuilder shootThree = drive.actionBuilder(beginPose)
-                .lineToX(55);
-
-        TrajectoryActionBuilder intakeThree = drive.actionBuilder(beginPose)
-                .splineToLinearHeading(new Pose2d(36, 20, Math.toRadians(90)), Math.toRadians(90))
-                .splineToLinearHeading(new Pose2d(36, 60, Math.toRadians(90)), Math.toRadians(90))
-                .strafeToLinearHeading(new Vector2d(55, 15), Math.toRadians(180.00));
-
-        Action firstScore = shootThree.build();
-        Action firstGrab = intakeThree.build();
-
-        waitForStart();
-
-
-        spinUp();
-        turret.setTargetPosition(SHOOT_POSE);
-        Actions.runBlocking(firstScore);
-        shootThreeBalls();
-        intake.setPower(INTAKE_SPEED);
-        Actions.runBlocking(firstGrab);
-        shootThreeBalls();
-
-
-
+                .stopAndAdd(this::turretFirstPos)
+                .stopAndAdd(this::spinUp)
+                .strafeToLinearHeading(new Vector2d(-11, 14), Math.toRadians(90))
+                .stopAndAdd(this::shootThreeBalls)
+                .stopAndAdd(this::spinIntake)
+                .strafeToLinearHeading(new Vector2d(-11, 54), Math.toRadians(90))
+                .waitSeconds(0.5)
+                .strafeToLinearHeading(new Vector2d(-11, 14), Math.toRadians(0))
+                .stopAndAdd(this::shootThreeBalls)
+                .splineToLinearHeading(new Pose2d(13, 26, Math.toRadians(90)), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(13, 60), Math.toRadians(90))
+                .waitSeconds(0.5)
+                .setTangent(270)
+                .splineToConstantHeading(new Vector2d(13, 40), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(-11, 14), Math.toRadians(90))
+                .stopAndAdd(this::shootThreeBalls);
     }
 }
