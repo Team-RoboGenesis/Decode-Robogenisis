@@ -8,37 +8,26 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 @TeleOp(name = "Spintake text")
 public class intakeTests extends OpMode {
 
-    private CRServo spintake = null;
     private DcMotor potatoCannon = null;
 
     @Override
     public void init() {
-
-        spintake = hardwareMap.get(CRServo.class, "spintake");
         potatoCannon = hardwareMap.get(DcMotor.class, "flywheel");
     }
 
     @Override
     public void loop() {
-        if (gamepad1.a)
+        if (gamepad1.triangle)
         {
-            spintake.setPower(1);
+            potatoCannon.setPower(0.5);
         }
-        else if(gamepad1.b)
-        {
-            spintake.setPower(0);
-        }
-        else if (gamepad1.y)
-        {
-            spintake.setPower(-1);
-        }
-        if (gamepad1.left_bumper)
-        {
-            potatoCannon.setPower(0.01);
-        }
-        if (gamepad1.right_bumper)
+        if (gamepad1.square)
         {
             potatoCannon.setPower(0);
+        }
+        if (gamepad1.cross)
+        {
+            potatoCannon.setPower(-0.5);
         }
     }
 }

@@ -140,26 +140,25 @@ public class LimelightTeleop extends LinearOpMode {
                 double tx = result.getTx();
                 double ty = result.getTy();
 
-//                List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+                List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
 
-//                int tagId = fiducials.get(0).getFiducialId();
+                int tagId = fiducials.get(0).getFiducialId();
 
-//                if (tagId == 21) {
-//                    led1Color = GREEN;
-//                    led2Color = PURPLE;
-//                    led3Color = PURPLE;
-//                }
-//                else if (tagId == 22) {
-//                    led1Color = PURPLE;
-//                    led2Color = GREEN;
-//                    led3Color = PURPLE;
-//                }
-//                else if (tagId == 23) {
-//                    led1Color = PURPLE;
-//                    led2Color = PURPLE;
-//                    led3Color = GREEN;
-//                }
-//            }
+                if (tagId == 21) {
+                    led1Color = GREEN;
+                    led2Color = PURPLE;
+                    led3Color = PURPLE;
+                }
+                else if (tagId == 22) {
+                    led1Color = PURPLE;
+                    led2Color = GREEN;
+                    led3Color = PURPLE;
+                }
+                else if (tagId == 23) {
+                    led1Color = PURPLE;
+                    led2Color = PURPLE;
+                    led3Color = GREEN;
+                }
 
             led1.setPosition(led1Color);
             led2.setPosition(led2Color);
@@ -168,12 +167,12 @@ public class LimelightTeleop extends LinearOpMode {
 //
 //
 //
-//                    Pose3D botpose = result.getBotpose();
-//                    telemetry.addData("tx", result.getTx());
-//                    telemetry.addData("ty", result.getTy());
-//                    telemetry.addData("Botpose", botpose.toString());
-//                    telemetry.addData("april Id", result.getBarcodeResults());
-//                    telemetry.addData(">", "Robot Ready.  Press Play.");
+                    Pose3D botpose = result.getBotpose();
+                    telemetry.addData("tx", result.getTx());
+                    telemetry.addData("ty", result.getTy());
+                    telemetry.addData("Botpose", botpose.toString());
+                    telemetry.addData("april Id", result.getBarcodeResults());
+                    telemetry.addData(">", "Robot Ready.  Press Play.");
 
 
 
