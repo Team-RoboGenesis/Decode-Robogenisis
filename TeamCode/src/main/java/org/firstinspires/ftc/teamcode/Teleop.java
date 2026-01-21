@@ -17,7 +17,7 @@ public class Teleop extends LinearOpMode {
     private DcMotor rightFront = null;
     private DcMotor leftBack = null;
     private DcMotor rightBack = null;
-    private DcMotor potatoCannon = null;
+    private DcMotor flywheel = null;
     private Servo led1 = null;
     private Servo led2 = null;
     private Servo led3 = null;
@@ -30,6 +30,44 @@ public class Teleop extends LinearOpMode {
     private static final double LOW_POWER = 0.57;
     private static final double MEDIUM_POWER = 0.65;
     private static final double OFF = 0;
+    private static final double FAR_SPEED = 3620;
+    private static final int SHOOT_POSE = 0;
+    private final static int CONVERT_TO_MINUTE = 600;
+    private static final double ticksPerRotation = 25.5;
+    private double RPM = 0;
+
+    private boolean shootBall()
+    {
+        if (RPM <= FAR_SPEED)
+        {
+            return false;
+        }
+        actuator.setPosition(OPEN);
+        sleep(300);
+        actuator.setPosition(CLOSED);
+        sleep(300);
+        return true;
+    }
+
+    private void shootThreeBalls()
+    {
+        int shootCount = 0;
+        int ticks = 0;
+        int previousTicks = 0;
+        boolean isSuccessful = false;
+        while (shootCount <= 3)
+        {
+            previousTicks = flywheel.getCurrentPosition();
+            sleep(100);
+            ticks = flywheel.getCurrentPosition() - previousTicks;
+            RPM = (ticks / ticksPerRotation) * CONVERT_TO_MINUTE;
+            isSuccessful = shootBall();
+            if (isSuccessful)
+            {
+                shootCount += 1;
+            }
+        }
+    }
 
 
     private void turn (double power)
@@ -49,7 +87,7 @@ public class Teleop extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
-        potatoCannon = hardwareMap.get(DcMotor.class, "flywheel");
+        flywheel = hardwareMap.get(DcMotor.class, "flywheel");
         actuator = hardwareMap.get(Servo.class, "gate");
         led1 = hardwareMap.get(Servo.class, "led1");
         led2 = hardwareMap.get(Servo.class, "led2");
@@ -65,9 +103,9 @@ public class Teleop extends LinearOpMode {
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        potatoCannon.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        potatoCannon.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        potatoCannon.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         IMU imu = hardwareMap.get(IMU.class, "imu");
         // Adjust the orientation parameters to match your robot
@@ -167,23 +205,27 @@ public class Teleop extends LinearOpMode {
             }
             else if (gamepad2.cross)
             {
-                potatoCannon.setPower(LOW_POWER);
+                flywheel.setPower(LOW_POWER);
             }
             else if (gamepad2.circle)
             {
-                potatoCannon.setPower(MEDIUM_POWER);
+                flywheel.setPower(MEDIUM_POWER);
             }
             else if (gamepad2.triangle)
             {
-                potatoCannon.setPower(HIGH_POWER);
+                flywheel.setPower(HIGH_POWER);
             }
             else if (gamepad2.square)
             {
-                potatoCannon.setPower(OFF);
+                flywheel.setPower(OFF);
             }
             else if (gamepad2.dpad_up)
             {
                 actuator.setPosition(OPEN);
+            }
+            else if (gamepad2.dpad_left)
+            {
+                shootThreeBalls();
             }
 
             // Motif pattern 1

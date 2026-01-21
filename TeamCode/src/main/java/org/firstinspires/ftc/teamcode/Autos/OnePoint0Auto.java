@@ -12,12 +12,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@Autonomous  (name = "SixFarRed")
-public class AutoFarRED extends LinearOpMode
+@Autonomous  (name = "Relic Auton")
+public class OnePoint0Auto extends LinearOpMode
 {
     private DcMotor flywheel = null;
-    private DcMotor turret = null;
-    private DcMotor intake = null;
     private Servo actuator = null;
     private Servo LED1 = null;
     private Servo LED2 = null;
@@ -30,7 +28,7 @@ public class AutoFarRED extends LinearOpMode
     private static final double HIGH_POWER = 0.66;
     private static final double LOW_POWER = 0.57;
     private static final double INTAKE_SPEED = 1;
-    private static final double FAR_SPEED = 0;
+    private static final double FAR_SPEED = 3620;
     private static final int SHOOT_POSE = 0;
     private double RPM = 0;
 
@@ -76,7 +74,6 @@ public class AutoFarRED extends LinearOpMode
     @Override
     public void runOpMode() throws InterruptedException
     {
-        turret = hardwareMap.get(DcMotor.class, "turret");
         flywheel = hardwareMap.get(DcMotor.class, "flywheel");
         actuator = hardwareMap.get(Servo.class, "gate");
         LED1 = hardwareMap.get(Servo.class,"led1");
@@ -86,23 +83,16 @@ public class AutoFarRED extends LinearOpMode
         flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        turret.setTargetPosition(0);
-        turret.setPower(0.5);
-        turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
         Pose2d beginPose = new Pose2d(62, 15, Math.PI);
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
         TrajectoryActionBuilder shootThree = drive.actionBuilder(beginPose)
-                .lineToX(55);
+                .strafeToLinearHeading(new Vector2d(55, 15), Math.toRadians(158.50));
 
         TrajectoryActionBuilder intakeThree = drive.actionBuilder(beginPose)
-                .splineToLinearHeading(new Pose2d(36, 20, Math.toRadians(90)), Math.toRadians(90))
-                .splineToLinearHeading(new Pose2d(36, 60, Math.toRadians(90)), Math.toRadians(90))
-                .strafeToLinearHeading(new Vector2d(55, 15), Math.toRadians(180.00));
+                .splineToLinearHeading(new Pose2d(30, 20, Math.toRadians(90)), Math.toRadians(90))
+                .splineToLinearHeading(new Pose2d(30, 60, Math.toRadians(90)), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(55, 15), Math.toRadians(162.00));
 
         Action firstScore = shootThree.build();
         Action firstGrab = intakeThree.build();
@@ -111,10 +101,8 @@ public class AutoFarRED extends LinearOpMode
 
 
         spinUp();
-        turret.setTargetPosition(SHOOT_POSE);
         Actions.runBlocking(firstScore);
         shootThreeBalls();
-        intake.setPower(INTAKE_SPEED);
         Actions.runBlocking(firstGrab);
         shootThreeBalls();
 

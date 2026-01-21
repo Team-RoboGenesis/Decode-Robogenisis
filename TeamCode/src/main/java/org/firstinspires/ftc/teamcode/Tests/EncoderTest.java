@@ -12,9 +12,9 @@ public class EncoderTest extends LinearOpMode
     private Servo actuator = null;
 
     double ticksPerRotation = 25.5;
-    private double HIGH_POWER = 0.7;
-    private double LOW_POWER = 0.6;
-    private double MEDIUM_POWER = 0.65;
+    private double HIGH_POWER = 0.95;
+    private double LOW_POWER = 0.8;
+    private double MEDIUM_POWER = 0.9;
     private double OFF = 0;
 
     private double OPEN = 0.65;
