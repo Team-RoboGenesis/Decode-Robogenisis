@@ -9,13 +9,15 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
 @Autonomous(name = "NineCloseBlue")
 public class AutoCloseNineBLUE extends LinearOpMode {
-    private DcMotor flywheel = null;
+    private DcMotor flywheel1 = null;
+    private DcMotor flywheel2 = null;
     private DcMotor turret = null;
     private DcMotor intake = null;
     private CRServo transfer2 = null;
@@ -40,7 +42,8 @@ public class AutoCloseNineBLUE extends LinearOpMode {
 
     private void spinUp()
     {
-        flywheel.setPower(HIGH_POWER);
+        flywheel1.setPower(HIGH_POWER);
+        flywheel2.setPower(HIGH_POWER);
     }
     private boolean shootBall()
     {
@@ -77,9 +80,9 @@ public class AutoCloseNineBLUE extends LinearOpMode {
         boolean isSuccessful = false;
         while (shootCount < 3)
         {
-            previousTicks = flywheel.getCurrentPosition();
+            previousTicks = flywheel1.getCurrentPosition();
             sleep(100);
-            ticks = flywheel.getCurrentPosition() - previousTicks;
+            ticks = flywheel1.getCurrentPosition() - previousTicks;
             RPM = (ticks / ticksPerRotation) * 600;
             isSuccessful = shootBall();
             if (isSuccessful)
@@ -98,15 +101,17 @@ public class AutoCloseNineBLUE extends LinearOpMode {
     public void runOpMode() throws InterruptedException
     {
         turret = hardwareMap.get(DcMotor.class, "turret");
-        flywheel = hardwareMap.get(DcMotor.class, "flywheel");
+        flywheel1 = hardwareMap.get(DcMotor.class, "flywheel1");
+        flywheel2 = hardwareMap.get(DcMotor.class, "flywheel2");
         transfer1 = hardwareMap.get(CRServo.class, "servo");
         transfer2 = hardwareMap.get(CRServo.class, "servo1");
-        LED1 = hardwareMap.get(Servo.class,"led1");
-        LED2 = hardwareMap.get(Servo.class,"led2");
-        LED3 = hardwareMap.get(Servo.class,"led3");
 
-        flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
+        flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -115,7 +120,7 @@ public class AutoCloseNineBLUE extends LinearOpMode {
         turret.setPower(0.5);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        Pose2d beginPose = new Pose2d(62, 15, Math.PI);
+        Pose2d beginPose = new Pose2d(-54, -46, Math.toRadians(-127));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
         TrajectoryActionBuilder shootThree = drive.actionBuilder(beginPose)

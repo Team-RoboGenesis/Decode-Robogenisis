@@ -11,21 +11,16 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.NewTeleOp;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
 @Autonomous(name = "NineCloseRed")
 public class AutoCloseNineRED extends LinearOpMode {
-    private DcMotor flywheel = null;
+    private DcMotor flywheel1 = null;
+    private DcMotor flywheel2 = null;
     private DcMotor turret = null;
     private DcMotor intake = null;
-    private DcMotor transfer = null;
-    private Servo actuator = null;
     private CRServo transfer2 = null;
     private CRServo transfer1 = null;
-    private Servo LED1 = null;
-    private Servo LED2 = null;
-    private Servo LED3 = null;
 
     private static final double GREEN = 0.456;
     private static final double PURPLE = 0.721;
@@ -34,6 +29,7 @@ public class AutoCloseNineRED extends LinearOpMode {
     private static final double HIGH_POWER = 0.66;
     private static final double LOW_POWER = 0.57;
     private static final double INTAKE_SPEED = 1;
+    private static final double OFF = 0;
     private static final double FAR_SPEED = 4100;
     private static final int FIRST_SHOOT_POSE = 0;
     private static final int SECOND_SHOOT_POSE = 0;
@@ -42,7 +38,7 @@ public class AutoCloseNineRED extends LinearOpMode {
 
     private void spinUp()
     {
-        flywheel.setPower(HIGH_POWER);
+        flywheel1.setPower(HIGH_POWER);
     }
     private boolean shootBall()
     {
@@ -52,23 +48,23 @@ public class AutoCloseNineRED extends LinearOpMode {
         }
         transfer1.setPower(1);
         transfer2.setPower(1);
-        intake.setPower(1);
+        intake.setPower(INTAKE_SPEED);
         sleep(300);
         transfer1.setPower(0);
         transfer1.setPower(0);
-        intake.setPower(0);
+        intake.setPower(OFF);
         sleep(300);
         return true;
     }
 
     private void spinIntake()
     {
-        intake.setPower(1);
+        intake.setPower(INTAKE_SPEED);
     }
 
     private void stopIntake()
     {
-        intake.setPower(0);
+        intake.setPower(OFF);
     }
 
     private void shootThreeBalls()
@@ -79,9 +75,9 @@ public class AutoCloseNineRED extends LinearOpMode {
         boolean isSuccessful = false;
         while (shootCount < 3)
         {
-            previousTicks = flywheel.getCurrentPosition();
+            previousTicks = flywheel1.getCurrentPosition();
             sleep(100);
-            ticks = flywheel.getCurrentPosition() - previousTicks;
+            ticks = flywheel1.getCurrentPosition() - previousTicks;
             RPM = (ticks / ticksPerRotation) * 600;
             isSuccessful = shootBall();
             if (isSuccessful)
@@ -100,15 +96,12 @@ public class AutoCloseNineRED extends LinearOpMode {
     public void runOpMode() throws InterruptedException
     {
         turret = hardwareMap.get(DcMotor.class, "turret");
-        flywheel = hardwareMap.get(DcMotor.class, "flywheel");
-        transfer = hardwareMap.get(DcMotor.class, "transfer");
-        actuator = hardwareMap.get(Servo.class, "gate");
-        LED1 = hardwareMap.get(Servo.class,"led1");
-        LED2 = hardwareMap.get(Servo.class,"led2");
-        LED3 = hardwareMap.get(Servo.class,"led3");
+        flywheel1 = hardwareMap.get(DcMotor.class, "flywheel1");
+        flywheel2 = hardwareMap.get(DcMotor.class, "flywheel2");
+        intake = hardwareMap.get(DcMotor.class, "intake");
 
-        flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -117,7 +110,7 @@ public class AutoCloseNineRED extends LinearOpMode {
         turret.setPower(0.5);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        Pose2d beginPose = new Pose2d(62, 15, Math.PI);
+        Pose2d beginPose = new Pose2d(-54, 46, Math.toRadians(-127));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
         TrajectoryActionBuilder shootThree = drive.actionBuilder(beginPose)

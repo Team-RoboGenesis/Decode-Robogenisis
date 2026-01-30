@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@TeleOp
+//@TeleOp
 public class ColorSensorTest extends OpMode {
 
     public boolean yellow() { // see if yellow is the color of sample in claw

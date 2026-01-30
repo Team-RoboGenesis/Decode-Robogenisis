@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-@TeleOp(name = "Teleop")
+//@TeleOp(name = "Teleop")
 public class Teleop extends LinearOpMode {
 
     private DcMotor leftFront = null;
@@ -88,7 +88,7 @@ public class Teleop extends LinearOpMode {
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         flywheel = hardwareMap.get(DcMotor.class, "flywheel");
-        actuator = hardwareMap.get(Servo.class, "gate");
+
         led1 = hardwareMap.get(Servo.class, "led1");
         led2 = hardwareMap.get(Servo.class, "led2");
         led3 = hardwareMap.get(Servo.class, "led3");
@@ -106,6 +106,8 @@ public class Teleop extends LinearOpMode {
         flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
 
         IMU imu = hardwareMap.get(IMU.class, "imu");
         // Adjust the orientation parameters to match your robot

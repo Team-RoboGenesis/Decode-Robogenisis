@@ -102,9 +102,6 @@ public class AutoCloseSixRED extends LinearOpMode {
         flywheel = hardwareMap.get(DcMotor.class, "flywheel");
         transfer = hardwareMap.get(DcMotor.class, "transfer");
         actuator = hardwareMap.get(Servo.class, "gate");
-        LED1 = hardwareMap.get(Servo.class,"led1");
-        LED2 = hardwareMap.get(Servo.class,"led2");
-        LED3 = hardwareMap.get(Servo.class,"led3");
 
         flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -116,7 +113,7 @@ public class AutoCloseSixRED extends LinearOpMode {
         turret.setPower(0.5);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        Pose2d beginPose = new Pose2d(62, 15, Math.PI);
+        Pose2d beginPose = new Pose2d(-54, 46, Math.toRadians(-127));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
         TrajectoryActionBuilder shootThree = drive.actionBuilder(beginPose)

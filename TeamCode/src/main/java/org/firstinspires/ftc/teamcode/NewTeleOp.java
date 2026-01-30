@@ -30,7 +30,7 @@ public class NewTeleOp extends LinearOpMode {
     private Servo led1 = null;
     private Servo led2 = null;
     private Servo led3 = null;
-    private DigitalChannel turretZero = null;
+//    private DigitalChannel turretZero = null;
     Limelight3A limelight = null;
     private static final double GREEN = 0.456;
     private static final double PURPLE = 0.721;
@@ -43,6 +43,22 @@ public class NewTeleOp extends LinearOpMode {
     private final static int CONVERT_TO_MINUTE = 600;
     private static final double ticksPerRotation = 25.5;
     private double RPM = 0;
+
+    private void turretPos(int position)
+    {
+        if (turret.getCurrentPosition() < 210)
+        {
+            turret.setTargetPosition(210);
+        }
+        else if (turret.getCurrentPosition() < -221)
+        {
+            turret.setTargetPosition(-221);
+        }
+        else
+        {
+            turret.setTargetPosition(position);
+        }
+    }
 
 
 
@@ -102,12 +118,9 @@ public class NewTeleOp extends LinearOpMode {
         flywheel2 = hardwareMap.get(DcMotor.class, "flywheel2");
         intake = hardwareMap.get(DcMotor.class, "intake");
         turret = hardwareMap.get(DcMotor.class, "turret");
-        actuator1 = hardwareMap.get(CRServo.class, "actuator1");
-        actuator2 = hardwareMap.get(CRServo.class, "actuator2");
-        turretZero = hardwareMap.get(DigitalChannel.class, "Limiter");
-        led1 = hardwareMap.get(Servo.class, "led1");
-        led2 = hardwareMap.get(Servo.class, "led2");
-        led3 = hardwareMap.get(Servo.class, "led3");
+        actuator1 = hardwareMap.get(CRServo.class, "servo");
+        actuator2 = hardwareMap.get(CRServo.class, "servo1");
+//        turretZero = hardwareMap.get(DigitalChannel.class, "Limiter");
 
         limelight = hardwareMap.get(Limelight3A.class, "Benny");
 
@@ -119,8 +132,8 @@ public class NewTeleOp extends LinearOpMode {
 
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
         rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftBack.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -135,22 +148,28 @@ public class NewTeleOp extends LinearOpMode {
         flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        if (turretZero.getState())
-        {
-            turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        }
+//        if (turretZero.getState())
+//        {
+        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        }
         turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         turret.setPower(0.7);
         turret.setTargetPosition(0);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        actuator1.setDirection(DcMotorSimple.Direction.REVERSE);
+        actuator2.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
 
         IMU imu = hardwareMap.get(IMU.class, "imu");
         // Adjust the orientation parameters to match your robot
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
+                RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
+                RevHubOrientationOnRobot.UsbFacingDirection.UP));
         // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
         imu.initialize(parameters);
         imu.resetYaw();
@@ -195,8 +214,29 @@ public class NewTeleOp extends LinearOpMode {
             limelight.start();
             LLResult result = limelight.getLatestResult();
 
+            int targetPos = (int) ((int) turret.getCurrentPosition() + (gamepad2.left_stick_x * 100));
+
             telemetry.addData("YAW: ", imu.getRobotYawPitchRollAngles().getYaw());
+            telemetry.addData("Turret: ", turret.getCurrentPosition());
             telemetry.update();
+
+            turretPos(targetPos);
+
+            if (gamepad2.dpad_down)
+            {
+                actuator1.setPower(-1);
+                actuator2.setPower(-1);
+            }
+            else if (gamepad2.dpad_up)
+            {
+                actuator1.setPower(1);
+                actuator2.setPower(1);
+            }
+            else if (!gamepad2.dpad_down && !gamepad2.dpad_up)
+            {
+                actuator1.setPower(0);
+                actuator2.setPower(0);
+            }
 
             if (gamepad2.cross)
             {
@@ -235,37 +275,6 @@ public class NewTeleOp extends LinearOpMode {
                 intake.setPower(0);
             }
 
-            // Motif pattern 1
-            else if (gamepad1.dpad_left)
-            {
-                led1.setPosition(PURPLE);
-                led2.setPosition(PURPLE);
-                led3.setPosition(GREEN);
-            }
-
-            // Motif pattern 2
-            else if (gamepad1.dpad_up)
-            {
-                led1.setPosition(GREEN);
-                led2.setPosition(PURPLE);
-                led3.setPosition(PURPLE);
-            }
-
-            // Motif pattern 3
-            else if (gamepad1.dpad_right)
-            {
-                led1.setPosition(PURPLE);
-                led2.setPosition(GREEN);
-                led3.setPosition(PURPLE);
-            }
-
-            // LEDs off
-            else if (gamepad1.dpad_down)
-            {
-                led1.setPosition(0);
-                led2.setPosition(0);
-                led3.setPosition(0);
-            }
             if (result != null)
             {
                 telemetry.addData("tx", result.getTx());

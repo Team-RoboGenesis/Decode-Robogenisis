@@ -13,8 +13,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@Autonomous(name = "SixCloseBlue")
-public class AutoCloseSixBLUE extends LinearOpMode {
+@Autonomous(name = "SixFarBlue")
+public class AutoFarSixBLUE extends LinearOpMode {
     private DcMotor flywheel = null;
     private DcMotor turret = null;
     private DcMotor intake = null;
@@ -101,6 +101,9 @@ public class AutoCloseSixBLUE extends LinearOpMode {
         flywheel = hardwareMap.get(DcMotor.class, "flywheel");
         transfer1 = hardwareMap.get(CRServo.class, "servo");
         transfer2 = hardwareMap.get(CRServo.class, "servo1");
+        LED1 = hardwareMap.get(Servo.class,"led1");
+        LED2 = hardwareMap.get(Servo.class,"led2");
+        LED3 = hardwareMap.get(Servo.class,"led3");
 
         flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -112,22 +115,24 @@ public class AutoCloseSixBLUE extends LinearOpMode {
         turret.setPower(0.5);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        Pose2d beginPose = new Pose2d(-54, -46, Math.toRadians(-127));
+        Pose2d beginPose = new Pose2d(62, -15, Math.toRadians(0));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
         TrajectoryActionBuilder shootThree = drive.actionBuilder(beginPose)
-                .stopAndAdd(this::turretFirstPos)
                 .stopAndAdd(this::spinUp)
-                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(0))
+                .stopAndAdd(this::turretFirstPos)
+                .strafeToLinearHeading(new Vector2d(55, -15), Math.toRadians(0))
                 .stopAndAdd(this::spinIntake)
                 .stopAndAdd(this::shootThreeBalls)
-                .turn(Math.toRadians(-80))
-                .strafeToLinearHeading(new Vector2d(-11, -54), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(58, -30), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(62, -62), Math.toRadians(-90))
                 .waitSeconds(0.5)
                 .stopAndAdd(this::stopIntake)
-                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(0))
+                .strafeToLinearHeading(new Vector2d(58, -30), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(55, -15), Math.toRadians(0))
                 .stopAndAdd(this::spinIntake)
                 .stopAndAdd(this::shootThreeBalls);
+
 
         Action auto = shootThree.build();
 

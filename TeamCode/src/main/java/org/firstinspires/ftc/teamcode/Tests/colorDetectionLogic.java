@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp (name = "clor detect thingy")
+//@TeleOp (name = "clor detect thingy")
 public class colorDetectionLogic extends OpMode  {
     private double red = 0;
     private double blue = 0;
