@@ -7,18 +7,19 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@Autonomous  (name = "SixFarRed")
-public class AutoFarRED extends LinearOpMode
-{
+@Autonomous(name = "SixCloseBlue")
+public class AutoCloseSixBLUE extends LinearOpMode {
     private DcMotor flywheel = null;
     private DcMotor turret = null;
     private DcMotor intake = null;
-    private Servo actuator = null;
+    private CRServo transfer2 = null;
+    private CRServo transfer1 = null;
     private Servo LED1 = null;
     private Servo LED2 = null;
     private Servo LED3 = null;
@@ -30,8 +31,9 @@ public class AutoFarRED extends LinearOpMode
     private static final double HIGH_POWER = 0.66;
     private static final double LOW_POWER = 0.57;
     private static final double INTAKE_SPEED = 1;
-    private static final double FAR_SPEED = 0;
-    private static final int SHOOT_POSE = 0;
+    private static final double FAR_SPEED = 4100;
+    private static final int FIRST_SHOOT_POSE = 0;
+    private static final int SECOND_SHOOT_POSE = 0;
     private double RPM = 0;
 
     double ticksPerRotation = 25.5;
@@ -46,11 +48,25 @@ public class AutoFarRED extends LinearOpMode
         {
             return false;
         }
-        actuator.setPosition(OPEN);
+        transfer1.setPower(1);
+        transfer2.setPower(1);
+        intake.setPower(1);
         sleep(300);
-        actuator.setPosition(CLOSED);
+        transfer1.setPower(0);
+        transfer1.setPower(0);
+        intake.setPower(0);
         sleep(300);
         return true;
+    }
+
+    private void spinIntake()
+    {
+        intake.setPower(1);
+    }
+
+    private void stopIntake()
+    {
+        intake.setPower(0);
     }
 
     private void shootThreeBalls()
@@ -59,7 +75,7 @@ public class AutoFarRED extends LinearOpMode
         int ticks = 0;
         int previousTicks = 0;
         boolean isSuccessful = false;
-        while (shootCount <= 3)
+        while (shootCount < 3)
         {
             previousTicks = flywheel.getCurrentPosition();
             sleep(100);
@@ -73,12 +89,18 @@ public class AutoFarRED extends LinearOpMode
         }
     }
 
+    private void turretFirstPos()
+    {
+        turret.setTargetPosition(FIRST_SHOOT_POSE);
+    }
+
     @Override
     public void runOpMode() throws InterruptedException
     {
         turret = hardwareMap.get(DcMotor.class, "turret");
         flywheel = hardwareMap.get(DcMotor.class, "flywheel");
-        actuator = hardwareMap.get(Servo.class, "gate");
+        transfer1 = hardwareMap.get(CRServo.class, "servo");
+        transfer2 = hardwareMap.get(CRServo.class, "servo1");
         LED1 = hardwareMap.get(Servo.class,"led1");
         LED2 = hardwareMap.get(Servo.class,"led2");
         LED3 = hardwareMap.get(Servo.class,"led3");
@@ -97,28 +119,23 @@ public class AutoFarRED extends LinearOpMode
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
         TrajectoryActionBuilder shootThree = drive.actionBuilder(beginPose)
-                .lineToX(55);
+                .stopAndAdd(this::turretFirstPos)
+                .stopAndAdd(this::spinUp)
+                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(0))
+                .stopAndAdd(this::spinIntake)
+                .stopAndAdd(this::shootThreeBalls)
+                .turn(Math.toRadians(-80))
+                .strafeToLinearHeading(new Vector2d(-11, -54), Math.toRadians(-90))
+                .waitSeconds(0.5)
+                .stopAndAdd(this::stopIntake)
+                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(0))
+                .stopAndAdd(this::spinIntake)
+                .stopAndAdd(this::shootThreeBalls);
 
-        TrajectoryActionBuilder intakeThree = drive.actionBuilder(beginPose)
-                .splineToLinearHeading(new Pose2d(36, 20, Math.toRadians(90)), Math.toRadians(90))
-                .splineToLinearHeading(new Pose2d(36, 60, Math.toRadians(90)), Math.toRadians(90))
-                .strafeToLinearHeading(new Vector2d(55, 15), Math.toRadians(180.00));
-
-        Action firstScore = shootThree.build();
-        Action firstGrab = intakeThree.build();
+        Action auto = shootThree.build();
 
         waitForStart();
 
-
-        spinUp();
-        turret.setTargetPosition(SHOOT_POSE);
-        Actions.runBlocking(firstScore);
-        shootThreeBalls();
-        intake.setPower(INTAKE_SPEED);
-        Actions.runBlocking(firstGrab);
-        shootThreeBalls();
-
-
-
+        Actions.runBlocking(auto);
     }
 }

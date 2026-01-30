@@ -1,31 +1,39 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-@TeleOp(name = "Teleop")
-public class Teleop extends LinearOpMode {
+@TeleOp(name = "New Teleop")
+public class NewTeleOp extends LinearOpMode {
 
     private DcMotor leftFront = null;
     private DcMotor rightFront = null;
     private DcMotor leftBack = null;
     private DcMotor rightBack = null;
-    private DcMotor flywheel = null;
+    private DcMotor flywheel1 = null;
+    private DcMotor flywheel2 = null;
+    private DcMotor intake = null;
+    private DcMotor turret = null;
+    private CRServo actuator1 = null;
+    private CRServo actuator2 = null;
     private Servo led1 = null;
     private Servo led2 = null;
     private Servo led3 = null;
-    private Servo actuator = null;
+    private DigitalChannel turretZero = null;
+    Limelight3A limelight = null;
     private static final double GREEN = 0.456;
     private static final double PURPLE = 0.721;
-    private static final double OPEN = 0.65;
-    private static final double CLOSED = 0.1;
     private static final double HIGH_POWER = 0.7;
     private static final double LOW_POWER = 0.57;
     private static final double MEDIUM_POWER = 0.65;
@@ -36,15 +44,19 @@ public class Teleop extends LinearOpMode {
     private static final double ticksPerRotation = 25.5;
     private double RPM = 0;
 
+
+
     private boolean shootBall()
     {
         if (RPM <= FAR_SPEED)
         {
             return false;
         }
-        actuator.setPosition(OPEN);
+        actuator1.setPower(1);
+        actuator2.setPower(1);
         sleep(300);
-        actuator.setPosition(CLOSED);
+        actuator1.setPower(0);
+        actuator2.setPower(0);
         sleep(300);
         return true;
     }
@@ -57,9 +69,9 @@ public class Teleop extends LinearOpMode {
         boolean isSuccessful = false;
         while (shootCount <= 3)
         {
-            previousTicks = flywheel.getCurrentPosition();
+            previousTicks = flywheel1.getCurrentPosition();
             sleep(100);
-            ticks = flywheel.getCurrentPosition() - previousTicks;
+            ticks = flywheel1.getCurrentPosition() - previousTicks;
             RPM = (ticks / ticksPerRotation) * CONVERT_TO_MINUTE;
             isSuccessful = shootBall();
             if (isSuccessful)
@@ -68,7 +80,6 @@ public class Teleop extends LinearOpMode {
             }
         }
     }
-
 
     private void turn (double power)
     {
@@ -87,25 +98,53 @@ public class Teleop extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
-        flywheel = hardwareMap.get(DcMotor.class, "flywheel");
-        actuator = hardwareMap.get(Servo.class, "gate");
+        flywheel1 = hardwareMap.get(DcMotor.class, "flywheel1");
+        flywheel2 = hardwareMap.get(DcMotor.class, "flywheel2");
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        turret = hardwareMap.get(DcMotor.class, "turret");
+        actuator1 = hardwareMap.get(CRServo.class, "actuator1");
+        actuator2 = hardwareMap.get(CRServo.class, "actuator2");
+        turretZero = hardwareMap.get(DigitalChannel.class, "Limiter");
         led1 = hardwareMap.get(Servo.class, "led1");
         led2 = hardwareMap.get(Servo.class, "led2");
         led3 = hardwareMap.get(Servo.class, "led3");
 
-//        limelight = hardwareMap.get(Limelight3A.class, "Benny");
+        limelight = hardwareMap.get(Limelight3A.class, "Benny");
 
         telemetry.setMsTransmissionInterval(11);
-//        limelight.pipelineSwitch(0);
+        limelight.pipelineSwitch(0);
+
+        // Sometimes we have to reverse the motors because they aren't
+        // rotating correctly. So we do that here
 
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftBack.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        if (turretZero.getState())
+        {
+            turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
+        turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        turret.setPower(0.7);
+        turret.setTargetPosition(0);
+        turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
 
         IMU imu = hardwareMap.get(IMU.class, "imu");
         // Adjust the orientation parameters to match your robot
@@ -120,7 +159,8 @@ public class Teleop extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        while (opModeIsActive()) {
+        while (opModeIsActive())
+        {
 
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
             double x = gamepad1.left_stick_x;
@@ -152,81 +192,47 @@ public class Teleop extends LinearOpMode {
             rightFront.setPower(frontRightPower);
             rightBack.setPower(backRightPower);
 
-//            limelight.start();
-//            LLResult result = limelight.getLatestResult();
+            limelight.start();
+            LLResult result = limelight.getLatestResult();
 
-            boolean if1 = imu.getRobotYawPitchRollAngles().getYaw() >= -58;
-            boolean if2 = imu.getRobotYawPitchRollAngles().getYaw() <= -64;
-            boolean if3 = imu.getRobotYawPitchRollAngles().getYaw() >= -37;
-            boolean if4 = imu.getRobotYawPitchRollAngles().getYaw() <= -45;
-
-            if (gamepad1.right_bumper)
-            {
-                if (if1) {
-                    turn(-0.4);
-                }
-                else if (if2) {
-                    turn(0.4);
-                }
-                else {
-                    turn(0);
-                }
-            }
-
-            if (gamepad1.left_bumper)
-            {
-                if (if3) {
-                    turn(-0.4);
-                }
-                else if (if4) {
-                    turn(0.4);
-                }
-                else {
-                    turn(0);
-                }
-            }
-//            else if(!gamepad1.right_bumper)
-//            {
-//                leftFront.setPower(0);
-//                leftBack.setPower(0);
-//                rightFront.setPower(0);
-//                rightBack.setPower(0);
-//            }
             telemetry.addData("YAW: ", imu.getRobotYawPitchRollAngles().getYaw());
             telemetry.update();
 
-            if (gamepad2.dpad_down) {
-                actuator.setPosition(OPEN);
-                try {
-                    Thread.sleep(300);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                actuator.setPosition(CLOSED);
-            }
-            else if (gamepad2.cross)
+            if (gamepad2.cross)
             {
-                flywheel.setPower(LOW_POWER);
+                flywheel1.setPower(LOW_POWER);
+                flywheel2.setPower(LOW_POWER);
             }
             else if (gamepad2.circle)
             {
-                flywheel.setPower(MEDIUM_POWER);
+                flywheel1.setPower(MEDIUM_POWER);
+                flywheel2.setPower(MEDIUM_POWER);
             }
             else if (gamepad2.triangle)
             {
-                flywheel.setPower(HIGH_POWER);
+                flywheel1.setPower(HIGH_POWER);
+                flywheel2.setPower(HIGH_POWER);
             }
             else if (gamepad2.square)
             {
-                flywheel.setPower(OFF);
-            }
-            else if (gamepad2.dpad_up)
-            {
-                actuator.setPosition(OPEN);
+                flywheel1.setPower(OFF);
+                flywheel2.setPower(OFF);
             }
             else if (gamepad2.dpad_left)
             {
                 shootThreeBalls();
+            }
+            else if (gamepad2.right_trigger > 0.1)
+            {
+                intake.setPower(1);
+            }
+            else if (gamepad2.left_trigger > 0.1)
+            {
+                intake.setPower(-1);
+            }
+            else if (gamepad2.right_trigger < 0.1 && gamepad2.left_trigger < 0.1)
+            {
+                intake.setPower(0);
             }
 
             // Motif pattern 1
@@ -260,14 +266,13 @@ public class Teleop extends LinearOpMode {
                 led2.setPosition(0);
                 led3.setPosition(0);
             }
-
-//            if (result != null)
-//            {
-//                telemetry.addData("tx", result.getTx());
-//                telemetry.addData("ty", result.getTy());
-//                telemetry.addData("april Id", result.getBarcodeResults());
-//                telemetry.addData(">", "Robot Ready.  Press Play.");
-//            }
+            if (result != null)
+            {
+                telemetry.addData("tx", result.getTx());
+                telemetry.addData("ty", result.getTy());
+                telemetry.addData("april Id", result.getBarcodeResults());
+                telemetry.addData(">", "Robot Ready.  Press Play.");
+            }
 
 
 //            if (result != null) {

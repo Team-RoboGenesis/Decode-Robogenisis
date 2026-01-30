@@ -11,16 +11,13 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.NewTeleOp;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@Autonomous(name = "NineCloseRed")
-public class AutoCloseNineRED extends LinearOpMode {
+@Autonomous(name = "NineCloseBlue")
+public class AutoCloseNineBLUE extends LinearOpMode {
     private DcMotor flywheel = null;
     private DcMotor turret = null;
     private DcMotor intake = null;
-    private DcMotor transfer = null;
-    private Servo actuator = null;
     private CRServo transfer2 = null;
     private CRServo transfer1 = null;
     private Servo LED1 = null;
@@ -37,8 +34,9 @@ public class AutoCloseNineRED extends LinearOpMode {
     private static final double FAR_SPEED = 4100;
     private static final int FIRST_SHOOT_POSE = 0;
     private static final int SECOND_SHOOT_POSE = 0;
-    private static final double ticksPerRotation = 25.5;
     private double RPM = 0;
+
+    double ticksPerRotation = 25.5;
 
     private void spinUp()
     {
@@ -101,8 +99,8 @@ public class AutoCloseNineRED extends LinearOpMode {
     {
         turret = hardwareMap.get(DcMotor.class, "turret");
         flywheel = hardwareMap.get(DcMotor.class, "flywheel");
-        transfer = hardwareMap.get(DcMotor.class, "transfer");
-        actuator = hardwareMap.get(Servo.class, "gate");
+        transfer1 = hardwareMap.get(CRServo.class, "servo");
+        transfer2 = hardwareMap.get(CRServo.class, "servo1");
         LED1 = hardwareMap.get(Servo.class,"led1");
         LED2 = hardwareMap.get(Servo.class,"led2");
         LED3 = hardwareMap.get(Servo.class,"led3");
@@ -123,21 +121,21 @@ public class AutoCloseNineRED extends LinearOpMode {
         TrajectoryActionBuilder shootThree = drive.actionBuilder(beginPose)
                 .stopAndAdd(this::turretFirstPos)
                 .stopAndAdd(this::spinUp)
-                .strafeToLinearHeading(new Vector2d(-11, 14), Math.toRadians(0))
+                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(0))
                 .stopAndAdd(this::spinIntake)
                 .stopAndAdd(this::shootThreeBalls)
-                .turn(Math.toRadians(80))
-                .strafeToLinearHeading(new Vector2d(-11, 54), Math.toRadians(90))
+                .turn(Math.toRadians(-80))
+                .strafeToLinearHeading(new Vector2d(-11, -54), Math.toRadians(-90))
                 .waitSeconds(0.5)
                 .stopAndAdd(this::stopIntake)
-                .strafeToLinearHeading(new Vector2d(-11, 14), Math.toRadians(0))
+                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(0))
                 .stopAndAdd(this::spinIntake)
                 .stopAndAdd(this::shootThreeBalls)
-                .strafeToLinearHeading(new Vector2d(13, 23), Math.toRadians(90))
-                .strafeToLinearHeading(new Vector2d(16, 60), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(13, -23), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(16, -60), Math.toRadians(-90))
                 .waitSeconds(0.5)
                 .stopAndAdd(this::stopIntake)
-                .strafeToLinearHeading(new Vector2d(-11, 14), Math.toRadians(0))
+                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(0))
                 .stopAndAdd(this::spinIntake)
                 .stopAndAdd(this::shootThreeBalls);
 

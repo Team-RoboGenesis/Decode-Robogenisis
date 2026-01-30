@@ -7,16 +7,21 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@Autonomous  (name = "Relic Auton")
-public class OnePoint0Auto extends LinearOpMode
-{
+@Autonomous(name = "SixCloseRed")
+public class AutoCloseSixRED extends LinearOpMode {
     private DcMotor flywheel = null;
+    private DcMotor turret = null;
+    private DcMotor intake = null;
+    private DcMotor transfer = null;
     private Servo actuator = null;
+    private CRServo transfer2 = null;
+    private CRServo transfer1 = null;
     private Servo LED1 = null;
     private Servo LED2 = null;
     private Servo LED3 = null;
@@ -28,11 +33,11 @@ public class OnePoint0Auto extends LinearOpMode
     private static final double HIGH_POWER = 0.66;
     private static final double LOW_POWER = 0.57;
     private static final double INTAKE_SPEED = 1;
-    private static final double FAR_SPEED = 3620;
-    private static final int SHOOT_POSE = 0;
+    private static final double FAR_SPEED = 4100;
+    private static final int FIRST_SHOOT_POSE = 0;
+    private static final int SECOND_SHOOT_POSE = 0;
+    private static final double ticksPerRotation = 25.5;
     private double RPM = 0;
-
-    double ticksPerRotation = 25.5;
 
     private void spinUp()
     {
@@ -44,11 +49,25 @@ public class OnePoint0Auto extends LinearOpMode
         {
             return false;
         }
-        actuator.setPosition(OPEN);
+        transfer1.setPower(1);
+        transfer2.setPower(1);
+        intake.setPower(1);
         sleep(300);
-        actuator.setPosition(CLOSED);
+        transfer1.setPower(0);
+        transfer1.setPower(0);
+        intake.setPower(0);
         sleep(300);
         return true;
+    }
+
+    private void spinIntake()
+    {
+        intake.setPower(1);
+    }
+
+    private void stopIntake()
+    {
+        intake.setPower(0);
     }
 
     private void shootThreeBalls()
@@ -57,7 +76,7 @@ public class OnePoint0Auto extends LinearOpMode
         int ticks = 0;
         int previousTicks = 0;
         boolean isSuccessful = false;
-        while (shootCount <= 3)
+        while (shootCount < 3)
         {
             previousTicks = flywheel.getCurrentPosition();
             sleep(100);
@@ -71,10 +90,17 @@ public class OnePoint0Auto extends LinearOpMode
         }
     }
 
+    private void turretFirstPos()
+    {
+        turret.setTargetPosition(FIRST_SHOOT_POSE);
+    }
+
     @Override
     public void runOpMode() throws InterruptedException
     {
+        turret = hardwareMap.get(DcMotor.class, "turret");
         flywheel = hardwareMap.get(DcMotor.class, "flywheel");
+        transfer = hardwareMap.get(DcMotor.class, "transfer");
         actuator = hardwareMap.get(Servo.class, "gate");
         LED1 = hardwareMap.get(Servo.class,"led1");
         LED2 = hardwareMap.get(Servo.class,"led2");
@@ -83,30 +109,34 @@ public class OnePoint0Auto extends LinearOpMode
         flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        turret.setTargetPosition(0);
+        turret.setPower(0.5);
+        turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
         Pose2d beginPose = new Pose2d(62, 15, Math.PI);
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
         TrajectoryActionBuilder shootThree = drive.actionBuilder(beginPose)
-                .strafeToLinearHeading(new Vector2d(55, 15), Math.toRadians(158.50));
+                .stopAndAdd(this::turretFirstPos)
+                .stopAndAdd(this::spinUp)
+                .strafeToLinearHeading(new Vector2d(-11, 14), Math.toRadians(0))
+                .stopAndAdd(this::spinIntake)
+                .stopAndAdd(this::shootThreeBalls)
+                .turn(Math.toRadians(80))
+                .strafeToLinearHeading(new Vector2d(-11, 54), Math.toRadians(90))
+                .waitSeconds(0.5)
+                .stopAndAdd(this::stopIntake)
+                .strafeToLinearHeading(new Vector2d(-11, 14), Math.toRadians(0))
+                .stopAndAdd(this::spinIntake)
+                .stopAndAdd(this::shootThreeBalls);
 
-        TrajectoryActionBuilder intakeThree = drive.actionBuilder(beginPose)
-                .splineToLinearHeading(new Pose2d(30, 20, Math.toRadians(90)), Math.toRadians(90))
-                .splineToLinearHeading(new Pose2d(30, 60, Math.toRadians(90)), Math.toRadians(90))
-                .strafeToLinearHeading(new Vector2d(55, 15), Math.toRadians(162.00));
-
-        Action firstScore = shootThree.build();
-        Action firstGrab = intakeThree.build();
+        Action auto = shootThree.build();
 
         waitForStart();
 
-
-        spinUp();
-        Actions.runBlocking(firstScore);
-        shootThreeBalls();
-        Actions.runBlocking(firstGrab);
-        shootThreeBalls();
-
-
-
+        Actions.runBlocking(auto);
     }
 }
