@@ -87,8 +87,8 @@ public class intakeTests extends OpMode {
         }
         if (gamepad2.cross)
         {
-            flywheel1.setPower(LOW_POWER);
-            flywheel2.setPower(LOW_POWER);
+            flywheel1.setPower(0.01);
+            flywheel2.setPower(0.01);
         }
         else if (gamepad1.circle)
         {

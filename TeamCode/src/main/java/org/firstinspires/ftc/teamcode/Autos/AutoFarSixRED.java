@@ -30,8 +30,9 @@ public class AutoFarSixRED extends LinearOpMode {
     private static final double HIGH_POWER = 0.66;
     private static final double LOW_POWER = 0.57;
     private static final double INTAKE_SPEED = 1;
-    private static final double FAR_SPEED = 4100;
-    private static final int FIRST_SHOOT_POSE = 30;
+    private static final double OFF = 0;
+    private static final double FAR_SPEED = 3300;
+    private static final int FIRST_SHOOT_POSE = 100;
     private static final int SECOND_SHOOT_POSE = 0;
     private double RPM = 0;
 
@@ -48,10 +49,10 @@ public class AutoFarSixRED extends LinearOpMode {
         {
             return false;
         }
-        transfer1.setPower(1);
-        transfer2.setPower(1);
+        transfer1.setPower(-1);
+        transfer2.setPower(-1);
         intake.setPower(1);
-        sleep(300);
+        sleep(1000);
         transfer1.setPower(0);
         transfer1.setPower(0);
         intake.setPower(0);
@@ -61,12 +62,12 @@ public class AutoFarSixRED extends LinearOpMode {
 
     private void spinIntake()
     {
-        intake.setPower(1);
+        intake.setPower(INTAKE_SPEED);
     }
 
     private void stopIntake()
     {
-        intake.setPower(0);
+        intake.setPower(OFF);
     }
 
     private void shootThreeBalls()
@@ -75,7 +76,7 @@ public class AutoFarSixRED extends LinearOpMode {
         int ticks = 0;
         int previousTicks = 0;
         boolean isSuccessful = false;
-        while (shootCount < 3)
+        while (shootCount < 4)
         {
             previousTicks = flywheel1.getCurrentPosition();
             sleep(100);
@@ -131,14 +132,14 @@ public class AutoFarSixRED extends LinearOpMode {
                 .strafeToLinearHeading(new Vector2d(55, 15), Math.toRadians(180))
                 .stopAndAdd(this::spinUp)
                 .stopAndAdd(this::turretFirstPos)
-                .stopAndAdd(this::spinIntake)
                 .stopAndAdd(this::shootThreeBalls)
-                .strafeToLinearHeading(new Vector2d(58, 30), Math.toRadians(-90))
-                .strafeToLinearHeading(new Vector2d(62, 62), Math.toRadians(-90))
-                .waitSeconds(0.5)
+                .strafeToLinearHeading(new Vector2d(63, 30), Math.toRadians(-90))
+                .stopAndAdd(this::spinIntake)
+                .strafeToLinearHeading(new Vector2d(65, 62), Math.toRadians(-90))
+                .waitSeconds(1)
                 .stopAndAdd(this::stopIntake)
                 .strafeToLinearHeading(new Vector2d(58, 30), Math.toRadians(-90))
-                .strafeToLinearHeading(new Vector2d(55, 15), Math.toRadians(180))
+                .strafeToLinearHeading(new Vector2d(55, 15), Math.toRadians(175))
                 .stopAndAdd(this::spinIntake)
                 .stopAndAdd(this::shootThreeBalls);
 

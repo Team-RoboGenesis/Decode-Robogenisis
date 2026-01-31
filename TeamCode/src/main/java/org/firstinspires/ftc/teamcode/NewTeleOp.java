@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -36,9 +35,9 @@ public class NewTeleOp extends LinearOpMode {
     private static final double PURPLE = 0.721;
     private static final double HIGH_POWER = 0.7;
     private static final double LOW_POWER = 0.57;
-    private static final double MEDIUM_POWER = 0.65;
+    private static final double MEDIUM_POWER = 0.64;
     private static final double OFF = 0;
-    private static final double FAR_SPEED = 3620;
+    private static final double FAR_SPEED = 3300;
     private static final int SHOOT_POSE = 0;
     private final static int CONVERT_TO_MINUTE = 600;
     private static final double ticksPerRotation = 25.5;
@@ -46,7 +45,7 @@ public class NewTeleOp extends LinearOpMode {
 
     private void turretPos(int position)
     {
-        if (turret.getCurrentPosition() < 210)
+        if (turret.getCurrentPosition() > 210)
         {
             turret.setTargetPosition(210);
         }
@@ -68,11 +67,13 @@ public class NewTeleOp extends LinearOpMode {
         {
             return false;
         }
+        intake.setPower(1);
         actuator1.setPower(1);
         actuator2.setPower(1);
-        sleep(300);
+        sleep(1000);
         actuator1.setPower(0);
         actuator2.setPower(0);
+        intake.setPower(0);
         sleep(300);
         return true;
     }
@@ -94,6 +95,8 @@ public class NewTeleOp extends LinearOpMode {
             {
                 shootCount += 1;
             }
+            telemetry.addData("RPM", RPM);
+            telemetry.update();
         }
     }
 
@@ -125,7 +128,7 @@ public class NewTeleOp extends LinearOpMode {
         limelight = hardwareMap.get(Limelight3A.class, "Benny");
 
         telemetry.setMsTransmissionInterval(11);
-        limelight.pipelineSwitch(0);
+        limelight.pipelineSwitch(0);// No more magic number
 
         // Sometimes we have to reverse the motors because they aren't
         // rotating correctly. So we do that here
@@ -156,9 +159,11 @@ public class NewTeleOp extends LinearOpMode {
         turret.setPower(0.7);
         turret.setTargetPosition(0);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        turret.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+        intake.setDirection(DcMotorSimple.Direction.FORWARD);
 
         actuator1.setDirection(DcMotorSimple.Direction.REVERSE);
         actuator2.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -214,10 +219,13 @@ public class NewTeleOp extends LinearOpMode {
             limelight.start();
             LLResult result = limelight.getLatestResult();
 
-            int targetPos = (int) ((int) turret.getCurrentPosition() + (gamepad2.left_stick_x * 100));
+            int targetPos = (int) ( turret.getCurrentPosition() + (gamepad2.left_stick_x * 40));
 
             telemetry.addData("YAW: ", imu.getRobotYawPitchRollAngles().getYaw());
-            telemetry.addData("Turret: ", turret.getCurrentPosition());
+            telemetry.addData("Turret: ", targetPos);
+            telemetry.addData("Target Area: ", result.getTa());
+            telemetry.addData("Target X: ", result.getTx());
+            telemetry.addData("RPM", RPM);
             telemetry.update();
 
             turretPos(targetPos);
@@ -238,7 +246,16 @@ public class NewTeleOp extends LinearOpMode {
                 actuator2.setPower(0);
             }
 
-            if (gamepad2.cross)
+            if (gamepad2.left_bumper)
+            {
+                turret.setTargetPosition(110);
+            }
+            else
+            {
+                turretPos(targetPos);
+            }
+
+            if (gamepad2.cross)// Make these a function
             {
                 flywheel1.setPower(LOW_POWER);
                 flywheel2.setPower(LOW_POWER);
@@ -357,5 +374,6 @@ public class NewTeleOp extends LinearOpMode {
 //                    }
 //                }
         }
+        turret.setTargetPosition(0);
     }
 }
