@@ -33,9 +33,9 @@ public class NewTeleOp extends LinearOpMode {
     Limelight3A limelight = null;
     private static final double GREEN = 0.456;
     private static final double PURPLE = 0.721;
-    private static final double HIGH_POWER = 0.7;
-    private static final double LOW_POWER = 0.57;
-    private static final double MEDIUM_POWER = 0.64;
+    private static final double HIGH_POWER = 0.65;
+    private static final double LOW_POWER = 0.52;
+    private static final double MEDIUM_POWER = 0.57;
     private static final double OFF = 0;
     private static final double FAR_SPEED = 3300;
     private static final int SHOOT_POSE = 0;

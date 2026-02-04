@@ -6,13 +6,14 @@ import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.List;
 
-@Autonomous(name = "limelightTest")
+@TeleOp(name = "limelightTest")
 public class LimelightTest extends LinearOpMode {
 
     private Limelight3A limelight;
@@ -58,7 +59,7 @@ public class LimelightTest extends LinearOpMode {
 
     public double getDistanceFromTag(double ta)
     {
-        double scale = 1;
+        double scale = 240.425;
         double distance = (scale / ta);
         return distance;
     }

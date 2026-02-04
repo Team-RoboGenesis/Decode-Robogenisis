@@ -14,8 +14,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@Autonomous(name = "SixFarRed")
-public class AutoFarSixRED extends LinearOpMode {
+@Autonomous(name = "NineFarRed")
+public class AutoFarNineRED extends LinearOpMode {
     private DcMotor flywheel1 = null;
     private DcMotor flywheel2 = null;
     private DcMotor turret = null;
@@ -33,7 +33,7 @@ public class AutoFarSixRED extends LinearOpMode {
     private static final double OFF = 0;
     private static final double FAR_SPEED = 3000;
     private static final int FIRST_SHOOT_POSE = 90;
-    private static final int SECOND_SHOOT_POSE = 0;
+    private static final int CENTER_POSE = 0;
     private double RPM = 0;
 
     double ticksPerRotation = 25.5;
@@ -109,6 +109,11 @@ public class AutoFarSixRED extends LinearOpMode {
         turret.setTargetPosition(FIRST_SHOOT_POSE);
     }
 
+    private void turretCenterPos()
+    {
+        turret.setTargetPosition(CENTER_POSE);
+    }
+
     @Override
     public void runOpMode() throws InterruptedException
     {
@@ -141,22 +146,28 @@ public class AutoFarSixRED extends LinearOpMode {
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
         TrajectoryActionBuilder shootThree = drive.actionBuilder(beginPose)
-                .strafeToLinearHeading(new Vector2d(55, 15), Math.toRadians(-180))
+                .strafeToLinearHeading(new Vector2d(55, 15), Math.toRadians(180))
                 .stopAndAdd(this::spinUp)
                 .stopAndAdd(this::turretFirstPos)
                 .stopAndAdd(this::shootThreeBalls)
-                .stopAndAdd(this::slowDown)
                 .strafeToLinearHeading(new Vector2d(63, 30), Math.toRadians(-90))
                 .stopAndAdd(this::spinIntake)
                 .strafeToLinearHeading(new Vector2d(64, 63), Math.toRadians(-100))
                 .waitSeconds(1)
                 .stopAndAdd(this::stopIntake)
                 .strafeToLinearHeading(new Vector2d(58, 30), Math.toRadians(-90))
-                .strafeToLinearHeading(new Vector2d(59,  13), Math.toRadians(175))
+                .strafeToLinearHeading(new Vector2d(59, 13), Math.toRadians(175))
+                .stopAndAdd(this::shootThreeBalls)
+                .strafeToLinearHeading(new Vector2d(40, 25), Math.toRadians(-90))
                 .stopAndAdd(this::spinIntake)
+                .strafeToLinearHeading(new Vector2d(40, 58), Math.toRadians(-90))
+                .waitSeconds(0.2)
+                .stopAndAdd(this::stopIntake)
+                .strafeToLinearHeading(new Vector2d(59, 13), Math.toRadians(175))
                 .stopAndAdd(this::shootThreeBalls)
                 .stopAndAdd(this::spinDown)
-                .strafeToLinearHeading(new Vector2d(64, -63), Math.toRadians(-90))
+                .stopAndAdd(this::turretCenterPos)
+                .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(90))
                 .waitSeconds(5);
 
 
