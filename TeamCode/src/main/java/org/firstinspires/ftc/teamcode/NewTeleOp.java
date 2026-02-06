@@ -29,7 +29,6 @@ public class NewTeleOp extends LinearOpMode {
     private Servo led1 = null;
     private Servo led2 = null;
     private Servo led3 = null;
-//    private DigitalChannel turretZero = null;
     Limelight3A limelight = null;
     private static final double GREEN = 0.456;
     private static final double PURPLE = 0.721;
@@ -100,14 +99,6 @@ public class NewTeleOp extends LinearOpMode {
         }
     }
 
-    private void turn (double power)
-    {
-        rightFront.setPower(power);
-        leftFront.setPower(-power);
-        rightBack.setPower(power);
-        leftBack.setPower(-power);
-    }
-
     @Override
     public void runOpMode() throws InterruptedException {
         // Declare our motors
@@ -123,7 +114,6 @@ public class NewTeleOp extends LinearOpMode {
         turret = hardwareMap.get(DcMotor.class, "turret");
         actuator1 = hardwareMap.get(CRServo.class, "servo");
         actuator2 = hardwareMap.get(CRServo.class, "servo1");
-//        turretZero = hardwareMap.get(DigitalChannel.class, "Limiter");
 
         limelight = hardwareMap.get(Limelight3A.class, "Benny");
 
@@ -151,10 +141,7 @@ public class NewTeleOp extends LinearOpMode {
         flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        if (turretZero.getState())
-//        {
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        }
         turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         turret.setPower(0.7);
         turret.setTargetPosition(0);
