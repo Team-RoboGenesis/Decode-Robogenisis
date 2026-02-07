@@ -177,7 +177,7 @@ public class AutoCloseNineBLUE extends LinearOpMode {
                 // Prepare the robot for TeleOp by stopping the shooter and resetting the turret position
                 .stopAndAdd(this::spinDown)
                 .stopAndAdd(this::turretCenterPos)
-                .strafeToLinearHeading(new Vector2d(0, -14), Math.toRadians(185))
+                .strafeToLinearHeading(new Vector2d(3, -14), Math.toRadians(185))
                 .waitSeconds(5);
 
         // Build the auto to use on play

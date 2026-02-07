@@ -164,7 +164,7 @@ public class AutoCloseNineRED extends LinearOpMode {
                 .stopAndAdd(this::shootThreeBalls)
                 .stopAndAdd(this::spinDown)
                 .stopAndAdd(this::turretCenterPos)
-                .strafeToLinearHeading(new Vector2d(0, 14), Math.toRadians(185))
+                .strafeToLinearHeading(new Vector2d(3, 14), Math.toRadians(185))
                 .waitSeconds(5);
 
 
