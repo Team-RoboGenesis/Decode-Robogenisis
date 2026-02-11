@@ -23,7 +23,7 @@ public class AutoCloseNineRED extends LinearOpMode {
     private CRServo transfer2 = null;
     private CRServo transfer1 = null;
 
-    private static final double LOW_POWER = 0.53;
+    private static final double LOW_POWER = 0.51;
     private static final double INTAKE_SPEED = 1;
     private static final double OFF = 0;
     private static final double FAR_SPEED = 2800;
@@ -122,6 +122,7 @@ public class AutoCloseNineRED extends LinearOpMode {
 
         flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        flywheel1.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -148,7 +149,7 @@ public class AutoCloseNineRED extends LinearOpMode {
                 .stopAndAdd(this::shootThreeBalls)
                 .turn(Math.toRadians(80))
                 .stopAndAdd(this::spinIntake)
-                .strafeToLinearHeading(new Vector2d(-8, 48), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(-8, 50), Math.toRadians(-90))
                 .waitSeconds(0.1)
                 .stopAndAdd(this::stopIntake)
                 .strafeToLinearHeading(new Vector2d(-5, 14), Math.toRadians(-180))

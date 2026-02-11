@@ -136,6 +136,7 @@ public class NewTeleOp extends LinearOpMode {
         flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        flywheel1.setDirection(DcMotorSimple.Direction.REVERSE);
 
         flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -262,10 +263,6 @@ public class NewTeleOp extends LinearOpMode {
                 flywheel1.setPower(OFF);
                 flywheel2.setPower(OFF);
             }
-            else if (gamepad2.dpad_left)
-            {
-                shootThreeBalls();
-            }
             else if (gamepad2.right_trigger > 0.1)
             {
                 intake.setPower(1);
@@ -281,10 +278,13 @@ public class NewTeleOp extends LinearOpMode {
 
             if (result != null)
             {
-                telemetry.addData("tx", result.getTx());
-                telemetry.addData("ty", result.getTy());
-                telemetry.addData("april Id", result.getBarcodeResults());
-                telemetry.addData(">", "Robot Ready.  Press Play.");
+                if (result.isValid())
+                {
+                    if (gamepad2.right_bumper)
+                    {
+                        turret.setTargetPosition((int) Math.floor(result.getTx() * 2.7));
+                    }
+                }
             }
 
 

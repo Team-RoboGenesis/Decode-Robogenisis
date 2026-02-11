@@ -32,7 +32,7 @@ public class AutoFarNineRED extends LinearOpMode {
     private static final double INTAKE_SPEED = 1;
     private static final double OFF = 0;
     private static final double FAR_SPEED = 3000;
-    private static final int FIRST_SHOOT_POSE = 90;
+    private static final int FIRST_SHOOT_POSE = 95;
     private static final int CENTER_POSE = 0;
     private double RPM = 0;
 
@@ -126,6 +126,7 @@ public class AutoFarNineRED extends LinearOpMode {
 
         flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        flywheel1.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

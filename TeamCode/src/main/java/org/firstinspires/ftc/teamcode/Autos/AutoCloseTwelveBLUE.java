@@ -10,12 +10,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@Autonomous(name = "SixFarRed")
-public class AutoFarSixRED extends LinearOpMode {
+@Autonomous(name = "TwelveCloseBlue")
+public class AutoCloseTwelveBLUE extends LinearOpMode {
     private DcMotor flywheel1 = null;
     private DcMotor flywheel2 = null;
     private DcMotor turret = null;
@@ -23,25 +22,24 @@ public class AutoFarSixRED extends LinearOpMode {
     private CRServo transfer2 = null;
     private CRServo transfer1 = null;
 
-    private static final double GREEN = 0.456;
-    private static final double PURPLE = 0.721;
-    private static final double OPEN = 0.65;
-    private static final double CLOSED = 0.1;
-    private static final double HIGH_POWER = 0.62;
-    private static final double LOW_POWER = 0.57;
+    // Constants
+    private static final double LOW_POWER = 0.51;
     private static final double INTAKE_SPEED = 1;
     private static final double OFF = 0;
-    private static final double FAR_SPEED = 3000;
-    private static final int FIRST_SHOOT_POSE = 90;
-    private static final int SECOND_SHOOT_POSE = 0;
+    private static final double FAR_SPEED = 2800;
+    private static final int FIRST_SHOOT_POSE = -180;
+    private static final int CENTER_POSE = 0;
+    private static final double TICKS_PER_ROTATION = 25.5;
+
+    // Non-static variables
     private double RPM = 0;
 
-    double ticksPerRotation = 25.5;
+    // Functions:
 
     private void spinUp()
     {
-        flywheel1.setPower(HIGH_POWER);
-        flywheel2.setPower(HIGH_POWER);
+        flywheel1.setPower(LOW_POWER);
+        flywheel2.setPower(LOW_POWER);
     }
 
     private void spinDown()
@@ -49,6 +47,7 @@ public class AutoFarSixRED extends LinearOpMode {
         flywheel1.setPower(OFF);
         flywheel2.setPower(OFF);
     }
+
     private boolean shootBall()
     {
         if (RPM <= FAR_SPEED)
@@ -76,10 +75,14 @@ public class AutoFarSixRED extends LinearOpMode {
         intake.setPower(OFF);
     }
 
-    private void slowDown()
+    private void turretFirstPos()
     {
-        flywheel1.setPower(0.6);
-        flywheel2.setPower(0.6);
+        turret.setTargetPosition(FIRST_SHOOT_POSE);
+    }
+
+    private void turretCenterPos()
+    {
+        turret.setTargetPosition(CENTER_POSE);
     }
 
     private void shootThreeBalls()
@@ -93,7 +96,7 @@ public class AutoFarSixRED extends LinearOpMode {
             previousTicks = flywheel1.getCurrentPosition();
             sleep(100);
             ticks = flywheel1.getCurrentPosition() - previousTicks;
-            RPM = (ticks / ticksPerRotation) * 600;
+            RPM = (ticks / TICKS_PER_ROTATION) * 600;
             telemetry.addData("RPM", RPM);
             telemetry.update();
             isSuccessful = shootBall();
@@ -104,14 +107,11 @@ public class AutoFarSixRED extends LinearOpMode {
         }
     }
 
-    private void turretFirstPos()
-    {
-        turret.setTargetPosition(FIRST_SHOOT_POSE);
-    }
-
     @Override
     public void runOpMode() throws InterruptedException
     {
+
+        // Motor configuration
         turret = hardwareMap.get(DcMotor.class, "turret");
         flywheel1 = hardwareMap.get(DcMotor.class, "flywheel1");
         flywheel2 = hardwareMap.get(DcMotor.class, "flywheel2");
@@ -119,8 +119,10 @@ public class AutoFarSixRED extends LinearOpMode {
         transfer1 = hardwareMap.get(CRServo.class, "servo");
         transfer2 = hardwareMap.get(CRServo.class, "servo1");
 
+        // Motor mode changes
         flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        flywheel1.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -135,35 +137,56 @@ public class AutoFarSixRED extends LinearOpMode {
         flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        Pose2d beginPose = new Pose2d(62, 15, Math.toRadians(180));
+        // Drive constraints
+        Pose2d beginPose = new Pose2d(-54, -46, Math.toRadians(-127));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
+        // Auto pathing
         TrajectoryActionBuilder shootThree = drive.actionBuilder(beginPose)
-                .strafeToLinearHeading(new Vector2d(55, 15), Math.toRadians(-180))
                 .stopAndAdd(this::spinUp)
                 .stopAndAdd(this::turretFirstPos)
+                // Drive back to shoot
+                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(180))
+                .stopAndAdd(this::spinUp)
+                // Score three preloaded balls
                 .stopAndAdd(this::shootThreeBalls)
-                .stopAndAdd(this::slowDown)
-                .strafeToLinearHeading(new Vector2d(63, 30), Math.toRadians(-90))
+                // Turn towards spike mark artifacts
                 .stopAndAdd(this::spinIntake)
-                .strafeToLinearHeading(new Vector2d(64, 63), Math.toRadians(-100))
-                .waitSeconds(1)
+                // Intake three balls
+                .strafeToLinearHeading(new Vector2d(-8, -50), Math.toRadians(90))
+                .waitSeconds(0.3)
                 .stopAndAdd(this::stopIntake)
-                .strafeToLinearHeading(new Vector2d(58, 30), Math.toRadians(-90))
-                .strafeToLinearHeading(new Vector2d(59,  13), Math.toRadians(175))
+                // Drive to shooting position
+                .splineTo(new Vector2d(-5, -14), Math.toRadians(190))
                 .stopAndAdd(this::spinIntake)
+                // Shoot three balls
                 .stopAndAdd(this::shootThreeBalls)
+                // Move to next three balls
+                .stopAndAdd(this::spinIntake)
+                // Intake three balls
+                .setReversed(true)
+                .splineTo(new Vector2d(17, -20), Math.toRadians(-60))
+                .splineTo(new Vector2d(20, -55), Math.toRadians(-90))
+                .waitSeconds(0.3)
+                .stopAndAdd(this::stopIntake)
+                // Move back to shooting position
+                .splineTo(new Vector2d(-5, -14), Math.toRadians(185))
+                .stopAndAdd(this::spinIntake)
+                // Shoot three balls
+                .stopAndAdd(this::shootThreeBalls)
+                // Prepare the robot for TeleOp by stopping the shooter and resetting the turret position
                 .stopAndAdd(this::spinDown)
-                .strafeToLinearHeading(new Vector2d(64, 63), Math.toRadians(-90))
+                .stopAndAdd(this::turretCenterPos)
+                .strafeToLinearHeading(new Vector2d(3, -14), Math.toRadians(185))
                 .waitSeconds(5);
 
-
+        // Build the auto to use on play
         Action auto = shootThree.build();
 
         waitForStart();
 
+        // Run the path declared above
         Actions.runBlocking(auto);
     }
 }

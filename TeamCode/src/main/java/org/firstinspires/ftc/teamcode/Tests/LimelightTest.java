@@ -7,6 +7,8 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
@@ -17,14 +19,24 @@ import java.util.List;
 public class LimelightTest extends LinearOpMode {
 
     private Limelight3A limelight;
+    private DcMotor turret = null;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
 
         limelight = hardwareMap.get(Limelight3A.class, "Benny");
+        turret = hardwareMap.get(DcMotor.class, "turret");
 
-        telemetry.setMsTransmissionInterval(11);
+        turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        turret.setPower(1);
+        turret.setTargetPosition(0);
+        turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        turret.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        telemetry.setMsTransmissionInterval(5);
         limelight.pipelineSwitch(0);
 
         /*
@@ -43,7 +55,9 @@ public class LimelightTest extends LinearOpMode {
 
                     double distance = getDistanceFromTag(result.getTa());
                     Pose3D botpose = result.getBotpose();
-                    telemetry.addData("Distance in CM", distance);
+//                    telemetry.addData("Distance in CM", distance);
+                    turret.setTargetPosition((int) Math.floor(result.getTx() * 2.7));
+                    telemetry.addData("Turret: ", turret.getCurrentPosition());
                     telemetry.addData("tx", result.getTx());
                     telemetry.addData("ty", result.getTy());
                     telemetry.addData("Botpose", botpose.toString());
