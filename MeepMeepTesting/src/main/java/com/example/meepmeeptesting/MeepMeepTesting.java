@@ -16,12 +16,21 @@ public class MeepMeepTesting {
                 .build();
 
         myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-58, -43, Math.toRadians(-127)))
-                        .strafeToLinearHeading(new Vector2d(-10, -15), Math.toRadians(180))
-                        .waitSeconds(2)
-                        .turn(Math.toRadians(-80))
-                        .strafeToLinearHeading(new Vector2d(-11, -54), Math.toRadians(90))
-                        .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(180))
-                        .build());
+                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(180))
+                .turn(Math.toRadians(-80))
+                .strafeToLinearHeading(new Vector2d(-8, -50), Math.toRadians(90))
+                .waitSeconds(0.3)
+                .splineTo(new Vector2d(-5, -14), Math.toRadians(190))
+                .setReversed(true)
+                .splineTo(new Vector2d(17, -20), Math.toRadians(-60))
+                .splineTo(new Vector2d(20, -55), Math.toRadians(-90))
+                .waitSeconds(0.3)
+                .splineTo(new Vector2d(-5, -14), Math.toRadians(185))
+                .waitSeconds(0.3)
+                .turn(Math.toRadians(-120))
+//                        .setTangent(Math.toRadians(0))
+                        .splineToConstantHeading(new Vector2d(14, -56), Math.toRadians(60))
+                .build());
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_DECODE_JUICE_DARK)
                 .setDarkMode(true)

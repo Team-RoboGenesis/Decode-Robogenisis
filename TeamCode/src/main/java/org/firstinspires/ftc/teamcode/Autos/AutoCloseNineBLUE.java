@@ -23,7 +23,7 @@ public class AutoCloseNineBLUE extends LinearOpMode {
     private CRServo transfer1 = null;
 
     // Constants
-    private static final double LOW_POWER = 0.53;
+    private static final double LOW_POWER = 0.51;
     private static final double INTAKE_SPEED = 1;
     private static final double OFF = 0;
     private static final double FAR_SPEED = 2800;
@@ -122,6 +122,7 @@ public class AutoCloseNineBLUE extends LinearOpMode {
         // Motor mode changes
         flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        flywheel1.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -154,7 +155,7 @@ public class AutoCloseNineBLUE extends LinearOpMode {
                 .turn(Math.toRadians(-80))
                 .stopAndAdd(this::spinIntake)
                 // Intake three balls
-                .strafeToLinearHeading(new Vector2d(-8, -48), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(-8, -50), Math.toRadians(90))
                 .waitSeconds(0.3)
                 .stopAndAdd(this::stopIntake)
                 // Drive to shooting position
