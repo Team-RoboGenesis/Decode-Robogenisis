@@ -40,6 +40,7 @@ public class NewTeleOp extends LinearOpMode {
     private static final int SHOOT_POSE = 0;
     private final static int CONVERT_TO_MINUTE = 600;
     private static final double ticksPerRotation = 25.5;
+    private static final int APRIL_TAG_PIPELINE = 0;
     private double RPM = 0;
 
     private void turretPos(int position)
@@ -73,7 +74,6 @@ public class NewTeleOp extends LinearOpMode {
         actuator1.setPower(0);
         actuator2.setPower(0);
         intake.setPower(0);
-        sleep(300);
         return true;
     }
 
@@ -118,7 +118,7 @@ public class NewTeleOp extends LinearOpMode {
         limelight = hardwareMap.get(Limelight3A.class, "Benny");
 
         telemetry.setMsTransmissionInterval(11);
-        limelight.pipelineSwitch(0);// No more magic number
+        limelight.pipelineSwitch(APRIL_TAG_PIPELINE);
 
         // Sometimes we have to reverse the motors because they aren't
         // rotating correctly. So we do that here
@@ -136,7 +136,6 @@ public class NewTeleOp extends LinearOpMode {
         flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        flywheel1.setDirection(DcMotorSimple.Direction.REVERSE);
 
         flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -276,14 +275,11 @@ public class NewTeleOp extends LinearOpMode {
                 intake.setPower(0);
             }
 
-            if (result != null)
+            if (result.isValid())
             {
-                if (result.isValid())
+                if (gamepad2.right_bumper)
                 {
-                    if (gamepad2.right_bumper)
-                    {
-                        turret.setTargetPosition((int) Math.floor(result.getTx() * 2.7));
-                    }
+                    turret.setTargetPosition((int) Math.floor(result.getTx() * 2.7));
                 }
             }
 

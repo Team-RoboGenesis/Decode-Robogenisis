@@ -10,29 +10,37 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
 @Autonomous(name = "TwelveCloseBlue")
-public class AutoCloseTwelveBLUE extends LinearOpMode {
+public class AutoCloseTwelveBLUE extends LinearOpMode
+{
+    // Motors
     private DcMotor flywheel1 = null;
     private DcMotor flywheel2 = null;
     private DcMotor turret = null;
     private DcMotor intake = null;
+
+    // Servos
     private CRServo transfer2 = null;
     private CRServo transfer1 = null;
 
+    // Sensors
+    private DigitalChannel limiter = null;
+
     // Constants
-    private static final double LOW_POWER = 0.51;
     private static final double INTAKE_SPEED = 1;
     private static final double OFF = 0;
-    private static final double FAR_SPEED = 2800;
+    private static final double FAR_SPEED = 2650;
     private static final int FIRST_SHOOT_POSE = -180;
     private static final int CENTER_POSE = 0;
     private static final double TICKS_PER_ROTATION = 25.5;
 
     // Non-static variables
     private double RPM = 0;
+    private double LOW_POWER = 0.55;
 
     // Functions:
 
@@ -57,11 +65,10 @@ public class AutoCloseTwelveBLUE extends LinearOpMode {
         transfer1.setPower(-1);
         transfer2.setPower(-1);
         intake.setPower(1);
-        sleep(1000);
+        sleep(800);
         transfer1.setPower(0);
         transfer1.setPower(0);
         intake.setPower(0);
-        sleep(300);
         return true;
     }
 
@@ -154,6 +161,7 @@ public class AutoCloseTwelveBLUE extends LinearOpMode {
                 // Turn towards spike mark artifacts
                 .stopAndAdd(this::spinIntake)
                 // Intake three balls
+                .turn(Math.toRadians(-80))
                 .strafeToLinearHeading(new Vector2d(-8, -50), Math.toRadians(90))
                 .waitSeconds(0.3)
                 .stopAndAdd(this::stopIntake)
@@ -167,10 +175,11 @@ public class AutoCloseTwelveBLUE extends LinearOpMode {
                 // Intake three balls
                 .setReversed(true)
                 .splineTo(new Vector2d(17, -20), Math.toRadians(-60))
-                .splineTo(new Vector2d(20, -55), Math.toRadians(-90))
-                .waitSeconds(0.3)
+                .splineTo(new Vector2d(17, -55), Math.toRadians(-90))
+//                .waitSeconds(0.3)
                 .stopAndAdd(this::stopIntake)
                 // Move back to shooting position
+                .splineTo(new Vector2d(5, -50), Math.toRadians(90))
                 .splineTo(new Vector2d(-5, -14), Math.toRadians(185))
                 .stopAndAdd(this::spinIntake)
                 // Shoot three balls

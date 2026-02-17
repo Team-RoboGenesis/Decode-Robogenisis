@@ -23,13 +23,12 @@ public class MeepMeepTesting {
                 .splineTo(new Vector2d(-5, -14), Math.toRadians(190))
                 .setReversed(true)
                 .splineTo(new Vector2d(17, -20), Math.toRadians(-60))
-                .splineTo(new Vector2d(20, -55), Math.toRadians(-90))
+                .splineTo(new Vector2d(17, -55), Math.toRadians(-90))
                 .waitSeconds(0.3)
+
+                        .splineTo(new Vector2d(5, -50), Math.toRadians(90))
                 .splineTo(new Vector2d(-5, -14), Math.toRadians(185))
-                .waitSeconds(0.3)
-                .turn(Math.toRadians(-120))
 //                        .setTangent(Math.toRadians(0))
-                        .splineToConstantHeading(new Vector2d(14, -56), Math.toRadians(60))
                 .build());
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_DECODE_JUICE_DARK)
