@@ -9,8 +9,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -26,8 +28,8 @@ public class NewTeleOp extends LinearOpMode {
     private DcMotor rightFront = null;
     private DcMotor leftBack = null;
     private DcMotor rightBack = null;
-    private DcMotor flywheel1 = null;
-    private DcMotor flywheel2 = null;
+    private DcMotorEx flywheel1;
+    private DcMotorEx flywheel2;
     private DcMotor intake = null;
     private DcMotor turret = null;
     private CRServo actuator1 = null;
@@ -37,7 +39,6 @@ public class NewTeleOp extends LinearOpMode {
     private Servo led3 = null;
     Limelight3A limelight = null;
 
-    AutoCloseTwelveBLUE autoCloseTwelveBLUE = new AutoCloseTwelveBLUE();
     private static final double GREEN = 0.456;
     private static final double PURPLE = 0.721;
     private static final double HIGH_POWER = 0.65;
@@ -49,6 +50,11 @@ public class NewTeleOp extends LinearOpMode {
     private final static int CONVERT_TO_MINUTE = 600;
     private static final double ticksPerRotation = 25.5;
     private static final int APRIL_TAG_PIPELINE = 0;
+    double P = 82;
+    double F = 12.3474;
+    private double highVelocity = 1500;
+    private double lowVelocity = 1200;
+    double curTargetVelocity = highVelocity;
     private double RPM = 0;
     private double pos = 0;
     private double distanceInches = 0;
@@ -119,8 +125,8 @@ public class NewTeleOp extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
-        flywheel1 = hardwareMap.get(DcMotor.class, "flywheel1");
-        flywheel2 = hardwareMap.get(DcMotor.class, "flywheel2");
+        flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
+        flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
         intake = hardwareMap.get(DcMotor.class, "intake");
         turret = hardwareMap.get(DcMotor.class, "turret");
         actuator1 = hardwareMap.get(CRServo.class, "servo");
@@ -144,12 +150,17 @@ public class NewTeleOp extends LinearOpMode {
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        flywheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
+
+        flywheel1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+        flywheel2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+
+        telemetry.addLine("Init done");
 
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -232,6 +243,9 @@ public class NewTeleOp extends LinearOpMode {
                 }
             }
 
+            double curVelocity = flywheel1.getVelocity();
+            double error = curTargetVelocity - curVelocity;
+
             telemetry.addData("Inches: ", distanceInches);
 
             Pose2d pose = drive.localizer.getPose();
@@ -243,24 +257,42 @@ public class NewTeleOp extends LinearOpMode {
             telemetry.addData("Target X: ", result.getTx());
             telemetry.addData("RPM", RPM);
             telemetry.addData("Pos: ", pos);
+            telemetry.addData("Target Velocity: ", "%,4f", curTargetVelocity);
+            telemetry.addData("Current Velocity: ", "%,4f", curVelocity);
+            telemetry.addData("Error: ", "%,2f", error);
+            telemetry.addLine("========================================");
+            telemetry.addData("Tuning P: ", "%,4f (D_Pad U/D)", P);
+            telemetry.addData("Tuning F: ", "%,4f (D_Pad L/R)", F);
             telemetry.update();
 
             turretPos(targetPos);
 
+//            PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
+            flywheel1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+            flywheel2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+
+            flywheel1.setVelocity(curTargetVelocity);
+            flywheel2.setVelocity(curTargetVelocity);
+
             if (gamepad2.dpad_down)
-            {
-                actuator1.setPower(1);
-                actuator2.setPower(-1);
-            }
-            else if (gamepad2.dpad_up)
             {
                 actuator1.setPower(-1);
                 actuator2.setPower(1);
+            }
+            else if (gamepad2.dpad_up)
+            {
+                actuator1.setPower(1);
+                actuator2.setPower(-1);
             }
             else if (!gamepad2.dpad_down && !gamepad2.dpad_up)
             {
                 actuator1.setPower(0);
                 actuator2.setPower(0);
+            }
+
+            if (gamepad2.x)
+            {
+                curTargetVelocity = OFF;
             }
 
             if (gamepad2.left_bumper)
@@ -272,27 +304,27 @@ public class NewTeleOp extends LinearOpMode {
                 turretPos(targetPos);
             }
 
-            if (gamepad2.cross)// Make these a function
-            {
-                flywheel1.setPower(LOW_POWER);
-                flywheel2.setPower(LOW_POWER);
-            }
-            else if (gamepad2.circle)
-            {
-                flywheel1.setPower(MEDIUM_POWER);
-                flywheel2.setPower(MEDIUM_POWER);
-            }
-            else if (gamepad2.triangle)
-            {
-                flywheel1.setPower(HIGH_POWER);
-                flywheel2.setPower(HIGH_POWER);
-            }
-            else if (gamepad2.square)
-            {
-                flywheel1.setPower(OFF);
-                flywheel2.setPower(OFF);
-            }
-            else if (gamepad2.right_trigger > 0.1)
+//            if (gamepad2.cross)// Make these a function
+//            {
+//                flywheel1.setPower(LOW_POWER);
+//                flywheel2.setPower(LOW_POWER);
+//            }
+//            else if (gamepad2.circle)
+//            {
+//                flywheel1.setPower(MEDIUM_POWER);
+//                flywheel2.setPower(MEDIUM_POWER);
+//            }
+//            else if (gamepad2.triangle)
+//            {
+//                flywheel1.setPower(HIGH_POWER);
+//                flywheel2.setPower(HIGH_POWER);
+//            }
+//            else if (gamepad2.square)
+//            {
+//                flywheel1.setPower(OFF);
+//                flywheel2.setPower(OFF);
+//            }
+            if (gamepad2.right_trigger > 0.1)
             {
                 intake.setPower(1);
             }
@@ -304,7 +336,11 @@ public class NewTeleOp extends LinearOpMode {
             {
                 intake.setPower(0);
             }
-
+            if (gamepad2.bWasPressed()) {
+                if (curTargetVelocity == highVelocity) {
+                    curTargetVelocity = lowVelocity;
+                } else curTargetVelocity = highVelocity;
+            }
             if (result.isValid())
             {
                 if (gamepad2.right_bumper)
@@ -312,80 +348,6 @@ public class NewTeleOp extends LinearOpMode {
                     pos = (targetPos + (result.getTx()));
                 }
             }
-
-
-//            if (result != null) {
-//                    if (result.isValid()) {
-//
-//                        Pose3D botpose = result.getBotpose();
-//
-//                        while (opModeIsActive()) {
-//
-//                            LLStatus status = limelight.getStatus();
-//                            telemetry.addData("Name", "%s",
-//                                    status.getName());
-//                            telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
-//                                    status.getTemp(), status.getCpu(), (int) status.getFps());
-//                            telemetry.addData("Pipeline", "Index: %d, Type: %s",
-//                                    status.getPipelineIndex(), status.getPipelineType());
-//
-//                            result = limelight.getLatestResult();
-//                            if (result != null) {
-//                                // Access general information
-//                                botpose = result.getBotpose();
-//                                double captureLatency = result.getCaptureLatency();
-//                                double targetingLatency = result.getTargetingLatency();
-//                                double parseLatency = result.getParseLatency();
-//                                telemetry.addData("LL Latency", captureLatency + targetingLatency);
-//                                telemetry.addData("Parse Latency", parseLatency);
-//                                telemetry.addData("PythonOutput", java.util.Arrays.toString(result.getPythonOutput()));
-//
-//                                if (result.isValid()) {
-//                                    telemetry.addData("tx", result.getTx());
-//                                    telemetry.addData("txnc", result.getTxNC());
-//                                    telemetry.addData("ty", result.getTy());
-//                                    telemetry.addData("tync", result.getTyNC());
-//
-//                                    telemetry.addData("Botpose", botpose.toString());
-//
-//                                    // Access barcode results
-//                                    List<LLResultTypes.BarcodeResult> barcodeResults = result.getBarcodeResults();
-//                                    for (LLResultTypes.BarcodeResult br : barcodeResults) {
-//                                        telemetry.addData("Barcode", "Data: %s", br.getData());
-//                                    }
-//
-//                                    // Access classifier results
-//                                    List<LLResultTypes.ClassifierResult> classifierResults = result.getClassifierResults();
-//                                    for (LLResultTypes.ClassifierResult cr : classifierResults) {
-//                                        telemetry.addData("Classifier", "Class: %s, Confidence: %.2f", cr.getClassName(), cr.getConfidence());
-//                                    }
-//
-//                                    // Access detector results
-//                                    List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
-//                                    for (LLResultTypes.DetectorResult dr : detectorResults) {
-//                                        telemetry.addData("Detector", "Class: %s, Area: %.2f", dr.getClassName(), dr.getTargetArea());
-//                                    }
-//
-//                                    // Access fiducial results
-//                                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-//                                    for (LLResultTypes.FiducialResult fr : fiducialResults) {
-//                                        telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
-//                                    }
-//
-//                                    // Access color results
-//                                    List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
-//                                    for (LLResultTypes.ColorResult cr : colorResults) {
-//                                        telemetry.addData("Color", "X: %.2f, Y: %.2f", cr.getTargetXDegrees(), cr.getTargetYDegrees());
-//                                    }
-//                                }
-//                            } else {
-//                                telemetry.addData("Limelight", "No data available");
-//                            }
-//                            telemetry.update();
-//                        }
-//                        limelight.stop();
-//                    }
-//                }
         }
         turret.setTargetPosition(0);
     }
