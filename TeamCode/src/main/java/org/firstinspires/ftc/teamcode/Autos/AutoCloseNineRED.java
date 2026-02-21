@@ -133,6 +133,8 @@ public class AutoCloseNineRED extends LinearOpMode {
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         turret.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        transfer1.setDirection(DcMotorSimple.Direction.REVERSE);
+
         flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
 

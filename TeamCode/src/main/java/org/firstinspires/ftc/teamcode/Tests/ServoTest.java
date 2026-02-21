@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 
-//@TeleOp (name = "ServoTest")
+@TeleOp (name = "ServoTest")
 public class ServoTest extends LinearOpMode
 {
     private CRServo maxJr = null;
@@ -21,12 +21,12 @@ public class ServoTest extends LinearOpMode
         while (opModeIsActive()) {
             if (gamepad1.cross)
             {
-                maxJr.setPower(-1);
+                maxJr.setPower(1);
                 maxJrJr.setPower(-1);
             }
             else if (gamepad1.triangle)
             {
-                maxJr.setPower(1);
+                maxJr.setPower(-1);
                 maxJrJr.setPower(1);
             }
             else if (gamepad1.circle)

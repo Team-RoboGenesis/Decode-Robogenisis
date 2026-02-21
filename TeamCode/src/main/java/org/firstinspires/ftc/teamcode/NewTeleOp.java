@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -12,6 +14,10 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.Autos.AutoCloseTwelveBLUE;
+import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
 @TeleOp(name = "New Teleop")
 public class NewTeleOp extends LinearOpMode {
@@ -30,6 +36,8 @@ public class NewTeleOp extends LinearOpMode {
     private Servo led2 = null;
     private Servo led3 = null;
     Limelight3A limelight = null;
+
+    AutoCloseTwelveBLUE autoCloseTwelveBLUE = new AutoCloseTwelveBLUE();
     private static final double GREEN = 0.456;
     private static final double PURPLE = 0.721;
     private static final double HIGH_POWER = 0.65;
@@ -42,6 +50,9 @@ public class NewTeleOp extends LinearOpMode {
     private static final double ticksPerRotation = 25.5;
     private static final int APRIL_TAG_PIPELINE = 0;
     private double RPM = 0;
+    private double pos = 0;
+    private double distanceInches = 0;
+
 
     private void turretPos(int position)
     {
@@ -68,7 +79,7 @@ public class NewTeleOp extends LinearOpMode {
             return false;
         }
         intake.setPower(1);
-        actuator1.setPower(1);
+        actuator1.setPower(-1);
         actuator2.setPower(1);
         sleep(1000);
         actuator1.setPower(0);
@@ -155,7 +166,7 @@ public class NewTeleOp extends LinearOpMode {
         actuator1.setDirection(DcMotorSimple.Direction.REVERSE);
         actuator2.setDirection(DcMotorSimple.Direction.REVERSE);
 
-
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         IMU imu = hardwareMap.get(IMU.class, "imu");
         // Adjust the orientation parameters to match your robot
@@ -208,23 +219,42 @@ public class NewTeleOp extends LinearOpMode {
 
             int targetPos = (int) ( turret.getCurrentPosition() + (gamepad2.left_stick_x * 40));
 
+            drive.updatePoseEstimate();
+
+            if (result != null && result.isValid()) {
+                for (LLResultTypes.FiducialResult fid : result.getFiducialResults()) {
+                    Pose3D camToTag = fid.getCameraPoseTargetSpace();
+                    double xTarget = camToTag.getPosition().x;
+                    double yTarget = camToTag.getPosition().y;
+                    double zTarget = camToTag.getPosition().z;
+                    double distanceMeters = Math.sqrt(xTarget * xTarget + yTarget * yTarget + zTarget * zTarget);
+                    distanceInches = DistanceUnit.INCH.fromMeters(distanceMeters);
+                }
+            }
+
+            telemetry.addData("Inches: ", distanceInches);
+
+            Pose2d pose = drive.localizer.getPose();
+            telemetry.addData("x", pose.position.x);
+            telemetry.addData("y", pose.position.y);
+            telemetry.addData("heading (deg)", Math.toDegrees(pose.heading.toDouble()));
             telemetry.addData("YAW: ", imu.getRobotYawPitchRollAngles().getYaw());
             telemetry.addData("Turret: ", targetPos);
-            telemetry.addData("Target Area: ", result.getTa());
             telemetry.addData("Target X: ", result.getTx());
             telemetry.addData("RPM", RPM);
+            telemetry.addData("Pos: ", pos);
             telemetry.update();
 
             turretPos(targetPos);
 
             if (gamepad2.dpad_down)
             {
-                actuator1.setPower(-1);
+                actuator1.setPower(1);
                 actuator2.setPower(-1);
             }
             else if (gamepad2.dpad_up)
             {
-                actuator1.setPower(1);
+                actuator1.setPower(-1);
                 actuator2.setPower(1);
             }
             else if (!gamepad2.dpad_down && !gamepad2.dpad_up)
@@ -279,7 +309,7 @@ public class NewTeleOp extends LinearOpMode {
             {
                 if (gamepad2.right_bumper)
                 {
-                    turret.setTargetPosition((int) Math.floor(result.getTx() * 2.7));
+                    pos = (targetPos + (result.getTx()));
                 }
             }
 
