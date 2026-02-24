@@ -155,6 +155,11 @@ public class launchDeltaTest extends OpMode {
             Adelta = Adelta / ARPMList.size();
             telemetry.addData("after delta", Adelta);
             telemetry.update();
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
