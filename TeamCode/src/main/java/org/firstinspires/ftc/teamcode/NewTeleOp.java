@@ -53,7 +53,7 @@ public class NewTeleOp extends LinearOpMode {
     double P = 82;
     double F = 12.3474;
     private double highVelocity = 1500;
-    private double lowVelocity = 1200;
+    private double lowVelocity = 1250;
     double curTargetVelocity = highVelocity;
     private double RPM = 0;
     private double pos = 0;
@@ -175,7 +175,7 @@ public class NewTeleOp extends LinearOpMode {
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
 
         actuator1.setDirection(DcMotorSimple.Direction.REVERSE);
-        actuator2.setDirection(DcMotorSimple.Direction.REVERSE);
+//        actuator2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
@@ -261,13 +261,10 @@ public class NewTeleOp extends LinearOpMode {
             telemetry.addData("Current Velocity: ", "%,4f", curVelocity);
             telemetry.addData("Error: ", "%,2f", error);
             telemetry.addLine("========================================");
-            telemetry.addData("Tuning P: ", "%,4f (D_Pad U/D)", P);
-            telemetry.addData("Tuning F: ", "%,4f (D_Pad L/R)", F);
             telemetry.update();
 
             turretPos(targetPos);
 
-//            PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
             flywheel1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
             flywheel2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
 
@@ -277,12 +274,12 @@ public class NewTeleOp extends LinearOpMode {
             if (gamepad2.dpad_down)
             {
                 actuator1.setPower(-1);
-                actuator2.setPower(1);
+                actuator2.setPower(-1);
             }
             else if (gamepad2.dpad_up)
             {
                 actuator1.setPower(1);
-                actuator2.setPower(-1);
+                actuator2.setPower(1);
             }
             else if (!gamepad2.dpad_down && !gamepad2.dpad_up)
             {

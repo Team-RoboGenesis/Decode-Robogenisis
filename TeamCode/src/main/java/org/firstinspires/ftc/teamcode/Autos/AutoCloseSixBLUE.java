@@ -51,8 +51,8 @@ public class AutoCloseSixBLUE extends LinearOpMode {
         {
             return false;
         }
-        transfer1.setPower(-1);
-        transfer2.setPower(-1);
+        transfer1.setPower(1);
+        transfer2.setPower(1);
         intake.setPower(1);
         sleep(1000);
         transfer1.setPower(0);
@@ -131,6 +131,7 @@ public class AutoCloseSixBLUE extends LinearOpMode {
 
         flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 //        intake.setDirection(DcMotorSimple.Direction.REVERSE);
