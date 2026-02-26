@@ -9,8 +9,8 @@ public class Turret
     private DcMotor motor;
 
     // GoBilda 5203 motor encoder
-    private static final double TICKS_PER_REV = 1576;
-    private static final double TICKS_PER_RAD = TICKS_PER_REV / (2 * Math.PI);
+    private static final double TICKS_PER_REVOLUTION = 1576;
+    private static final double TICKS_PER_RAD = TICKS_PER_REVOLUTION / (2 * Math.PI);
 
     // Soft limits in radians
     private static final double LEFT_LIMIT_RAD = Math.toRadians(-180);
@@ -40,7 +40,7 @@ public class Turret
         if (angleRad < LEFT_LIMIT_RAD) angleRad = LEFT_LIMIT_RAD;
         if (angleRad > RIGHT_LIMIT_RAD) angleRad = RIGHT_LIMIT_RAD;
 
-        // Convert radians → encoder ticks
+        // Convert radians to encoder ticks
         int targetTicks = (int)(angleRad * TICKS_PER_RAD);
 
         // Clamp ticks to soft limits

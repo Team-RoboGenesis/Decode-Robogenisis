@@ -41,7 +41,7 @@ public class TurretAimTest extends LinearOpMode {
             // Normalize to [-PI, PI]
             turretAngle = Math.atan2(Math.sin(turretAngle), Math.cos(turretAngle));
 
-            // limits to restrict turret to 180 degrees in either direction
+            // Limits to restrict turret to 180 degrees in either direction
             double maxAngle = Math.toRadians(180);
             double minAngle = Math.toRadians(-180);
 
