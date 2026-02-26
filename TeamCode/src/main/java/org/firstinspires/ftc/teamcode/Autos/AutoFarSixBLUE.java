@@ -55,12 +55,12 @@ public class AutoFarSixBLUE extends LinearOpMode {
         {
             return false;
         }
-        transfer1.setPower(-1);
-        transfer2.setPower(-1);
+        transfer1.setPower(1);
+        transfer2.setPower(1);
         intake.setPower(1);
-        sleep(1000);
+        sleep(500);
         transfer1.setPower(0);
-        transfer1.setPower(0);
+        transfer2.setPower(0);
         intake.setPower(0);
         sleep(300);
         return true;

@@ -55,7 +55,7 @@ public class AutoCloseSixRED extends LinearOpMode {
         intake.setPower(1);
         sleep(300);
         transfer1.setPower(0);
-        transfer1.setPower(0);
+        transfer2.setPower(0);
         intake.setPower(0);
         sleep(300);
         return true;
