@@ -49,7 +49,7 @@ public class Turret
 
         // Command motor
         motor.setTargetPosition(targetTicks);
-        motor.setPower(0.8);  // adjust as needed
+        motor.setPower(1);
     }
 
     public void setTargetPosition(int pos)

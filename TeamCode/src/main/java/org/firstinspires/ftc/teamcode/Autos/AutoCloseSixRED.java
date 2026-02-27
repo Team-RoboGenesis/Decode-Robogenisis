@@ -9,42 +9,59 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
 @Autonomous(name = "SixCloseRed")
 public class AutoCloseSixRED extends LinearOpMode {
-    private DcMotor flywheel = null;
+    private DcMotorEx flywheel1 = null;
+    private DcMotorEx flywheel2 = null;
     private DcMotor turret = null;
     private DcMotor intake = null;
-    private DcMotor transfer = null;
-    private Servo actuator = null;
+
+    // Servos
     private CRServo transfer2 = null;
     private CRServo transfer1 = null;
-    private Servo LED1 = null;
-    private Servo LED2 = null;
-    private Servo LED3 = null;
 
-    private static final double GREEN = 0.456;
-    private static final double PURPLE = 0.721;
-    private static final double OPEN = 0.65;
-    private static final double CLOSED = 0.1;
-    private static final double HIGH_POWER = 0.66;
-    private static final double LOW_POWER = 0.57;
+    // Sensors
+    private DigitalChannel limiter = null;
+
+    // Constants
     private static final double INTAKE_SPEED = 1;
-    private static final double FAR_SPEED = 4100;
-    private static final int FIRST_SHOOT_POSE = 0;
-    private static final int SECOND_SHOOT_POSE = 0;
-    private static final double ticksPerRotation = 25.5;
+    private static final double OFF = 0;
+    private static final double FAR_SPEED = 2650;
+    private static final int FIRST_SHOOT_POSE = 195;
+    private static final int SECOND_SHOOT_POSE = 590;
+    private static final int CENTER_POSE = 0;
+    private static final double TICKS_PER_ROTATION = 25.5;
+    double P = 82;
+    double F = 12.3474;
+    private double lowVelocity = 1220;
+
+    // Non-static variables
     private double RPM = 0;
+    private double LOW_POWER = 0.55;
+
+    // Functions:
 
     private void spinUp()
     {
-        flywheel.setPower(HIGH_POWER);
+        flywheel1.setVelocity(lowVelocity);
+        flywheel2.setVelocity(lowVelocity);
     }
-    private boolean shootBall()
+
+    public void spinDown()
+    {
+        flywheel1.setVelocity(OFF);
+        flywheel2.setVelocity(OFF);
+    }
+
+    public boolean shootBall()
     {
         if (RPM <= FAR_SPEED)
         {
@@ -53,22 +70,47 @@ public class AutoCloseSixRED extends LinearOpMode {
         transfer1.setPower(1);
         transfer2.setPower(1);
         intake.setPower(1);
-        sleep(300);
+        sleep(500);
         transfer1.setPower(0);
         transfer2.setPower(0);
         intake.setPower(0);
-        sleep(300);
         return true;
+    }
+
+    private void shoot()
+    {
+        transfer1.setPower(1);
+        transfer2.setPower(1);
+        intake.setPower(1);
+        sleep(2500);
+        transfer1.setPower(0);
+        transfer2.setPower(0);
+        intake.setPower(0);
     }
 
     private void spinIntake()
     {
-        intake.setPower(1);
+        intake.setPower(INTAKE_SPEED);
     }
 
     private void stopIntake()
     {
-        intake.setPower(0);
+        intake.setPower(OFF);
+    }
+
+    private void turretFirstPos()
+    {
+        turret.setTargetPosition(FIRST_SHOOT_POSE);
+    }
+
+    private void turretSecondPos()
+    {
+        turret.setTargetPosition(SECOND_SHOOT_POSE);
+    }
+
+    private void turretCenterPos()
+    {
+        turret.setTargetPosition(CENTER_POSE);
     }
 
     private void shootThreeBalls()
@@ -79,10 +121,12 @@ public class AutoCloseSixRED extends LinearOpMode {
         boolean isSuccessful = false;
         while (shootCount < 3)
         {
-            previousTicks = flywheel.getCurrentPosition();
+            previousTicks = flywheel1.getCurrentPosition();
             sleep(100);
-            ticks = flywheel.getCurrentPosition() - previousTicks;
-            RPM = (ticks / ticksPerRotation) * 600;
+            ticks = flywheel1.getCurrentPosition() - previousTicks;
+            RPM = (ticks / TICKS_PER_ROTATION) * 600;
+            telemetry.addData("RPM", RPM);
+            telemetry.update();
             isSuccessful = shootBall();
             if (isSuccessful)
             {
@@ -91,30 +135,42 @@ public class AutoCloseSixRED extends LinearOpMode {
         }
     }
 
-    private void turretFirstPos()
-    {
-        turret.setTargetPosition(FIRST_SHOOT_POSE);
-    }
-
     @Override
     public void runOpMode() throws InterruptedException
     {
+
+        // Motor configuration
         turret = hardwareMap.get(DcMotor.class, "turret");
-        flywheel = hardwareMap.get(DcMotor.class, "flywheel");
-        transfer = hardwareMap.get(DcMotor.class, "transfer");
-        actuator = hardwareMap.get(Servo.class, "gate");
+        flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
+        flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        transfer1 = hardwareMap.get(CRServo.class, "servo");
+        transfer2 = hardwareMap.get(CRServo.class, "servo1");
 
-        flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        transfer1.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        // Motor mode changes
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         turret.setTargetPosition(0);
         turret.setPower(0.5);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        turret.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        transfer1.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        flywheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        flywheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
+
+        flywheel1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+        flywheel2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         Pose2d beginPose = new Pose2d(-54, 46, Math.toRadians(-127));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);

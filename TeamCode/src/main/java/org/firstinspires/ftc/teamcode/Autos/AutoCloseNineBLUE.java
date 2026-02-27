@@ -9,60 +9,82 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
 @Autonomous(name = "NineCloseBlue")
 public class AutoCloseNineBLUE extends LinearOpMode {
-    private DcMotor flywheel1 = null;
-    private DcMotor flywheel2 = null;
+    private DcMotorEx flywheel1 = null;
+    private DcMotorEx flywheel2 = null;
     private DcMotor turret = null;
     private DcMotor intake = null;
+
+    // Servos
     private CRServo transfer2 = null;
     private CRServo transfer1 = null;
 
+    // Sensors
+    private DigitalChannel limiter = null;
+
     // Constants
-    private static final double LOW_POWER = 0.51;
     private static final double INTAKE_SPEED = 1;
     private static final double OFF = 0;
-    private static final double FAR_SPEED = 2800;
-    private static final int FIRST_SHOOT_POSE = -180;
+    private static final double FAR_SPEED = 2650;
+    private static final int FIRST_SHOOT_POSE = -195;
+    private static final int SECOND_SHOOT_POSE = -590;
     private static final int CENTER_POSE = 0;
     private static final double TICKS_PER_ROTATION = 25.5;
+    double P = 82;
+    double F = 12.3474;
+    private double lowVelocity = 1220;
 
     // Non-static variables
     private double RPM = 0;
+    private double LOW_POWER = 0.55;
 
     // Functions:
 
     private void spinUp()
     {
-        flywheel1.setPower(LOW_POWER);
-        flywheel2.setPower(LOW_POWER);
+        flywheel1.setVelocity(lowVelocity);
+        flywheel2.setVelocity(lowVelocity);
     }
 
-    private void spinDown()
+    public void spinDown()
     {
-        flywheel1.setPower(OFF);
-        flywheel2.setPower(OFF);
+        flywheel1.setVelocity(OFF);
+        flywheel2.setVelocity(OFF);
     }
 
-    private boolean shootBall()
+    public boolean shootBall()
     {
         if (RPM <= FAR_SPEED)
         {
             return false;
         }
-        transfer1.setPower(-1);
-        transfer2.setPower(-1);
+        transfer1.setPower(1);
+        transfer2.setPower(1);
         intake.setPower(1);
-        sleep(1000);
+        sleep(500);
         transfer1.setPower(0);
         transfer2.setPower(0);
         intake.setPower(0);
-        sleep(300);
         return true;
+    }
+
+    private void shoot()
+    {
+        transfer1.setPower(1);
+        transfer2.setPower(1);
+        intake.setPower(1);
+        sleep(2500);
+        transfer1.setPower(0);
+        transfer2.setPower(0);
+        intake.setPower(0);
     }
 
     private void spinIntake()
@@ -78,6 +100,11 @@ public class AutoCloseNineBLUE extends LinearOpMode {
     private void turretFirstPos()
     {
         turret.setTargetPosition(FIRST_SHOOT_POSE);
+    }
+
+    private void turretSecondPos()
+    {
+        turret.setTargetPosition(SECOND_SHOOT_POSE);
     }
 
     private void turretCenterPos()
@@ -113,18 +140,13 @@ public class AutoCloseNineBLUE extends LinearOpMode {
 
         // Motor configuration
         turret = hardwareMap.get(DcMotor.class, "turret");
-        flywheel1 = hardwareMap.get(DcMotor.class, "flywheel1");
-        flywheel2 = hardwareMap.get(DcMotor.class, "flywheel2");
+        flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
+        flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
         intake = hardwareMap.get(DcMotor.class, "intake");
         transfer1 = hardwareMap.get(CRServo.class, "servo");
         transfer2 = hardwareMap.get(CRServo.class, "servo1");
 
         // Motor mode changes
-        flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        flywheel1.setDirection(DcMotorSimple.Direction.REVERSE);
-        flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -135,8 +157,17 @@ public class AutoCloseNineBLUE extends LinearOpMode {
 
         transfer1.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        flywheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        flywheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
+
+        flywheel1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+        flywheel2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
 
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 

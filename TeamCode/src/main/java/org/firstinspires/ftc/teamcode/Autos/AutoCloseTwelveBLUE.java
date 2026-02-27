@@ -182,7 +182,7 @@ public class AutoCloseTwelveBLUE extends LinearOpMode
                 .stopAndAdd(this::spinUp)
                 .stopAndAdd(this::turretFirstPos)
                 // Drive back to shoot
-                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(180))
+                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(185))
                 .stopAndAdd(this::spinUp)
                 // Score three preloaded balls
                 .stopAndAdd(this::shootThreeBalls)
@@ -203,13 +203,13 @@ public class AutoCloseTwelveBLUE extends LinearOpMode
                 .stopAndAdd(this::spinIntake)
                 // Intake three balls
                 .setReversed(true)
-                .splineTo(new Vector2d(17, -20), Math.toRadians(-60))
-                .splineTo(new Vector2d(17, -52), Math.toRadians(-90))
+                .splineTo(new Vector2d(14, -20), Math.toRadians(-60))
+                .splineTo(new Vector2d(14, -52), Math.toRadians(-90))
 //                .waitSeconds(0.3)
                 .stopAndAdd(this::stopIntake)
                 // Move back to shooting position
                 .splineTo(new Vector2d(5, -50), Math.toRadians(90))
-                .splineTo(new Vector2d(-5, -14), Math.toRadians(185))
+                .splineTo(new Vector2d(-5, -14), Math.toRadians(190))
                 .stopAndAdd(this::spinIntake)
                 // Shoot three balls
                 .stopAndAdd(this::shootThreeBalls)
@@ -217,12 +217,12 @@ public class AutoCloseTwelveBLUE extends LinearOpMode
                 .strafeToLinearHeading(new Vector2d(43, -20), Math.toRadians(90))
                 .strafeToLinearHeading(new Vector2d(43, -53), Math.toRadians(90))
                 .stopAndAdd(this::stopIntake)
-                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(175))
+                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(-182))
                 .stopAndAdd(this::shootThreeBalls)
                 // Prepare the robot for TeleOp by stopping the shooter and resetting the turret position
                 .stopAndAdd(this::spinDown)
                 .stopAndAdd(this::turretCenterPos)
-                .strafeToLinearHeading(new Vector2d(3, -14), Math.toRadians(185))
+                .strafeToLinearHeading(new Vector2d(6, -15), Math.toRadians(185))
                 .waitSeconds(5);
 
         // Build the auto to use on play

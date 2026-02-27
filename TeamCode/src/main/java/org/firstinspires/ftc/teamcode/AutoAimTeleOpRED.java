@@ -59,7 +59,7 @@ public class AutoAimTeleOpRED extends LinearOpMode {
     private double distanceInches = 0;
     boolean manual = true;
     double goalY = 72;
-    double goalX = -63.5;
+    double goalX = -65;
     double startY = -62;
     double startX = 62;
 
@@ -198,7 +198,7 @@ public class AutoAimTeleOpRED extends LinearOpMode {
             if (turretAngle > maxAngle) turretAngle = maxAngle;
             if (turretAngle < minAngle) turretAngle = minAngle;
 
-            int turretPos = (int) (turret.getCurrentPosition() + gamepad2.left_stick_x*50);
+            int turretPos = (int) (turret.getCurrentPosition() - gamepad2.left_stick_x*50);
 
             // Automatic turret control
             if (!manual)

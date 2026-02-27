@@ -48,14 +48,14 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
     double P = 82;
     double F = 12.3474;
     private final double highVelocity = 1500;
-    private final double lowVelocity = 1250;
+    private final double lowVelocity = 1210;
     double curTargetVelocity = lowVelocity;
     private double RPM = 0;
     private final double pos = 0;
     private double distanceInches = 0;
     boolean manual = true;
     double goalY = 72;
-    double goalX = 63.5;
+    double goalX = 65;
     double startY = -62;
     double startX = -62;
 
@@ -170,7 +170,7 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
             if (turretAngle > maxAngle) turretAngle = maxAngle;
             if (turretAngle < minAngle) turretAngle = minAngle;
 
-            int turretPos = (int) (turret.getCurrentPosition() + gamepad2.left_stick_x*50);
+            int turretPos = (int) (turret.getCurrentPosition() - gamepad2.left_stick_x*40);
 
             // Automatic turret control
             if (!manual)
