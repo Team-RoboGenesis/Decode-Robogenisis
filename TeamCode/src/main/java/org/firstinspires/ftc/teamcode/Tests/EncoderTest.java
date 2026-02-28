@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp (name = "RPM")
+//@TeleOp (name = "RPM")
 public class EncoderTest extends LinearOpMode
 {
     private DcMotor motor = null;

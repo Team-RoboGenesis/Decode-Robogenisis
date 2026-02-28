@@ -13,12 +13,13 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@Autonomous(name = "NineCloseRed")
-public class AutoCloseNineRED extends LinearOpMode {
+@Autonomous(name = "NineCloseRED")
+public class AutoCloseNineRED extends LinearOpMode
+{
+    // Motors
     private DcMotorEx flywheel1 = null;
     private DcMotorEx flywheel2 = null;
     private DcMotor turret = null;
@@ -41,7 +42,7 @@ public class AutoCloseNineRED extends LinearOpMode {
     private static final double TICKS_PER_ROTATION = 25.5;
     double P = 82;
     double F = 12.3474;
-    private double lowVelocity = 1220;
+    private double lowVelocity = 1200;
 
     // Non-static variables
     private double RPM = 0;
@@ -70,7 +71,7 @@ public class AutoCloseNineRED extends LinearOpMode {
         transfer1.setPower(1);
         transfer2.setPower(1);
         intake.setPower(1);
-        sleep(500);
+        sleep(550);
         transfer1.setPower(0);
         transfer2.setPower(0);
         intake.setPower(0);
@@ -172,54 +173,53 @@ public class AutoCloseNineRED extends LinearOpMode {
 
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        // Drive constraints
         Pose2d beginPose = new Pose2d(-54, 46, Math.toRadians(127));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
+        // Auto pathing
         TrajectoryActionBuilder shootThree = drive.actionBuilder(beginPose)
                 .stopAndAdd(this::spinUp)
                 .stopAndAdd(this::turretFirstPos)
-                // Drive back to shoot
+                // First cycle
                 .strafeToLinearHeading(new Vector2d(-11, 14), Math.toRadians(-185))
                 .stopAndAdd(this::spinUp)
-                // Score three preloaded balls
-                .stopAndAdd(this::shootThreeBalls)
-                // Turn towards spike mark artifacts
                 .stopAndAdd(this::spinIntake)
-                // Intake three balls
+                .stopAndAdd(this::shootThreeBalls)
                 .turn(Math.toRadians(80))
-                .strafeToLinearHeading(new Vector2d(-4, 50), Math.toRadians(-90))
+                .stopAndAdd(this::spinIntake)
+                // First intake
+                .strafeToLinearHeading(new Vector2d(-7, 50), Math.toRadians(-90))
                 .waitSeconds(0.3)
                 .stopAndAdd(this::stopIntake)
                 .stopAndAdd(this::turretFirstPos)
-                // Drive to shooting position
+                // Second cycle
+                .splineTo(new Vector2d(-5, 14), Math.toRadians(-180))
+                .stopAndAdd(this::spinIntake)
+                .stopAndAdd(this::shootThreeBalls)
+                .stopAndAdd(this::spinIntake)
+                // Second intake
+                .setReversed(true)
+                .splineTo(new Vector2d(16, 20), Math.toRadians(60))
+                .splineTo(new Vector2d(16, 52), Math.toRadians(90))
+                .stopAndAdd(this::stopIntake)
+                // Third cycle
+                .splineTo(new Vector2d(5, 50), Math.toRadians(-90))
                 .splineTo(new Vector2d(-5, 14), Math.toRadians(-190))
                 .stopAndAdd(this::spinIntake)
-                // Shoot three balls
                 .stopAndAdd(this::shootThreeBalls)
-                // Move to next three balls
-                .stopAndAdd(this::spinIntake)
-                // Intake three balls
-                .setReversed(true)
-                .splineTo(new Vector2d(14, 20), Math.toRadians(60))
-                .splineTo(new Vector2d(14, 52), Math.toRadians(90))
-//                .waitSeconds(0.3)
-                .stopAndAdd(this::stopIntake)
-                // Move back to shooting position
-                .splineTo(new Vector2d(5, 50), Math.toRadians(-90))
-                .splineTo(new Vector2d(-5, 14), Math.toRadians(-185))
-                .stopAndAdd(this::spinIntake)
-                // Shoot three balls
-                .stopAndAdd(this::shootThreeBalls)
-                .stopAndAdd(this::spinDown)
+                // Prepare the robot for TeleOp by stopping the shooter and resetting the turret position
                 .stopAndAdd(this::turretCenterPos)
-                .strafeToLinearHeading(new Vector2d(3, 14), Math.toRadians(185))
+                .stopAndAdd(this::spinDown)
+                .strafeToLinearHeading(new Vector2d(6, 15), Math.toRadians(-180))
                 .waitSeconds(5);
 
-
+        // Build the auto to use on play
         Action auto = shootThree.build();
 
         waitForStart();
 
+        // Run the path declared above
         Actions.runBlocking(auto);
     }
 }

@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.R;
 
-@TeleOp(name = "Spintake text")
+@TeleOp(name = "spintake text")
 public class intakeTests extends OpMode {
 
     private DcMotor spintake = null;

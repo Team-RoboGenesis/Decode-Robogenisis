@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@TeleOp(name="TurretAim")
+//@TeleOp(name="TurretAim")
 public class TurretAimTest extends LinearOpMode {
 
     @Override

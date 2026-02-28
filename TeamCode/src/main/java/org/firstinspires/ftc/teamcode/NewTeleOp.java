@@ -20,7 +20,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@TeleOp(name = "New Teleop")
+//@TeleOp(name = "New Teleop")
 public class NewTeleOp extends LinearOpMode {
 
     private DcMotor leftFront = null;

@@ -21,7 +21,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Tests.Turret;
 
-@TeleOp(name = "AutoAimTeleOpRED")
+@TeleOp(name = "TeleOpRED")
 public class AutoAimTeleOpRED extends LinearOpMode {
 
     private DcMotor leftFront = null;
@@ -40,9 +40,6 @@ public class AutoAimTeleOpRED extends LinearOpMode {
 
     private static final double GREEN = 0.456;
     private static final double PURPLE = 0.721;
-    private static final double HIGH_POWER = 0.65;
-    private static final double LOW_POWER = 0.52;
-    private static final double MEDIUM_POWER = 0.57;
     private static final double OFF = 0;
     private static final double FAR_SPEED = 3300;
     private static final int SHOOT_POSE = 0;
@@ -51,17 +48,18 @@ public class AutoAimTeleOpRED extends LinearOpMode {
     private static final int APRIL_TAG_PIPELINE = 0;
     double P = 82;
     double F = 12.3474;
-    private final double highVelocity = 1500;
-    private final double lowVelocity = 1250;
+    private final double highVelocity = 1550;
+    private final double lowVelocity = 1230;
     double curTargetVelocity = lowVelocity;
     private double RPM = 0;
     private final double pos = 0;
     private double distanceInches = 0;
     boolean manual = true;
     double goalY = 72;
-    double goalX = -65;
+    double goalX = -72;
     double startY = -62;
     double startX = 62;
+    double offset = 0;
 
     private boolean shootBall()
     {
@@ -118,7 +116,7 @@ public class AutoAimTeleOpRED extends LinearOpMode {
 
         limelight = hardwareMap.get(Limelight3A.class, "Benny");
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(3, -14, Math.toRadians(185)));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(3, -14, Math.toRadians(0)));
         Turret turret = new Turret(hardwareMap);
 
         telemetry.setMsTransmissionInterval(11);
@@ -189,7 +187,7 @@ public class AutoAimTeleOpRED extends LinearOpMode {
 
             // Convert to robot-relative turret angle
             double turretAngle = angleToCorner - robotHeading;
-            turretAngle = Math.atan2(Math.sin(turretAngle), Math.cos(turretAngle));
+            turretAngle = Math.atan2(Math.sin(turretAngle), Math.cos(turretAngle)) + offset;
 
             // Limits to restrict turret to 180 degrees in either direction
             double maxAngle = Math.toRadians(180);
@@ -198,7 +196,7 @@ public class AutoAimTeleOpRED extends LinearOpMode {
             if (turretAngle > maxAngle) turretAngle = maxAngle;
             if (turretAngle < minAngle) turretAngle = minAngle;
 
-            int turretPos = (int) (turret.getCurrentPosition() - gamepad2.left_stick_x*50);
+            int turretPos = (int) (turret.getCurrentPosition() - gamepad2.left_stick_x*40);
 
             // Automatic turret control
             if (!manual)
@@ -212,6 +210,17 @@ public class AutoAimTeleOpRED extends LinearOpMode {
                 turret.setTargetPosition(turretPos );
             }
 
+            if (gamepad2.leftStickButtonWasPressed())
+            {
+                offset += 0.05;
+            }
+
+            if (gamepad2.rightStickButtonWasPressed())
+            {
+                offset -= 0.05;
+            }
+
+            // Switch between auto and manual aim
             if (gamepad2.leftBumperWasPressed()) {
                 manual = !manual;
             }
@@ -272,8 +281,8 @@ public class AutoAimTeleOpRED extends LinearOpMode {
             double curVelocity = flywheel1.getVelocity();
             double error = curTargetVelocity - curVelocity;
 
+            telemetry.addData("offset: ", offset);
             telemetry.addData("Inches: ", distanceInches);
-
             telemetry.addData("YAW: ", imu.getRobotYawPitchRollAngles().getYaw());
             telemetry.addData("Target X: ", result.getTx());
             telemetry.addData("RPM", RPM);
@@ -311,26 +320,6 @@ public class AutoAimTeleOpRED extends LinearOpMode {
                 curTargetVelocity = OFF;
             }
 
-//            if (gamepad2.cross)// Make these a function
-//            {
-//                flywheel1.setPower(LOW_POWER);
-//                flywheel2.setPower(LOW_POWER);
-//            }
-//            else if (gamepad2.circle)
-//            {
-//                flywheel1.setPower(MEDIUM_POWER);
-//                flywheel2.setPower(MEDIUM_POWER);
-//            }
-//            else if (gamepad2.triangle)
-//            {
-//                flywheel1.setPower(HIGH_POWER);
-//                flywheel2.setPower(HIGH_POWER);
-//            }
-//            else if (gamepad2.square)
-//            {
-//                flywheel1.setPower(OFF);
-//                flywheel2.setPower(OFF);
-//            }
             if (gamepad2.right_trigger > 0.1)
             {
                 intake.setPower(1);

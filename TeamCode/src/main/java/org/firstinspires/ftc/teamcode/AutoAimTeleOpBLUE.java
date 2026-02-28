@@ -21,7 +21,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Tests.Turret;
 
-@TeleOp(name = "AutoAimTeleOpBLUE")
+@TeleOp(name = "TeleOpBLUE")
 public class AutoAimTeleOpBLUE extends LinearOpMode {
 
     private DcMotor leftFront = null;
@@ -41,23 +41,22 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
     private static final double GREEN = 0.456;
     private static final double PURPLE = 0.721;
     private static final double OFF = 0;
-    private static final double FAR_SPEED = 3300;
-    private final static int CONVERT_TO_MINUTE = 600;
-    private static final double ticksPerRotation = 25.5;
     private static final int APRIL_TAG_PIPELINE = 0;
     double P = 82;
     double F = 12.3474;
-    private final double highVelocity = 1500;
-    private final double lowVelocity = 1210;
+    private final double highVelocity = 1550;
+    private final double lowVelocity = 1230;
     double curTargetVelocity = lowVelocity;
     private double RPM = 0;
     private final double pos = 0;
     private double distanceInches = 0;
     boolean manual = true;
     double goalY = 72;
-    double goalX = 65;
+    double goalX = 72;
     double startY = -62;
     double startX = -62;
+    double offset = 0;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -161,7 +160,7 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
 
             // Convert to robot-relative turret angle
             double turretAngle = angleToCorner - robotHeading;
-            turretAngle = Math.atan2(Math.sin(turretAngle), Math.cos(turretAngle));
+            turretAngle = Math.atan2(Math.sin(turretAngle), Math.cos(turretAngle)) + offset;
 
             // Limits to restrict turret to 180 degrees in either direction
             double maxAngle = Math.toRadians(180);
@@ -182,6 +181,16 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
             if (manual)
             {
                 turret.setTargetPosition(turretPos );
+            }
+
+            if (gamepad2.leftStickButtonWasPressed())
+            {
+                offset += 0.05;
+            }
+
+            if (gamepad2.rightStickButtonWasPressed())
+            {
+                offset -= 0.05;
             }
 
             // Switch between auto and manual aim
@@ -261,6 +270,7 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
             double error = curTargetVelocity - curVelocity;
 
             // MORE TELEMETRY
+            telemetry.addData("offset: ", offset);
             telemetry.addData("Inches: ", distanceInches);
             telemetry.addData("YAW: ", imu.getRobotYawPitchRollAngles().getYaw());
             telemetry.addData("Target X: ", result.getTx());
