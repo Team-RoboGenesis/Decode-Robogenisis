@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -33,11 +34,13 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
     private DcMotor intake = null;
     private CRServo actuator1 = null;
     private CRServo actuator2 = null;
-    private final Servo led1 = null;
-    private final Servo led2 = null;
-    private final Servo led3 = null;
+    private DistanceSensor distSensor;
+    private Servo led1;
+    private Servo led2;
+    private Servo led3;
     Limelight3A limelight = null;
 
+    private static final double WHITE = 0.9;
     private static final double GREEN = 0.456;
     private static final double PURPLE = 0.721;
     private static final double OFF = 0;
@@ -56,6 +59,44 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
     double startY = -62;
     double startX = -62;
     double offset = 0;
+    private double baseDist = 0;
+    private double dist = 0;
+    private final double threshold = 5;
+    private boolean last = false;
+    private boolean broken = false;
+    private boolean isGreenBall = false;
+    private boolean isPurpleBall = false;
+    private boolean isBall = false;
+    private boolean lastCheck = false;
+    private int count = -1; // because it starts at 1 for some reason
+
+    public void zero() {
+        led1.setPosition(OFF);
+        led2.setPosition(OFF);
+        led3.setPosition(OFF);
+    }
+
+    public void one() {
+        led1.setPosition(WHITE);
+        led2.setPosition(OFF);
+        led3.setPosition(OFF);
+    }
+
+    public void two() {
+        led1.setPosition(WHITE);
+        led2.setPosition(WHITE);
+        led3.setPosition(OFF);
+    }
+
+    public void three() {
+        led1.setPosition(WHITE);
+        led2.setPosition(WHITE);
+        led3.setPosition(WHITE);
+    }
+
+    public void reset() {
+        count = 0;
+    }
 
 
     @Override
@@ -269,7 +310,45 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
             double curVelocity = flywheel1.getVelocity();
             double error = curTargetVelocity - curVelocity;
 
+            dist = distSensor.getDistance(DistanceUnit.CM);
+            broken = baseDist >= dist - threshold && baseDist <= dist + threshold;
+            isBall = isGreenBall || isPurpleBall;
+
+            if (broken && !last) {
+                last = true;
+            } else if (!broken && last) {
+                count++;
+                last = false;
+            }
+
+            if (isBall && !lastCheck) {
+                lastCheck = true;
+                count--;
+            } else if (!isBall) {
+                lastCheck = false;
+            }
+
+            if (count == 0) {
+                zero();
+            } else if (count == 1) {
+                one();
+            } else if (count == 2) {
+                two();
+            } else if (count == 3) {
+                three();
+            } else if (count < 0) {
+                count = 0;
+            } else if (count > 3) {
+                count = 3;
+            }
+            if (gamepad1.a) reset();
+
             // MORE TELEMETRY
+            telemetry.addData("Distance: ", dist);
+            telemetry.addData("Count: ", count);
+            telemetry.addData("MS interval: ", telemetry.getMsTransmissionInterval());
+            telemetry.addData("Green ball? ", isGreenBall);
+            telemetry.addData("Purple ball?", isPurpleBall);
             telemetry.addData("offset: ", offset);
             telemetry.addData("Inches: ", distanceInches);
             telemetry.addData("YAW: ", imu.getRobotYawPitchRollAngles().getYaw());
@@ -279,7 +358,6 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
             telemetry.addData("Target Velocity: ", "%,4f", curTargetVelocity);
             telemetry.addData("Current Velocity: ", "%,4f", curVelocity);
             telemetry.addData("Error: ", "%,2f", error);
-            telemetry.addLine("========================================");
             telemetry.update();
 
             // Initialize flywheel motors with tuned PIDF values
@@ -307,11 +385,17 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
                 actuator2.setPower(0);
             }
 
+            if (gamepad2.right_trigger > 0.1 && gamepad2.dpad_up)
+            {
+                count = 0;
+            }
+
             // Controls for changing flywheel velocity
             if (gamepad2.x)
             {
                 curTargetVelocity = OFF;
             }
+
             if (gamepad2.bWasPressed()) {
                 if (curTargetVelocity == highVelocity) {
                     curTargetVelocity = lowVelocity;

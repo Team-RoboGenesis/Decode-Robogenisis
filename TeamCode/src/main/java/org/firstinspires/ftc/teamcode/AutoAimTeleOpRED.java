@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -33,9 +34,10 @@ public class AutoAimTeleOpRED extends LinearOpMode {
     private DcMotor intake = null;
     private CRServo actuator1 = null;
     private CRServo actuator2 = null;
-    private final Servo led1 = null;
-    private final Servo led2 = null;
-    private final Servo led3 = null;
+    private Servo led1 = null;
+    private Servo led2 = null;
+    private Servo led3 = null;
+    private DistanceSensor distSensor;
     Limelight3A limelight = null;
 
     private static final double GREEN = 0.456;
@@ -46,6 +48,7 @@ public class AutoAimTeleOpRED extends LinearOpMode {
     private final static int CONVERT_TO_MINUTE = 600;
     private static final double ticksPerRotation = 25.5;
     private static final int APRIL_TAG_PIPELINE = 0;
+    private static final double WHITE = 0.9;
     double P = 82;
     double F = 12.3474;
     private final double highVelocity = 1550;
@@ -60,6 +63,44 @@ public class AutoAimTeleOpRED extends LinearOpMode {
     double startY = -62;
     double startX = 62;
     double offset = 0;
+    private double baseDist = 0;
+    private double dist = 0;
+    private final double threshold = 5;
+    private boolean last = false;
+    private boolean broken = false;
+    private boolean isGreenBall = false;
+    private boolean isPurpleBall = false;
+    private boolean isBall = false;
+    private boolean lastCheck = false;
+    private int count = -1; // because it starts at 1 for some reason
+
+    public void zero() {
+        led1.setPosition(OFF);
+        led2.setPosition(OFF);
+        led3.setPosition(OFF);
+    }
+
+    public void one() {
+        led1.setPosition(WHITE);
+        led2.setPosition(OFF);
+        led3.setPosition(OFF);
+    }
+
+    public void two() {
+        led1.setPosition(WHITE);
+        led2.setPosition(WHITE);
+        led3.setPosition(OFF);
+    }
+
+    public void three() {
+        led1.setPosition(WHITE);
+        led2.setPosition(WHITE);
+        led3.setPosition(WHITE);
+    }
+
+    public void reset() {
+        count = 0;
+    }
 
     private boolean shootBall()
     {
@@ -281,6 +322,44 @@ public class AutoAimTeleOpRED extends LinearOpMode {
             double curVelocity = flywheel1.getVelocity();
             double error = curTargetVelocity - curVelocity;
 
+            dist = distSensor.getDistance(DistanceUnit.CM);
+            broken = baseDist >= dist - threshold && baseDist <= dist + threshold;
+            isBall = isGreenBall || isPurpleBall;
+
+            if (broken && !last) {
+                last = true;
+            } else if (!broken && last) {
+                count++;
+                last = false;
+            }
+
+            if (isBall && !lastCheck) {
+                lastCheck = true;
+                count--;
+            } else if (!isBall) {
+                lastCheck = false;
+            }
+
+            if (count == 0) {
+                zero();
+            } else if (count == 1) {
+                one();
+            } else if (count == 2) {
+                two();
+            } else if (count == 3) {
+                three();
+            } else if (count < 0) {
+                count = 0;
+            } else if (count > 3) {
+                count = 3;
+            }
+            if (gamepad1.a) reset();
+
+            telemetry.addData("Distance: ", dist);
+            telemetry.addData("Count: ", count);
+            telemetry.addData("MS interval: ", telemetry.getMsTransmissionInterval());
+            telemetry.addData("Green ball? ", isGreenBall);
+            telemetry.addData("Purple ball?", isPurpleBall);
             telemetry.addData("offset: ", offset);
             telemetry.addData("Inches: ", distanceInches);
             telemetry.addData("YAW: ", imu.getRobotYawPitchRollAngles().getYaw());
