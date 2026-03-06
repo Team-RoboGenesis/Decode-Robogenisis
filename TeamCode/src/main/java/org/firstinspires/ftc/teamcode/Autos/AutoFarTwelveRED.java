@@ -182,7 +182,7 @@ public class AutoFarTwelveRED extends LinearOpMode {
                 .waitSeconds(1)
                 .stopAndAdd(this::stopIntake)
                 .strafeToLinearHeading(new Vector2d(58, 30), Math.toRadians(-90))
-                .strafeToLinearHeading(new Vector2d(59, 13), Math.toRadians(170))
+                .strafeToLinearHeading(new Vector2d(59, 13), Math.toRadians(175))
                 .stopAndAdd(this::spinIntake)
                 .stopAndAdd(this::shootThreeBalls)
                 .stopAndAdd(this::spinDown)

@@ -34,9 +34,10 @@ public class AutoAimTeleOpRED extends LinearOpMode {
     private DcMotor intake = null;
     private CRServo actuator1 = null;
     private CRServo actuator2 = null;
-    private Servo led1 = null;
-    private Servo led2 = null;
-    private Servo led3 = null;
+    private Servo led1;
+    private Servo led2;
+    private Servo led3;
+    private Servo led4;
     private DistanceSensor distSensor;
     Limelight3A limelight = null;
 
@@ -154,6 +155,11 @@ public class AutoAimTeleOpRED extends LinearOpMode {
         intake = hardwareMap.get(DcMotor.class, "intake");
         actuator1 = hardwareMap.get(CRServo.class, "servo");
         actuator2 = hardwareMap.get(CRServo.class, "servo1");
+        distSensor = hardwareMap.get(DistanceSensor.class, "dist");
+        led1 = hardwareMap.get(Servo.class, "led1");
+        led2 = hardwareMap.get(Servo.class, "led2");
+        led3 = hardwareMap.get(Servo.class, "led3");
+        led4 = hardwareMap.get(Servo.class, "led4");
 
         limelight = hardwareMap.get(Limelight3A.class, "Benny");
 
@@ -248,7 +254,7 @@ public class AutoAimTeleOpRED extends LinearOpMode {
             // Manual turret control
             if (manual)
             {
-                turret.setTargetPosition(turretPos );
+                turret.setTargetPosition(turretPos);
             }
 
             if (gamepad2.leftStickButtonWasPressed())
@@ -322,14 +328,23 @@ public class AutoAimTeleOpRED extends LinearOpMode {
             double curVelocity = flywheel1.getVelocity();
             double error = curTargetVelocity - curVelocity;
 
+            if (Math.abs(error) < 60)
+            {
+                led4.setPosition(GREEN);
+            }
+            else
+            {
+                led4.setPosition(0.3);
+            }
+
             dist = distSensor.getDistance(DistanceUnit.CM);
-            broken = baseDist >= dist - threshold && baseDist <= dist + threshold;
+            broken = dist < 14;
             isBall = isGreenBall || isPurpleBall;
 
             if (broken && !last) {
+                count++;
                 last = true;
             } else if (!broken && last) {
-                count++;
                 last = false;
             }
 
@@ -411,6 +426,12 @@ public class AutoAimTeleOpRED extends LinearOpMode {
             {
                 intake.setPower(0);
             }
+
+            if (gamepad2.right_trigger > 0.1 && gamepad2.dpad_up)
+            {
+                count = 0;
+            }
+
             if (gamepad2.bWasPressed()) {
                 if (curTargetVelocity == highVelocity) {
                     curTargetVelocity = lowVelocity;

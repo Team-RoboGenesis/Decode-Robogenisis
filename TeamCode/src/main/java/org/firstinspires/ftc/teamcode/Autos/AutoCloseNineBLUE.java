@@ -193,6 +193,8 @@ public class AutoCloseNineBLUE extends LinearOpMode
                 .waitSeconds(0.3)
                 .stopAndAdd(this::stopIntake)
                 .stopAndAdd(this::turretFirstPos)
+                .strafeToLinearHeading(new Vector2d(5, -30), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(5, -53), Math.toRadians(-90))
                 // Second cycle
                 .splineTo(new Vector2d(-5, -14), Math.toRadians(182))
                 .stopAndAdd(this::spinIntake)

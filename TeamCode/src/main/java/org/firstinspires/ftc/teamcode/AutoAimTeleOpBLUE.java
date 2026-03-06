@@ -38,6 +38,7 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
     private Servo led1;
     private Servo led2;
     private Servo led3;
+    private Servo led4;
     Limelight3A limelight = null;
 
     private static final double WHITE = 0.9;
@@ -113,6 +114,11 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
         intake = hardwareMap.get(DcMotor.class, "intake");
         actuator1 = hardwareMap.get(CRServo.class, "servo");
         actuator2 = hardwareMap.get(CRServo.class, "servo1");
+        distSensor = hardwareMap.get(DistanceSensor.class, "dist");
+        led1 = hardwareMap.get(Servo.class, "led1");
+        led2 = hardwareMap.get(Servo.class, "led2");
+        led3 = hardwareMap.get(Servo.class, "led3");
+        led4 = hardwareMap.get(Servo.class, "led4");
 
         // Our camera is named Benny because... he just looks like a Benny
         limelight = hardwareMap.get(Limelight3A.class, "Benny");
@@ -310,14 +316,23 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
             double curVelocity = flywheel1.getVelocity();
             double error = curTargetVelocity - curVelocity;
 
+            if (Math.abs(error) < 60)
+            {
+                led4.setPosition(GREEN);
+            }
+            else
+            {
+                led4.setPosition(0.277);
+            }
+
             dist = distSensor.getDistance(DistanceUnit.CM);
-            broken = baseDist >= dist - threshold && baseDist <= dist + threshold;
+            broken = dist < 14;
             isBall = isGreenBall || isPurpleBall;
 
             if (broken && !last) {
+                count++;
                 last = true;
             } else if (!broken && last) {
-                count++;
                 last = false;
             }
 
