@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
 
 @TeleOp(name = "MotorInfoGrabber")
@@ -32,11 +33,10 @@ public class IntakeInfoGrabber extends LinearOpMode {
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
+        FileUtil.init(hardwareMap.appContext);
 
         waitForStart();
 
-        FileUtil.init(hardwareMap.appContext);
 
 
 
@@ -50,9 +50,11 @@ public class IntakeInfoGrabber extends LinearOpMode {
 
 
         FileUtil.appendLine("START");
-
+        
         while (opModeIsActive()) {
             if(gamepad1.a){ // empty log file
+                telemetry.addLine("STARTED");
+                telemetry.update();
                 FileUtil.appendLine("START");
             } else if (gamepad1.b) { // spin up motor and start info collection
                 intake.setPower(1);
