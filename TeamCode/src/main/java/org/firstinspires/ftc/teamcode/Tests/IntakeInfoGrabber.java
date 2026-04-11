@@ -21,7 +21,6 @@ public class IntakeInfoGrabber extends LinearOpMode {
     private double ticksPerRotation = 25.5;
     private double maxRPM = 0;
 
-    // ✅ Helper function to keep code clean
     private void log(String text) {
         FileUtil.writeToSDCard(hardwareMap.appContext, text, true);
     }
@@ -47,21 +46,20 @@ public class IntakeInfoGrabber extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            if (gamepad1.a) {
-                telemetry.addLine("Logging marker...");
-                log("START");
+            if (gamepad1.a) { // empty/format the log file
+                FileUtil.writeToSDCard(hardwareMap.appContext, "", false);
             }
 
-            if (gamepad1.b) {
+            if (gamepad1.b) { // spin up and init data collection
                 intake.setPower(1);
                 dataCollection = true;
             }
 
-            if (gamepad1.x) {
+            if (gamepad1.x) { // spin down
                 intake.setPower(0);
             }
 
-            if (gamepad1.y) {
+            if (gamepad1.y) { // spin down, format, and log all data
                 dataCollection = false;
                 intake.setPower(0);
                 String[] values = voltageList.split(",");
@@ -100,6 +98,7 @@ public class IntakeInfoGrabber extends LinearOpMode {
                 log(desmosFuncVoltage);
 
                 telemetry.addLine("Data saved!");
+                sleep(5000);
             }
 
             if (dataCollection) {
@@ -109,7 +108,7 @@ public class IntakeInfoGrabber extends LinearOpMode {
 
                 int ticks = intake.getCurrentPosition() - previousTicks;
                 double RPM = (ticks / ticksPerRotation) * 600;
-
+                RPM = (Math.floor(RPM * 1000)) / 1000;
                 if (RPM > maxRPM) maxRPM = RPM;
 
                 // Build speed list
@@ -117,6 +116,7 @@ public class IntakeInfoGrabber extends LinearOpMode {
                 else speedList += ", " + RPM;
 
                 double voltage = voltageSensor.getVoltage();
+                voltage = (Math.floor(voltage * 1000)) / 1000;
 
                 // Build voltage list
                 if (voltageList.isEmpty()) voltageList = "" + voltage;
