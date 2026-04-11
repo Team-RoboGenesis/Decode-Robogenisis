@@ -35,7 +35,7 @@ public class AutoFarTwelveBLUE extends LinearOpMode {
     private double RPM = 0;
     double P = 82;
     double F = 12.3474;
-    private double lowVelocity = 1500;
+    private double lowVelocity = 1450;
 
     double ticksPerRotation = 25.5;
 

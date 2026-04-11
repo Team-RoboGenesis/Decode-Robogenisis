@@ -42,7 +42,7 @@ public class AutoCloseTwelveBLUE extends LinearOpMode
     private static final double TICKS_PER_ROTATION = 25.5;
     double P = 82;
     double F = 12.3474;
-    private double lowVelocity = 1220;
+    private double lowVelocity = 1200;
 
     // Non-static variables
     private double RPM = 0;

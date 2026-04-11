@@ -12,11 +12,12 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@Autonomous(name = "TwelveFarRED")
-public class AutoFarTwelveRED extends LinearOpMode {
+@Autonomous(name = "SixFarBlue")
+public class AutoFarSixBLUE extends LinearOpMode {
     private DcMotorEx flywheel1 = null;
     private DcMotorEx flywheel2 = null;
     private DcMotor turret = null;
@@ -29,8 +30,9 @@ public class AutoFarTwelveRED extends LinearOpMode {
     private static final double INTAKE_SPEED = 1;
     private static final double OFF = 0;
     private static final double FAR_SPEED = 3000;
-    private static final int FIRST_SHOOT_POSE = 90;
+    private static final int FIRST_SHOOT_POSE = -90;
     private static final int CENTER_POSE = 0;
+    private static final int SECOND_SHOOT_POSE = 0;
     private double RPM = 0;
     double P = 82;
     double F = 12.3474;
@@ -58,7 +60,7 @@ public class AutoFarTwelveRED extends LinearOpMode {
         transfer1.setPower(1);
         transfer2.setPower(1);
         intake.setPower(1);
-        sleep(600);
+        sleep(500);
         transfer1.setPower(0);
         transfer2.setPower(0);
         intake.setPower(0);
@@ -73,17 +75,6 @@ public class AutoFarTwelveRED extends LinearOpMode {
     private void stopIntake()
     {
         intake.setPower(OFF);
-    }
-
-    private void turretCenterPos()
-    {
-        turret.setTargetPosition(CENTER_POSE);
-    }
-
-    private void slowDown()
-    {
-        flywheel1.setPower(0.6);
-        flywheel2.setPower(0.6);
     }
 
     private void shootThreeBalls()
@@ -112,6 +103,11 @@ public class AutoFarTwelveRED extends LinearOpMode {
     {
         turret.setTargetPosition(FIRST_SHOOT_POSE);
     }
+    private void turretCenterPos()
+    {
+        turret.setTargetPosition(CENTER_POSE);
+    }
+
 
     @Override
     public void runOpMode() throws InterruptedException
@@ -148,46 +144,26 @@ public class AutoFarTwelveRED extends LinearOpMode {
         transfer1.setDirection(DcMotorSimple.Direction.REVERSE);
 
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        Pose2d beginPose = new Pose2d(62, 15, Math.toRadians(180));
+        Pose2d beginPose = new Pose2d(62, -15, Math.toRadians(180));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
         TrajectoryActionBuilder shootThree = drive.actionBuilder(beginPose)
-                .strafeToLinearHeading(new Vector2d(55, 15), Math.toRadians(-180))
+                .strafeToLinearHeading(new Vector2d(55, -15), Math.toRadians(180))
                 .stopAndAdd(this::spinUp)
                 .stopAndAdd(this::turretFirstPos)
                 .stopAndAdd(this::shootThreeBalls)
-                .strafeToLinearHeading(new Vector2d(63, 30), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(63, -30), Math.toRadians(90))
                 .stopAndAdd(this::spinIntake)
-                .strafeToLinearHeading(new Vector2d(64, 63), Math.toRadians(-100))
-                .waitSeconds(1.5)
-                .stopAndAdd(this::stopIntake)
-                .strafeToLinearHeading(new Vector2d(58, 30), Math.toRadians(-90))
-                .strafeToLinearHeading(new Vector2d(59, 13), Math.toRadians(170))
-                .stopAndAdd(this::spinIntake)
-                .stopAndAdd(this::shootThreeBalls)
-                .strafeToLinearHeading(new Vector2d(63, 30), Math.toRadians(-90))
-                .stopAndAdd(this::spinIntake)
-                .strafeToLinearHeading(new Vector2d(64, 63), Math.toRadians(-100))
+                .strafeToLinearHeading(new Vector2d(64, -63), Math.toRadians(100))
                 .waitSeconds(1)
                 .stopAndAdd(this::stopIntake)
-                .strafeToLinearHeading(new Vector2d(58, 30), Math.toRadians(-90))
-                .strafeToLinearHeading(new Vector2d(59, 13), Math.toRadians(170))
-                .stopAndAdd(this::spinIntake)
-                .stopAndAdd(this::shootThreeBalls)
-                .strafeToLinearHeading(new Vector2d(63, 30), Math.toRadians(-90))
-                .stopAndAdd(this::spinIntake)
-                .strafeToLinearHeading(new Vector2d(64, 63), Math.toRadians(-100))
-                .waitSeconds(1)
-                .stopAndAdd(this::stopIntake)
-                .strafeToLinearHeading(new Vector2d(58, 30), Math.toRadians(-90))
-                .strafeToLinearHeading(new Vector2d(59, 13), Math.toRadians(175))
-                .stopAndAdd(this::spinIntake)
+                .strafeToLinearHeading(new Vector2d(58, -30), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(59, -13), Math.toRadians(-175))
                 .stopAndAdd(this::shootThreeBalls)
                 .stopAndAdd(this::spinDown)
                 .stopAndAdd(this::turretCenterPos)
-                .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(60, -60), Math.toRadians(-90))
                 .waitSeconds(5);
 
 
