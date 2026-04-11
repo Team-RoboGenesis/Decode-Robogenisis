@@ -31,6 +31,8 @@ public class IntakeInfoGrabber extends LinearOpMode {
 
         intake = hardwareMap.get(DcMotor.class, "intake");
         voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
+        String desmosFuncSpeed = null;
+        String desmosFuncVoltage = null;
 
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -62,16 +64,40 @@ public class IntakeInfoGrabber extends LinearOpMode {
             if (gamepad1.y) {
                 dataCollection = false;
                 intake.setPower(0);
+                String[] values = voltageList.split(",");
+                StringBuilder desmosTable = new StringBuilder();
+                int time = 0; // start at 0 ms
+                for (int i = 0; i < values.length; i++) {
+                    desmosTable.append(time)
+                            .append(",")
+                            .append(values[i].trim())
+                            .append("\n"); // new row for Desmos
 
+                    time += 100; // increment by 100 ms
+                }
+                desmosFuncSpeed = desmosTable.toString();
+                // make speed list a desmos table
+                values = speedList.split(",");
+                desmosTable = new StringBuilder();
+                time = 0; // start at 0 ms
+                for (int i = 0; i < values.length; i++) {
+                    desmosTable.append(time)
+                            .append(",")
+                            .append(values[i].trim())
+                            .append("\n"); // new row for Desmos
+
+                    time += 100; // increment by 100 ms
+                }
+                desmosFuncVoltage = desmosTable.toString();
                 log("max RPM: " + maxRPM);
                 log("");
 
                 log("speed list:");
-                log(speedList);
+                log(desmosFuncSpeed);
 
                 log("");
                 log("voltage list:");
-                log(voltageList);
+                log(desmosFuncVoltage);
 
                 telemetry.addLine("Data saved!");
             }
