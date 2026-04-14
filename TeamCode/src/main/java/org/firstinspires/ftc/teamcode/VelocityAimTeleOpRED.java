@@ -24,7 +24,7 @@ import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Tests.Turret;
 
 @TeleOp(name = "VeloTeleOpBLUE")
-public class VelocityAimTeleOpBLUE extends LinearOpMode {
+public class VelocityAimTeleOpRED extends LinearOpMode {
 
     private DcMotor leftFront;
     private DcMotor rightFront;
