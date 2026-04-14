@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -18,12 +17,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import org.firstinspires.ftc.teamcode.Tests.Turret;
 
-@TeleOp(name = "TeleOpBLUE")
-public class AutoAimTeleOpBLUE extends LinearOpMode {
+@TeleOp(name = "VelocityTeleOpBLUE")
+public class VelocityAimTeleOpBLUE extends LinearOpMode {
 
     private DcMotor leftFront = null;
     private DcMotor rightFront = null;
@@ -60,6 +59,12 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
     double startY = -62;
     double startX = -62;
     double offset = 0;
+    double alpha;
+    double filteredAngle;
+    double lastError;
+    double kP;
+    double kI;
+    double kD;
     private double baseDist = 0;
     private double dist = 0;
     private final double threshold = 5;
@@ -69,6 +74,23 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
     private boolean isPurpleBall = false;
     private boolean isBall = false;
     private boolean lastCheck = false;
+
+    private double turretKp = 3.2;
+    private double turretKi = 0.0;
+    private double turretKd = 0.18;
+
+    private double turretIntegral = 0.0;
+    private double turretLastError = 0.0;
+    private long turretLastTimeNanos = 0;
+
+    // --- limelight correction ---
+    private double kVision = 1.0; // 1.0 means fully trust tx as angular correction
+    private double projectileSpeed = 300.0; // inches/sec
+    private double releaseDelay = 0.10;     // seconds
+    private double filteredTurretTarget = 0.0;
+    private double aimAlpha = 0.25;
+    private double turretMaxPower = 0.75;
+    private double integralClamp = 0.5;
     private int count = -1; // because it starts at 1 for some reason
 
     public void zero() {
@@ -132,7 +154,13 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
         // behind how it works, and all of it is declared in a different file
         Turret turret = new Turret(hardwareMap);
 
+        turret.useRawPowerMode();
+        turretLastTimeNanos = System.nanoTime();
+
         telemetry.setMsTransmissionInterval(11);
+
+        // Initialize our camera for distance tracking
+        limelight.start();
 
         // We have different pipelines on our camera to look for different
         // things. Here, we switch to the one that targets April tags
@@ -180,9 +208,6 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
         imu.initialize(parameters);
         imu.resetYaw();
 
-        // Initialize our camera for distance tracking
-        limelight.start();
-
         telemetry.addLine("Init done");
 
         waitForStart();
@@ -191,69 +216,121 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
 
         while (opModeIsActive())
         {
-            // Roadrunner pos tracking
-            drive.updatePoseEstimate();
+            PoseVelocity2d robotVel = drive.updatePoseEstimate();
             Pose2d pose = drive.localizer.getPose();
 
             double robotX = pose.position.x;
             double robotY = pose.position.y;
             double robotHeading = pose.heading.toDouble();
 
-            // Goal pos
+            // RR velocity is robot-frame velocity
+            double vxRobot = robotVel.linearVel.x;
+            double vyRobot = robotVel.linearVel.y;
+            double omegaRobot = robotVel.angVel;
+
+            // convert robot-frame velocity to field-frame velocity
+            double cosH = Math.cos(robotHeading);
+            double sinH = Math.sin(robotHeading);
+
+            double vxField = vxRobot * cosH - vyRobot * sinH;
+            double vyField = vxRobot * sinH + vyRobot * cosH;
+
+            // world target
             double targetX = goalX;
             double targetY = goalY;
 
-            // Angle from robot to corner (field frame)
+            // distance to current target
             double dx = targetX - robotX;
             double dy = targetY - robotY;
-            double angleToCorner = Math.atan2(dy, dx);
+            double distance = Math.hypot(dx, dy);
 
-            // Convert to robot-relative turret angle
-            double turretAngle = angleToCorner - robotHeading;
-            turretAngle = Math.atan2(Math.sin(turretAngle), Math.cos(turretAngle)) + offset;
+            // estimate flight time
+            double timeToTarget = (distance / projectileSpeed) + releaseDelay;
 
-            // Limits to restrict turret to 180 degrees in either direction
-            double maxAngle = Math.toRadians(180);
-            double minAngle = Math.toRadians(-180);
+            // lead point
+            double leadX = targetX - vxField * timeToTarget;
+            double leadY = targetY - vyField * timeToTarget;
 
-            if (turretAngle > maxAngle) turretAngle = maxAngle;
-            if (turretAngle < minAngle) turretAngle = minAngle;
+            // recompute aim vector
+            double leadDx = leadX - robotX;
+            double leadDy = leadY - robotY;
+            double angleToTarget = Math.atan2(leadDy, leadDx);
 
-            int turretPos = (int) (turret.getCurrentPosition() - gamepad2.left_stick_x*40);
+            // desired turret angle in robot frame
+            double turretTarget = angleToTarget - robotHeading;
 
-            // Automatic turret control
-            if (!manual)
-            {
-                turret.aimToAngle(turretAngle);
+            // wrap to [-pi, pi]
+            turretTarget = Math.atan2(Math.sin(turretTarget), Math.cos(turretTarget));
+
+            // limelight fine correction
+            LLResult result = limelight.getLatestResult();
+            if (result != null && result.isValid()) {
+                double txDeg = result.getTx();
+                turretTarget -= Math.toRadians(txDeg) * kVision;
             }
 
-            // Manual turret control
-            if (manual)
-            {
-                turret.setTargetPosition(turretPos );
+            // manual trim
+            turretTarget += offset;
+
+            // clamp to turret limits
+            turretTarget = Math.max(turret.getLeftLimitRad(), Math.min(turret.getRightLimitRad(), turretTarget));
+
+            // smooth target angle
+            filteredTurretTarget = aimAlpha * turretTarget + (1.0 - aimAlpha) * filteredTurretTarget;
+
+            // manual control
+            if (manual) {
+                double manualPower = -gamepad2.left_stick_x * 0.5;
+                turret.setPower(manualPower);
+                filteredTurretTarget = turret.getCurrentAngle(); // prevents snap when re-entering auto
+                turretIntegral = 0.0;
+                turretLastError = 0.0;
+            } else {
+                // custom PID on turret angle
+                double currentAngle = turret.getCurrentAngle();
+                double error = filteredTurretTarget - currentAngle;
+                error = Math.atan2(Math.sin(error), Math.cos(error));
+
+                long now = System.nanoTime();
+                double dt = (now - turretLastTimeNanos) / 1e9;
+                turretLastTimeNanos = now;
+
+                if (dt > 0.0001 && dt < 0.1) {
+                    turretIntegral += error * dt;
+                    turretIntegral = Math.max(-integralClamp, Math.min(integralClamp, turretIntegral));
+
+                    double derivative = (error - turretLastError) / dt;
+                    turretLastError = error;
+
+                    double output = turretKp * error + turretKi * turretIntegral + turretKd * derivative;
+                    output = Math.max(-turretMaxPower, Math.min(turretMaxPower, output));
+
+                    turret.setPower(output);
+                } else {
+                    turret.setPower(0);
+                }
             }
 
-            if (gamepad2.leftStickButtonWasPressed())
-            {
-                offset += 0.05;
-            }
-
-            if (gamepad2.rightStickButtonWasPressed())
-            {
-                offset -= 0.05;
-            }
-
-            // Switch between auto and manual aim
             if (gamepad2.leftBumperWasPressed()) {
                 manual = !manual;
+                turretIntegral = 0.0;
+                turretLastError = 0.0;
+                filteredTurretTarget = turret.getCurrentAngle();
+                turretLastTimeNanos = System.nanoTime();
             }
 
             // Telemetry for identifying error
-            telemetry.addData("X", robotX);
-            telemetry.addData("Y", robotY);
-            telemetry.addData("RobotHeadingDeg", Math.toDegrees(robotHeading));
-            telemetry.addData("AngleToCornerDeg", Math.toDegrees(angleToCorner));
-            telemetry.addData("TurretAngleDeg", Math.toDegrees(turretAngle));
+            telemetry.addData("vxRobot", vxRobot);
+            telemetry.addData("vyRobot", vyRobot);
+            telemetry.addData("vxField", vxField);
+            telemetry.addData("vyField", vyField);
+            telemetry.addData("omegaRobot", omegaRobot);
+            telemetry.addData("distanceToGoal", distance);
+            telemetry.addData("timeToTarget", timeToTarget);
+            telemetry.addData("leadX", leadX);
+            telemetry.addData("leadY", leadY);
+            telemetry.addData("TurretTargetDeg", Math.toDegrees(filteredTurretTarget));
+            telemetry.addData("TurretCurrentDeg", Math.toDegrees(turret.getCurrentAngle()));
 
             // Drive variables
             double y = -gamepad1.left_stick_y;
@@ -291,39 +368,8 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
             rightFront.setPower(frontRightPower);
             rightBack.setPower(backRightPower);
 
-            // Start polling for data
-            LLResult result = limelight.getLatestResult();
-
-            // Chack that there is a target
-            if (result != null && result.isValid()) {
-                // List all 3D tracking results
-                for (LLResultTypes.FiducialResult fid : result.getFiducialResults()) {
-                    // Return 3D tracking results
-                    Pose3D camToTag = fid.getCameraPoseTargetSpace();
-                    double xTarget = camToTag.getPosition().x;
-                    double yTarget = camToTag.getPosition().y;
-                    double zTarget = camToTag.getPosition().z;
-
-                    // Turn 3D results into distance
-                    double distanceMeters = Math.sqrt(xTarget * xTarget + yTarget * yTarget + zTarget * zTarget);
-
-                    // Translate to freedom units
-                    distanceInches = DistanceUnit.INCH.fromMeters(distanceMeters);
-                }
-            }
-
             // Variables for flywheel PIDF
             double curVelocity = flywheel1.getVelocity();
-            double error = curTargetVelocity - curVelocity;
-
-            if (Math.abs(error) < 60)
-            {
-                led4.setPosition(GREEN);
-            }
-            else
-            {
-                led4.setPosition(0.277);
-            }
 
             dist = distSensor.getDistance(DistanceUnit.CM);
             broken = dist < 14;
@@ -361,9 +407,9 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
             // MORE TELEMETRY
             telemetry.addData("Distance: ", dist);
             telemetry.addData("Count: ", count);
-            telemetry.addData("MS interval: ", telemetry.getMsTransmissionInterval());
-            telemetry.addData("Green ball? ", isGreenBall);
-            telemetry.addData("Purple ball?", isPurpleBall);
+//            telemetry.addData("MS interval: ", telemetry.getMsTransmissionInterval());
+//            telemetry.addData("Green ball? ", isGreenBall);
+//            telemetry.addData("Purple ball?", isPurpleBall);
             telemetry.addData("offset: ", offset);
             telemetry.addData("Inches: ", distanceInches);
             telemetry.addData("YAW: ", imu.getRobotYawPitchRollAngles().getYaw());
@@ -372,7 +418,7 @@ public class AutoAimTeleOpBLUE extends LinearOpMode {
             telemetry.addData("Pos: ", pos);
             telemetry.addData("Target Velocity: ", "%,4f", curTargetVelocity);
             telemetry.addData("Current Velocity: ", "%,4f", curVelocity);
-            telemetry.addData("Error: ", "%,2f", error);
+//            telemetry.addData("Error: ", "%,2f", error);
             telemetry.update();
 
             // Initialize flywheel motors with tuned PIDF values
