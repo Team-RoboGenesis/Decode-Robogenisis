@@ -23,7 +23,9 @@ public class IntakeInfoGrabber extends LinearOpMode {
     private VoltageSensor voltageSensor;
 
     private boolean dataCollection = false;
-
+    private String desmosFuncSpeed = null;
+    private String desmosFuncVoltage = null;
+    private String desmosFuncFlywheelSpeed = null;
     private String voltageList = "";
     private String speedList = "";
     private String flywheelSpeedList = "";
@@ -33,9 +35,24 @@ public class IntakeInfoGrabber extends LinearOpMode {
 
     double P = 82;
     double F = 12.3474;
+    private double RPMFlywheel = 0;
+    private double RPM = 0;
 
 
+    private String funcMaker(String list){
+        String[] values = list.split(",");
+        StringBuilder desmosTable = new StringBuilder();
+        int time = 0; // start at 0 ms
+        for (int i = 0; i < values.length; i++) {
+            desmosTable.append(time)
+                    .append(",")
+                    .append(values[i].trim())
+                    .append("\n"); // new row for Desmos
 
+            time += 100; // increment by 100 ms
+        }
+        return desmosTable.toString();
+    }
     private void log(String text) {
         FileUtil.writeToSDCard(hardwareMap.appContext, text, true);
     }
@@ -48,9 +65,6 @@ public class IntakeInfoGrabber extends LinearOpMode {
         voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
         actuator1 = hardwareMap.get(CRServo.class, "servo");
         actuator2 = hardwareMap.get(CRServo.class, "servo1");
-        String desmosFuncSpeed = null;
-        String desmosFuncVoltage = null;
-        String desmosFuncFlywheelSpeed = null;
 
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -81,7 +95,7 @@ public class IntakeInfoGrabber extends LinearOpMode {
 
             if (gamepad1.a) { // empty/format the log file
                 FileUtil.writeToSDCard(hardwareMap.appContext, "", false);
-                telemetry.addLine("overote file");
+                telemetry.addLine("overwrote file!");
 
             }
 
@@ -146,44 +160,11 @@ public class IntakeInfoGrabber extends LinearOpMode {
             if (gamepad1.y) { // spin down, format, and log all data
                 dataCollection = false;
                 intake.setPower(0);
-                String[] values = speedList.split(",");
-                StringBuilder desmosTable = new StringBuilder();
-                int time = 0; // start at 0 ms
-                for (int i = 0; i < values.length; i++) {
-                    desmosTable.append(time)
-                            .append(",")
-                            .append(values[i].trim())
-                            .append("\n"); // new row for Desmos
 
-                    time += 100; // increment by 100 ms
-                }
-                desmosFuncFlywheelSpeed = desmosTable.toString();
+                desmosFuncFlywheelSpeed = funcMaker(flywheelSpeedList);
+                desmosFuncSpeed = funcMaker(speedList);
+                desmosFuncVoltage = funcMaker(voltageList);
 
-                values = speedList.split(",");
-                desmosTable = new StringBuilder();
-                time = 0; // start at 0 ms
-                for (int i = 0; i < values.length; i++) {
-                    desmosTable.append(time)
-                            .append(",")
-                            .append(values[i].trim())
-                            .append("\n"); // new row for Desmos
-
-                    time += 100; // increment by 100 ms
-                }
-                desmosFuncSpeed = desmosTable.toString();
-                // make speed list a desmos table
-                values = voltageList.split(",");
-                desmosTable = new StringBuilder();
-                time = 0; // start at 0 ms
-                for (int i = 0; i < values.length; i++) {
-                    desmosTable.append(time)
-                            .append(",")
-                            .append(values[i].trim())
-                            .append("\n"); // new row for Desmos
-
-                    time += 100; // increment by 100 ms
-                }
-                desmosFuncVoltage = desmosTable.toString();
                 log("max RPM: " + maxRPM);
                 log("");
 
@@ -210,30 +191,31 @@ public class IntakeInfoGrabber extends LinearOpMode {
                 sleep(100);
 
                 int flywheelTicks = flywheel1.getCurrentPosition() - previousTicksFlywheel;
-                double RPMFlywheel = (flywheelTicks / ticksPerRotation) * 600;
+                RPMFlywheel = (flywheelTicks / ticksPerRotation) * 600;
                 RPMFlywheel = (Math.floor(RPMFlywheel * 1000)) / 1000;
                 if (RPMFlywheel > maxRPM) maxRPM = RPMFlywheel;
 //                RPMFlywheel /= 500;
 
                 int ticks = intake.getCurrentPosition() - previousTicks;
-                double RPM = (ticks / ticksPerRotation) * 600;
+                RPM = (ticks / ticksPerRotation) * 600;
                 RPM = (Math.floor(RPM * 1000)) / 1000;
 //                if (RPM > maxRPM) maxRPM = RPM;
 //                RPM /= 500;
 
                 // Build speed list
                 if (speedList.isEmpty()) speedList = "" + RPM;
-                else speedList += ", " + RPM;
+                else speedList = ", " + RPM;
 
                 double voltage = voltageSensor.getVoltage();
                 voltage = (Math.floor(voltage * 1000)) / 1000;
 
                 // Build voltage list
                 if (voltageList.isEmpty()) voltageList = "" + voltage;
-                else voltageList += ", " + voltage;
+                else voltageList = ", " + voltage;
 
+                // you get the idea
                 if (flywheelSpeedList.isEmpty()) flywheelSpeedList = "" + RPMFlywheel;
-                else flywheelSpeedList += ", " + RPMFlywheel;
+                else flywheelSpeedList = ", " + RPMFlywheel;
             }
 
             telemetry.addData("RPM (max)", maxRPM);
