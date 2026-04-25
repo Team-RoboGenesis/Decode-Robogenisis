@@ -12,8 +12,8 @@ public class Turret {
     private static final double RAD_PER_TICK = 1.0 / TICKS_PER_RAD;
 
     // Soft limits in radians
-    private static final double LEFT_LIMIT_RAD = Math.toRadians(-180);
-    private static final double RIGHT_LIMIT_RAD = Math.toRadians(180);
+    private static final double LEFT_LIMIT_RAD = Math.toRadians(-160);
+    private static final double RIGHT_LIMIT_RAD = Math.toRadians(170);
 
     // Soft limits in ticks
     private static final int LEFT_LIMIT_TICKS = (int) (LEFT_LIMIT_RAD * TICKS_PER_RAD);

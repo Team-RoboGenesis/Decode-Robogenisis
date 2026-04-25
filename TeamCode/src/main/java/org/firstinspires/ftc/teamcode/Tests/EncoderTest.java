@@ -72,7 +72,7 @@ public class EncoderTest extends LinearOpMode
             int ticks = flywheel1.getCurrentPosition() - previousTicks;
             double RPM = (ticks/ticksPerRotation) * 600;
             telemetry.addData("RPM: ", RPM);
-            telemetry.addData("Encoder ticks: ", flywheel1.getCurrentPosition());
+            telemetry.addData("Encoder ticks: ", flywheel2.getCurrentPosition());
             telemetry.update();
         }
     }
