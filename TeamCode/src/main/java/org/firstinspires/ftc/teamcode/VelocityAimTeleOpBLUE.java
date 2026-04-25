@@ -65,10 +65,10 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
     private boolean manual = true;
 
     // Aiming constants
-    private final static double goalY = 72;
-    private final static double goalX = -72;
-    private final static double startY = -62;
-    private final static double startX = 62;
+    double goalY = 72;
+    double goalX = 72;
+    double startY = -62;
+    double startX = -62;
     private double offset = 0.0;
 
     // Counting logic
@@ -78,19 +78,19 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
     private int count = -1;
 
     // Turret PID
-    private double turretKp = 3.2;
+    private double turretKp = 4.0;
     private double turretKi = 0.0;
-    private double turretKd = 0.18;
+    private double turretKd = 0.15;
     private double turretIntegral = 0.0;
     private double turretLastError = 0.0;
     private long turretLastTimeNanos = 0L;
 
     // Vision correction
-    private double kVision = 1.0;
+    private double kVision = 0;
 
     // Lead-shot tuning
-    private double projectileSpeed = 300.0; // inches/sec, tune this
-    private double releaseDelay = 0.10;     // seconds, tune this
+    private double projectileSpeed = 240.0; // inches/sec, tune this
+    private double releaseDelay = 0.50;     // seconds, tune this
 
     // Aim smoothing
     private double filteredTurretTarget = 0.0;
@@ -117,6 +117,7 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
         led2.setPosition(WHITE);
         led3.setPosition(OFF);
     }
+
 
     public void three() {
         led1.setPosition(WHITE);

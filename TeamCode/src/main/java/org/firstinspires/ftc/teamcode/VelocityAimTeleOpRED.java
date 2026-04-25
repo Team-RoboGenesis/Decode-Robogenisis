@@ -23,7 +23,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Tests.Turret;
 
-@TeleOp(name = "VeloTeleOpBLUE")
+@TeleOp(name = "VeloTeleOpRED")
 public class VelocityAimTeleOpRED extends LinearOpMode {
 
     private DcMotor leftFront;
@@ -258,10 +258,6 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
             filteredTurretTarget = aimAlpha * turretTarget + (1.0 - aimAlpha) * filteredTurretTarget;
 
             // ---------------- TURRET CONTROL ----------------
-            if (gamepad2.left_bumper) {
-                // handled below with edge detect style not available in standard SDK
-            }
-
             if (gamepad2.left_stick_button) {
                 offset += 0.05;
             }

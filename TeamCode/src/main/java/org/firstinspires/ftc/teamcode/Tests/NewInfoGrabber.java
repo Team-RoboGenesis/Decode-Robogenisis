@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-@TeleOp(name = "MotorInfoGrabber")
-public class IntakeInfoGrabber extends LinearOpMode {
+@TeleOp(name = "NewInfoGrabber")
+public class NewInfoGrabber extends LinearOpMode {
     private final double highVelocity = 1550;
     private final double lowVelocity = 1230;
     private double curTargetVelocity = 0;
@@ -42,7 +42,7 @@ public class IntakeInfoGrabber extends LinearOpMode {
 
 
     private void log(String text) {
-        FileUtil.writeToSDCard(hardwareMap.appContext, text, true);
+        NewFileUtil.appendLine(text);
     }
 
     @Override
@@ -75,14 +75,14 @@ public class IntakeInfoGrabber extends LinearOpMode {
         telemetry.update();
 
         waitForStart();
-
+        NewFileUtil.init(hardwareMap.appContext);
         // Confirm file writing works
         log("=== START ===");
 
         while (opModeIsActive()) {
 
             if (gamepad1.a) { // empty/format the log file
-                FileUtil.writeToSDCard(hardwareMap.appContext, "", false);
+                NewFileUtil.overwriteFromIndex("", 0);
                 telemetry.addLine("overote file");
 
             }
