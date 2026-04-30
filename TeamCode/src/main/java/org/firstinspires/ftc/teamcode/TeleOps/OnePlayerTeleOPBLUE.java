@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.TeleOps;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
@@ -23,8 +23,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Tests.Turret;
 
-@TeleOp(name = "VeloTeleOpRED")
-public class VelocityAimTeleOpRED extends LinearOpMode {
+@TeleOp(name = "OnePlayerTeleOpBLUE")
+public class OnePlayerTeleOPBLUE extends LinearOpMode {
 
     private DcMotor leftFront;
     private DcMotor rightFront;
@@ -65,10 +65,10 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
     private boolean manual = true;
 
     // Aiming constants
-    private final static double goalY = 72;
-    private final static double goalX = -72;
-    private final static double startY = -62;
-    private final static double startX = 62;
+    double goalY = 72;
+    double goalX = 72;
+    double startY = -62;
+    double startX = -62;
     private double offset = 0.0;
 
     // Counting logic
@@ -78,23 +78,23 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
     private int count = -1;
 
     // Turret PID
-    private double turretKp = 3.2;
+    private double turretKp = 4.0;
     private double turretKi = 0.0;
-    private double turretKd = 0.18;
+    private double turretKd = 0.15;
     private double turretIntegral = 0.0;
     private double turretLastError = 0.0;
     private long turretLastTimeNanos = 0L;
 
     // Vision correction
-    private double kVision = 1.0;
+    private double kVision = 0;
 
     // Lead-shot tuning
-    private double projectileSpeed = 300.0; // inches/sec, tune this
-    private double releaseDelay = 0.10;     // seconds, tune this
+    private double projectileSpeed = 360;
+    private double releaseDelay = 0.35;
 
     // Aim smoothing
     private double filteredTurretTarget = 0.0;
-    private double aimAlpha = 0.25;
+    private double aimAlpha = 0.4;
 
     // PID guards
     private double turretMaxPower = 0.75;
@@ -117,6 +117,7 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
         led2.setPosition(WHITE);
         led3.setPosition(OFF);
     }
+
 
     public void three() {
         led1.setPosition(WHITE);
@@ -258,18 +259,18 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
             filteredTurretTarget = aimAlpha * turretTarget + (1.0 - aimAlpha) * filteredTurretTarget;
 
             // ---------------- TURRET CONTROL ----------------
-            if (gamepad2.left_stick_button) {
-                offset += 0.05;
+            if (gamepad1.leftStickButtonWasPressed()) {
+                projectileSpeed += 5;
             }
 
-            if (gamepad2.right_stick_button) {
-                offset -= 0.05;
+            if (gamepad1.rightStickButtonWasPressed()) {
+                projectileSpeed -= 5;
             }
 
             // Toggle auto/manual
-            if (gamepad2.left_bumper) {
+            if (gamepad1.left_bumper) {
                 // basic debounce
-                while (opModeIsActive() && gamepad2.left_bumper) {
+                while (opModeIsActive() && gamepad1.left_bumper) {
                     idle();
                 }
                 manual = !manual;
@@ -406,10 +407,10 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
             }
 
             // Launching control
-            if (gamepad2.dpad_down) {
+            if (gamepad1.dpad_down) {
                 actuator1.setPower(-1);
                 actuator2.setPower(-1);
-            } else if (gamepad2.dpad_up) {
+            } else if (gamepad1.dpad_up) {
                 actuator1.setPower(1);
                 actuator2.setPower(1);
             } else {
@@ -417,17 +418,17 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
                 actuator2.setPower(0);
             }
 
-            if (gamepad2.right_trigger > 0.1 && gamepad2.dpad_up) {
+            if (gamepad1.right_trigger > 0.1 && gamepad1.dpad_up) {
                 count = 0;
             }
 
             // Flywheel speed control
-            if (gamepad2.x) {
+            if (gamepad1.x) {
                 curTargetVelocity = OFF;
             }
 
-            if (gamepad2.b) {
-                while (opModeIsActive() && gamepad2.b) {
+            if (gamepad1.b) {
+                while (opModeIsActive() && gamepad1.b) {
                     idle();
                 }
                 if (curTargetVelocity == highVelocity) {
@@ -438,9 +439,9 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
             }
 
             // Intake control
-            if (gamepad2.right_trigger > 0.1) {
+            if (gamepad1.right_trigger > 0.1) {
                 intake.setPower(1);
-            } else if (gamepad2.left_trigger > 0.1) {
+            } else if (gamepad1.left_trigger > 0.1) {
                 intake.setPower(-1);
             } else {
                 intake.setPower(0);

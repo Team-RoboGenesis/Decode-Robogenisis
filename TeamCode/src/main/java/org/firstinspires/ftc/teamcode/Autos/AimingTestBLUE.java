@@ -1,0 +1,272 @@
+package org.firstinspires.ftc.teamcode.Autos;
+
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+
+import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.Tests.Turret;
+
+@Autonomous(name = "AutoAutoAimBLUE")
+public class AimingTestBLUE extends LinearOpMode
+{
+    // Motors
+    private DcMotorEx flywheel1 = null;
+    private DcMotorEx flywheel2 = null;
+    private DcMotor intake = null;
+
+    // Turret
+    private Turret turret = null;
+
+    // Servos
+    private CRServo transfer2 = null;
+    private CRServo transfer1 = null;
+
+    // Roadrunner drive
+    private MecanumDrive drive = null;
+
+    // Constants
+    private static final double INTAKE_SPEED = 1;
+    private static final double OFF = 0;
+    private static final double FAR_SPEED = 2650;
+    private static final double TICKS_PER_ROTATION = 25.5;
+
+    private static final double GOAL_X = 72;
+    private static final double GOAL_Y = 72;
+
+    double P = 82;
+    double F = 12.3474;
+
+    private double lowVelocity = 1200;
+    private double RPM = 0;
+    private double offset = 0;
+
+    private void spinUp()
+    {
+        flywheel1.setVelocity(lowVelocity);
+        flywheel2.setVelocity(lowVelocity);
+    }
+
+    public void spinDown()
+    {
+        flywheel1.setVelocity(OFF);
+        flywheel2.setVelocity(OFF);
+    }
+
+    public boolean shootBall()
+    {
+        if (RPM <= FAR_SPEED)
+        {
+            return false;
+        }
+
+        transfer1.setPower(1);
+        transfer2.setPower(1);
+        intake.setPower(1);
+
+        sleep(500);
+
+        transfer1.setPower(0);
+        transfer2.setPower(0);
+        intake.setPower(0);
+
+        return true;
+    }
+
+    private void spinIntake()
+    {
+        intake.setPower(INTAKE_SPEED);
+    }
+
+    private void stopIntake()
+    {
+        intake.setPower(OFF);
+    }
+
+    private void aimTurretAtGoal()
+    {
+        drive.updatePoseEstimate();
+        Pose2d pose = drive.localizer.getPose();
+
+        double robotX = pose.position.x;
+        double robotY = pose.position.y;
+        double robotHeading = pose.heading.toDouble();
+
+        double dx = GOAL_X - robotX;
+        double dy = GOAL_Y - robotY;
+
+        double angleToGoal = Math.atan2(dy, dx);
+
+        double turretAngle = angleToGoal - robotHeading;
+        turretAngle = Math.atan2(Math.sin(turretAngle), Math.cos(turretAngle)) + offset;
+
+        double maxAngle = Math.toRadians(180);
+        double minAngle = Math.toRadians(-180);
+
+        if (turretAngle > maxAngle)
+        {
+            turretAngle = maxAngle;
+        }
+
+        if (turretAngle < minAngle)
+        {
+            turretAngle = minAngle;
+        }
+
+        turret.aimToAngle(turretAngle);
+
+        telemetry.addData("Robot X", robotX);
+        telemetry.addData("Robot Y", robotY);
+        telemetry.addData("Robot Heading Deg", Math.toDegrees(robotHeading));
+        telemetry.addData("Angle To Goal Deg", Math.toDegrees(angleToGoal));
+        telemetry.addData("Turret Angle Deg", Math.toDegrees(turretAngle));
+        telemetry.update();
+    }
+
+    private void turretCenterPos()
+    {
+        turret.setTargetPosition(0);
+    }
+
+    private void shootThreeBalls()
+    {
+        int shootCount = 0;
+        int ticks;
+        int previousTicks;
+        boolean isSuccessful;
+
+        while (shootCount < 3 && opModeIsActive())
+        {
+            aimTurretAtGoal();
+
+            previousTicks = flywheel1.getCurrentPosition();
+            sleep(100);
+
+            ticks = flywheel1.getCurrentPosition() - previousTicks;
+            RPM = (ticks / TICKS_PER_ROTATION) * 600;
+
+            telemetry.addData("RPM", RPM);
+            telemetry.update();
+
+            isSuccessful = shootBall();
+
+            if (isSuccessful)
+            {
+                shootCount += 1;
+            }
+        }
+    }
+
+    @Override
+    public void runOpMode() throws InterruptedException
+    {
+        // Motor configuration
+        turret = new Turret(hardwareMap);
+
+        flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
+        flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
+        intake = hardwareMap.get(DcMotor.class, "intake");
+
+        transfer1 = hardwareMap.get(CRServo.class, "servo");
+        transfer2 = hardwareMap.get(CRServo.class, "servo1");
+
+        // Motor direction
+        transfer1.setDirection(DcMotorSimple.Direction.REVERSE);
+        flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        // Flywheel setup
+        flywheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        flywheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
+
+        flywheel1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+        flywheel2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+
+        // Drive constraints
+        Pose2d beginPose = new Pose2d(-54, -46, Math.toRadians(-127));
+        drive = new MecanumDrive(hardwareMap, beginPose);
+
+        // Auto pathing
+        TrajectoryActionBuilder shootThree = drive.actionBuilder(beginPose)
+                .stopAndAdd(this::spinUp)
+                .stopAndAdd(this::aimTurretAtGoal)
+
+                // First cycle
+                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(185))
+                .stopAndAdd(this::spinUp)
+                .stopAndAdd(this::aimTurretAtGoal)
+                .stopAndAdd(this::spinIntake)
+                .stopAndAdd(this::shootThreeBalls)
+
+                .turn(Math.toRadians(-80))
+                .stopAndAdd(this::spinIntake)
+
+                // First intake
+                .strafeToLinearHeading(new Vector2d(-7, -50), Math.toRadians(90))
+                .waitSeconds(0.3)
+                .stopAndAdd(this::stopIntake)
+                .stopAndAdd(this::aimTurretAtGoal)
+
+                // Second cycle
+                .splineTo(new Vector2d(-5, -14), Math.toRadians(182))
+                .stopAndAdd(this::aimTurretAtGoal)
+                .stopAndAdd(this::spinIntake)
+                .stopAndAdd(this::shootThreeBalls)
+                .stopAndAdd(this::spinIntake)
+
+                // Second intake
+                .setReversed(true)
+                .splineTo(new Vector2d(16, -20), Math.toRadians(-60))
+                .splineTo(new Vector2d(16, -52), Math.toRadians(-90))
+                .stopAndAdd(this::stopIntake)
+
+                // Third cycle
+                .splineTo(new Vector2d(5, -50), Math.toRadians(90))
+                .splineTo(new Vector2d(-5, -14), Math.toRadians(180))
+                .stopAndAdd(this::aimTurretAtGoal)
+                .stopAndAdd(this::spinIntake)
+                .stopAndAdd(this::shootThreeBalls)
+                .stopAndAdd(this::spinIntake)
+
+                // Third intake
+                .strafeToLinearHeading(new Vector2d(43, -20), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(43, -53), Math.toRadians(90))
+                .stopAndAdd(this::stopIntake)
+
+                // Fourth cycle
+                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(-185))
+                .stopAndAdd(this::aimTurretAtGoal)
+                .stopAndAdd(this::shootThreeBalls)
+
+                // Prepare the robot for TeleOp
+                .stopAndAdd(this::turretCenterPos)
+                .stopAndAdd(this::spinDown)
+                .strafeToLinearHeading(new Vector2d(6, -15), Math.toRadians(180))
+                .waitSeconds(5);
+
+        Action auto = shootThree.build();
+
+        telemetry.addLine("Init done");
+        telemetry.update();
+
+        waitForStart();
+
+        if (isStopRequested()) return;
+
+        Actions.runBlocking(auto);
+    }
+}

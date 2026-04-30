@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.TeleOps;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
@@ -23,8 +23,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Tests.Turret;
 
-@TeleOp(name = "VeloTeleOpBLUE")
-public class VelocityAimTeleOpBLUE extends LinearOpMode {
+@TeleOp(name = "VeloTeleOpRED")
+public class VelocityAimTeleOpRED extends LinearOpMode {
 
     private DcMotor leftFront;
     private DcMotor rightFront;
@@ -65,10 +65,10 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
     private boolean manual = true;
 
     // Aiming constants
-    double goalY = 72;
-    double goalX = 72;
-    double startY = -62;
-    double startX = -62;
+    private final static double goalY = 72;
+    private final static double goalX = -72;
+    private final static double startY = -62;
+    private final static double startX = 62;
     private double offset = 0.0;
 
     // Counting logic
@@ -78,19 +78,19 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
     private int count = -1;
 
     // Turret PID
-    private double turretKp = 4.0;
+    private double turretKp = 3.2;
     private double turretKi = 0.0;
-    private double turretKd = 0.15;
+    private double turretKd = 0.18;
     private double turretIntegral = 0.0;
     private double turretLastError = 0.0;
     private long turretLastTimeNanos = 0L;
 
     // Vision correction
-    private double kVision = 0;
+    private double kVision = 1.0;
 
     // Lead-shot tuning
-    private double projectileSpeed = 240.0; // inches/sec, tune this
-    private double releaseDelay = 0.50;     // seconds, tune this
+    private double projectileSpeed = 300.0; // inches/sec, tune this
+    private double releaseDelay = 0.10;     // seconds, tune this
 
     // Aim smoothing
     private double filteredTurretTarget = 0.0;
@@ -117,7 +117,6 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
         led2.setPosition(WHITE);
         led3.setPosition(OFF);
     }
-
 
     public void three() {
         led1.setPosition(WHITE);
@@ -259,10 +258,6 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
             filteredTurretTarget = aimAlpha * turretTarget + (1.0 - aimAlpha) * filteredTurretTarget;
 
             // ---------------- TURRET CONTROL ----------------
-            if (gamepad2.left_bumper) {
-                // handled below with edge detect style not available in standard SDK
-            }
-
             if (gamepad2.left_stick_button) {
                 offset += 0.05;
             }

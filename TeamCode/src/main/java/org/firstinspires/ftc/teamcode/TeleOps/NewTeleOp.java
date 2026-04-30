@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.TeleOps;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -6,12 +6,10 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -20,10 +18,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.Tests.Turret;
 
-@TeleOp(name = "TeleOpRED")
-public class AutoAimTeleOpRED extends LinearOpMode {
+//@TeleOp(name = "New Teleop")
+public class NewTeleOp extends LinearOpMode {
 
     private DcMotor leftFront = null;
     private DcMotor rightFront = null;
@@ -32,76 +29,52 @@ public class AutoAimTeleOpRED extends LinearOpMode {
     private DcMotorEx flywheel1;
     private DcMotorEx flywheel2;
     private DcMotor intake = null;
+    private DcMotor turret = null;
     private CRServo actuator1 = null;
     private CRServo actuator2 = null;
-    private Servo led1;
-    private Servo led2;
-    private Servo led3;
-    private Servo led4;
-    private DistanceSensor distSensor;
+    private Servo led1 = null;
+    private Servo led2 = null;
+    private Servo led3 = null;
     Limelight3A limelight = null;
 
     private static final double GREEN = 0.456;
     private static final double PURPLE = 0.721;
+    private static final double HIGH_POWER = 0.65;
+    private static final double LOW_POWER = 0.52;
+    private static final double MEDIUM_POWER = 0.57;
     private static final double OFF = 0;
     private static final double FAR_SPEED = 3300;
     private static final int SHOOT_POSE = 0;
     private final static int CONVERT_TO_MINUTE = 600;
     private static final double ticksPerRotation = 25.5;
     private static final int APRIL_TAG_PIPELINE = 0;
-    private static final double WHITE = 0.9;
     double P = 82;
     double F = 12.3474;
-    private final double highVelocity = 1550;
-    private final double lowVelocity = 1230;
+    private double highVelocity = 1500;
+    private double lowVelocity = 1250;
     double curTargetVelocity = lowVelocity;
     private double RPM = 0;
-    private final double pos = 0;
+    private double pos = 0;
     private double distanceInches = 0;
-    boolean manual = true;
-    double goalY = 72;
-    double goalX = -72;
-    double startY = -62;
-    double startX = 62;
-    double offset = 0;
-    private double baseDist = 0;
-    private double dist = 0;
-    private final double threshold = 5;
-    private boolean last = false;
-    private boolean broken = false;
-    private boolean isGreenBall = false;
-    private boolean isPurpleBall = false;
-    private boolean isBall = false;
-    private boolean lastCheck = false;
-    private int count = -1; // because it starts at 1 for some reason
 
-    public void zero() {
-        led1.setPosition(OFF);
-        led2.setPosition(OFF);
-        led3.setPosition(OFF);
+
+    private void turretPos(int position)
+    {
+        if (turret.getCurrentPosition() > 2100)
+        {
+            turret.setTargetPosition(210);
+        }
+        else if (turret.getCurrentPosition() < -2201)
+        {
+            turret.setTargetPosition(-221);
+        }
+        else
+        {
+            turret.setTargetPosition(position);
+        }
     }
 
-    public void one() {
-        led1.setPosition(WHITE);
-        led2.setPosition(OFF);
-        led3.setPosition(OFF);
-    }
 
-    public void two() {
-        led1.setPosition(WHITE);
-        led2.setPosition(WHITE);
-        led3.setPosition(OFF);
-    }
-
-    public void three() {
-        led1.setPosition(WHITE);
-        led2.setPosition(WHITE);
-        led3.setPosition(WHITE);
-    }
-
-    public void reset() {
-        count = 0;
-    }
 
     private boolean shootBall()
     {
@@ -153,18 +126,11 @@ public class AutoAimTeleOpRED extends LinearOpMode {
         flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
         flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
         intake = hardwareMap.get(DcMotor.class, "intake");
+        turret = hardwareMap.get(DcMotor.class, "turret");
         actuator1 = hardwareMap.get(CRServo.class, "servo");
         actuator2 = hardwareMap.get(CRServo.class, "servo1");
-        distSensor = hardwareMap.get(DistanceSensor.class, "dist");
-        led1 = hardwareMap.get(Servo.class, "led1");
-        led2 = hardwareMap.get(Servo.class, "led2");
-        led3 = hardwareMap.get(Servo.class, "led3");
-        led4 = hardwareMap.get(Servo.class, "led4");
 
         limelight = hardwareMap.get(Limelight3A.class, "Benny");
-
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(3, -14, Math.toRadians(0)));
-        Turret turret = new Turret(hardwareMap);
 
         telemetry.setMsTransmissionInterval(11);
         limelight.pipelineSwitch(APRIL_TAG_PIPELINE);
@@ -197,15 +163,29 @@ public class AutoAimTeleOpRED extends LinearOpMode {
 
         telemetry.addLine("Init done");
 
+        turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        turret.setPower(0.7);
+        turret.setTargetPosition(0);
+        turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        turret.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
 
         actuator1.setDirection(DcMotorSimple.Direction.REVERSE);
+//        actuator2.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         IMU imu = hardwareMap.get(IMU.class, "imu");
+        // Adjust the orientation parameters to match your robot
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
                 RevHubOrientationOnRobot.UsbFacingDirection.UP));
+        // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
         imu.initialize(parameters);
         imu.resetYaw();
 
@@ -215,78 +195,13 @@ public class AutoAimTeleOpRED extends LinearOpMode {
 
         while (opModeIsActive())
         {
-            // Roadrunner pos tracking
-            drive.updatePoseEstimate();
-            Pose2d pose = drive.localizer.getPose();
 
-            double robotX = pose.position.x;
-            double robotY = pose.position.y;
-            double robotHeading = pose.heading.toDouble();
-
-            // Goal pos
-            double targetX = goalX;
-            double targetY = goalY;
-
-            // Angle from robot to corner (field frame)
-            double dx = targetX - robotX;
-            double dy = targetY - robotY;
-            double angleToCorner = Math.atan2(dy, dx);
-
-            // Convert to robot-relative turret angle
-            double turretAngle = angleToCorner - robotHeading;
-            turretAngle = Math.atan2(Math.sin(turretAngle), Math.cos(turretAngle)) + offset;
-
-            // Limits to restrict turret to 180 degrees in either direction
-            double maxAngle = Math.toRadians(180);
-            double minAngle = Math.toRadians(-180);
-
-            if (turretAngle > maxAngle) turretAngle = maxAngle;
-            if (turretAngle < minAngle) turretAngle = minAngle;
-
-            int turretPos = (int) (turret.getCurrentPosition() - gamepad2.left_stick_x*40);
-
-            // Automatic turret control
-            if (!manual)
-            {
-                turret.aimToAngle(turretAngle);
-            }
-
-            // Manual turret control
-            if (manual)
-            {
-                turret.setTargetPosition(turretPos);
-            }
-
-            if (gamepad2.leftStickButtonWasPressed())
-            {
-                offset += 0.05;
-            }
-
-            if (gamepad2.rightStickButtonWasPressed())
-            {
-                offset -= 0.05;
-            }
-
-            // Switch between auto and manual aim
-            if (gamepad2.leftBumperWasPressed()) {
-                manual = !manual;
-            }
-
-            telemetry.addData("X", robotX);
-            telemetry.addData("Y", robotY);
-            telemetry.addData("RobotHeadingDeg", Math.toDegrees(robotHeading));
-            telemetry.addData("AngleToCornerDeg", Math.toDegrees(angleToCorner));
-            telemetry.addData("TurretAngleDeg", Math.toDegrees(turretAngle));
-
-            // Drive variables
-            double y = -gamepad1.left_stick_y;
+            double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
             double x = gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x;
 
-            if (gamepad1.options)
-            {
+            if (gamepad1.options) {
                 imu.resetYaw();
-                drive = new MecanumDrive(hardwareMap, new Pose2d(startX, startY, Math.toRadians(90)));
             }
 
             double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
@@ -314,6 +229,10 @@ public class AutoAimTeleOpRED extends LinearOpMode {
             limelight.start();
             LLResult result = limelight.getLatestResult();
 
+            int targetPos = (int) ( turret.getCurrentPosition() + (gamepad2.left_stick_x * 40));
+
+            drive.updatePoseEstimate();
+
             if (result != null && result.isValid()) {
                 for (LLResultTypes.FiducialResult fid : result.getFiducialResults()) {
                     Pose3D camToTag = fid.getCameraPoseTargetSpace();
@@ -328,56 +247,14 @@ public class AutoAimTeleOpRED extends LinearOpMode {
             double curVelocity = flywheel1.getVelocity();
             double error = curTargetVelocity - curVelocity;
 
-            if (Math.abs(error) < 60)
-            {
-                led4.setPosition(GREEN);
-            }
-            else
-            {
-                led4.setPosition(0.3);
-            }
-
-            dist = distSensor.getDistance(DistanceUnit.CM);
-            broken = dist < 14;
-            isBall = isGreenBall || isPurpleBall;
-
-            if (broken && !last) {
-                count++;
-                last = true;
-            } else if (!broken && last) {
-                last = false;
-            }
-
-            if (isBall && !lastCheck) {
-                lastCheck = true;
-                count--;
-            } else if (!isBall) {
-                lastCheck = false;
-            }
-
-            if (count == 0) {
-                zero();
-            } else if (count == 1) {
-                one();
-            } else if (count == 2) {
-                two();
-            } else if (count == 3) {
-                three();
-            } else if (count < 0) {
-                count = 0;
-            } else if (count > 3) {
-                count = 3;
-            }
-            if (gamepad1.a) reset();
-
-            telemetry.addData("Distance: ", dist);
-            telemetry.addData("Count: ", count);
-            telemetry.addData("MS interval: ", telemetry.getMsTransmissionInterval());
-            telemetry.addData("Green ball? ", isGreenBall);
-            telemetry.addData("Purple ball?", isPurpleBall);
-            telemetry.addData("offset: ", offset);
             telemetry.addData("Inches: ", distanceInches);
+
+            Pose2d pose = drive.localizer.getPose();
+            telemetry.addData("x", pose.position.x);
+            telemetry.addData("y", pose.position.y);
+            telemetry.addData("heading (deg)", Math.toDegrees(pose.heading.toDouble()));
             telemetry.addData("YAW: ", imu.getRobotYawPitchRollAngles().getYaw());
+            telemetry.addData("Turret: ", targetPos);
             telemetry.addData("Target X: ", result.getTx());
             telemetry.addData("RPM", RPM);
             telemetry.addData("Pos: ", pos);
@@ -386,6 +263,8 @@ public class AutoAimTeleOpRED extends LinearOpMode {
             telemetry.addData("Error: ", "%,2f", error);
             telemetry.addLine("========================================");
             telemetry.update();
+
+            turretPos(targetPos);
 
             flywheel1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
             flywheel2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
@@ -414,6 +293,35 @@ public class AutoAimTeleOpRED extends LinearOpMode {
                 curTargetVelocity = OFF;
             }
 
+            if (gamepad2.left_bumper)
+            {
+                turret.setTargetPosition(110);
+            }
+            else
+            {
+                turretPos(targetPos);
+            }
+
+//            if (gamepad2.cross)// Make these a function
+//            {
+//                flywheel1.setPower(LOW_POWER);
+//                flywheel2.setPower(LOW_POWER);
+//            }
+//            else if (gamepad2.circle)
+//            {
+//                flywheel1.setPower(MEDIUM_POWER);
+//                flywheel2.setPower(MEDIUM_POWER);
+//            }
+//            else if (gamepad2.triangle)
+//            {
+//                flywheel1.setPower(HIGH_POWER);
+//                flywheel2.setPower(HIGH_POWER);
+//            }
+//            else if (gamepad2.square)
+//            {
+//                flywheel1.setPower(OFF);
+//                flywheel2.setPower(OFF);
+//            }
             if (gamepad2.right_trigger > 0.1)
             {
                 intake.setPower(1);
@@ -426,17 +334,19 @@ public class AutoAimTeleOpRED extends LinearOpMode {
             {
                 intake.setPower(0);
             }
-
-            if (gamepad2.right_trigger > 0.1 && gamepad2.dpad_up)
-            {
-                count = 0;
-            }
-
             if (gamepad2.bWasPressed()) {
                 if (curTargetVelocity == highVelocity) {
                     curTargetVelocity = lowVelocity;
                 } else curTargetVelocity = highVelocity;
             }
+            if (result.isValid())
+            {
+                if (gamepad2.right_bumper)
+                {
+                    pos = (targetPos + (result.getTx()));
+                }
+            }
         }
+        turret.setTargetPosition(0);
     }
 }
