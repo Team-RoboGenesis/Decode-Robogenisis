@@ -7,14 +7,23 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.Drawing;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Roadrunner.TankDrive;
 
 public class LocalizationTest extends LinearOpMode {
+
+    private DcMotor intake = null;
+
     @Override
     public void runOpMode() throws InterruptedException {
+
+        intake = hardwareMap.get(DcMotor.class, "intake");
+
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
@@ -30,6 +39,19 @@ public class LocalizationTest extends LinearOpMode {
                         ),
                         -gamepad1.right_stick_x
                 ));
+
+                if (gamepad1.right_trigger > 0.1)
+                {
+                    intake.setPower(1);
+                }
+                else if (gamepad1.left_trigger > 0.1)
+                {
+                    intake.setPower(-1);
+                }
+                else if (gamepad1.right_trigger < 0.1 && gamepad1.left_trigger < 0.1)
+                {
+                    intake.setPower(0);
+                }
 
                 drive.updatePoseEstimate();
 

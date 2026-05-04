@@ -39,7 +39,7 @@ public class Turret {
 
         motor.setTargetPosition(targetTicks);
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motor.setPower(1.0);
+        motor.setPower(1);
     }
 
     public double getCurrentAngle() {
