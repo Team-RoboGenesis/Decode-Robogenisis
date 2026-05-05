@@ -23,14 +23,21 @@ truncating writing from an index: FileUtil.overwriteFromIndex(String, starting b
 public class NewFileUtil {
 
     private static Context context;
-    private static final String FILE_NAME = "log4.txt";
+    private static String fileName = "sd_log.txt"; // default fallback
 
-    // Initialize once
-    public static void init(Context ctx) {
+    // ✅ Initialize with custom file name
+    public static void init(Context ctx, String name) {
         context = ctx;
+
+        // Ensure it ends with .txt
+        if (!name.endsWith(".txt")) {
+            name = name + ".txt";
+        }
+
+        fileName = name;
     }
 
-    // Get correct storage directory (SD card if available)
+    // ✅ Get file (uses chosen name)
     private static File getFile() throws IOException {
         if (context == null) {
             throw new IllegalStateException("FileUtil not initialized");
@@ -50,7 +57,7 @@ public class NewFileUtil {
             throw new IOException("No storage directory available");
         }
 
-        File file = new File(targetDir, FILE_NAME);
+        File file = new File(targetDir, fileName);
 
         if (!file.exists()) {
             file.createNewFile();
@@ -59,7 +66,7 @@ public class NewFileUtil {
         return file;
     }
 
-    // Append line
+    // ✅ Append line
     public static void appendLine(String line) {
         try {
             FileWriter writer = new FileWriter(getFile(), true);
@@ -70,7 +77,7 @@ public class NewFileUtil {
         }
     }
 
-    // Read range
+    // ✅ Read range
     public static String readRange(long startIndex, long endIndex) {
         try (RandomAccessFile raf = new RandomAccessFile(getFile(), "r")) {
 
@@ -94,7 +101,7 @@ public class NewFileUtil {
         }
     }
 
-    // Write at index
+    // ✅ Write at index
     public static void writeStringAtIndex(String data, long index) {
         try (RandomAccessFile raf = new RandomAccessFile(getFile(), "rw")) {
             raf.seek(index);
@@ -104,7 +111,7 @@ public class NewFileUtil {
         }
     }
 
-    // Overwrite from index
+    // 🔥 Overwrite from index
     public static void overwriteFromIndex(String data, long index) {
         try (RandomAccessFile raf = new RandomAccessFile(getFile(), "rw")) {
 

@@ -54,7 +54,7 @@ public class IntakeInfoGrabber extends LinearOpMode {
         return desmosTable.toString();
     }
     private void log(String text) {
-        FileUtil.writeToSDCard(hardwareMap.appContext, text, true);
+        FileUtil.appendLine(text);
     }
 
     @Override
@@ -87,14 +87,14 @@ public class IntakeInfoGrabber extends LinearOpMode {
         telemetry.update();
 
         waitForStart();
-
+        FileUtil.init(hardwareMap.appContext, "test log");
         // Confirm file writing works
         log("=== START ===");
 
         while (opModeIsActive()) {
 
             if (gamepad1.a) { // empty/format the log file
-                FileUtil.writeToSDCard(hardwareMap.appContext, "", false);
+                FileUtil.overwriteFromIndex("", 0);
                 telemetry.addLine("overwrote file!");
 
             }

@@ -75,7 +75,7 @@ public class NewInfoGrabber extends LinearOpMode {
         telemetry.update();
 
         waitForStart();
-        NewFileUtil.init(hardwareMap.appContext);
+        NewFileUtil.init(hardwareMap.appContext, "test log");
         // Confirm file writing works
         log("=== START ===");
 
@@ -153,7 +153,7 @@ public class NewInfoGrabber extends LinearOpMode {
                 int time = 0;
                 for (int i = 0; i < values.length; i++) {
                     desmosTable.append(time)
-                            .append(",")
+                            .append(", ")
                             .append(values[i].trim())
                             .append("\n");
                     time += 100;
@@ -165,7 +165,7 @@ public class NewInfoGrabber extends LinearOpMode {
                 time = 0; // start at 0 ms
                 for (int i = 0; i < values.length; i++) {
                     desmosTable.append(time)
-                            .append(",")
+                            .append(", ")
                             .append(values[i].trim())
                             .append("\n"); // new row for Desmos
 
@@ -179,7 +179,7 @@ public class NewInfoGrabber extends LinearOpMode {
                 time = 0; // start at 0 ms
                 for (int i = 0; i < values.length; i++) {
                     desmosTable.append(time)
-                            .append(",")
+                            .append(", ")
                             .append(values[i].trim())
                             .append("\n"); // new row for Desmos
 
