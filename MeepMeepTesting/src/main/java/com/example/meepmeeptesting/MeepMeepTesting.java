@@ -15,48 +15,16 @@ public class MeepMeepTesting {
                 .setConstraints(50, 50, Math.toRadians(180), Math.toRadians(180), 14.75)
                 .build();
 
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-58, -43, Math.toRadians(-127)))
-                .strafeToLinearHeading(new Vector2d(-11, -14), Math.toRadians(180))
-//                .stopAndAdd(this::spinUp)
-//                // Score three preloaded balls
-//                .stopAndAdd(this::shootThreeBalls)
-//                // Turn towards spike mark artifacts
-//                .stopAndAdd(this::spinIntake)
-//                // Intake three balls
-                .turn(Math.toRadians(-80))
-                .strafeToLinearHeading(new Vector2d(-8, -50), Math.toRadians(90))
-//                .waitSeconds(0.3)
-//                .stopAndAdd(this::stopIntake)
-//                // Drive to shooting position
-                .splineTo(new Vector2d(-5, -14), Math.toRadians(190))
-//                .stopAndAdd(this::spinIntake)
-                // Shoot three balls
-//                .stopAndAdd(this::shootThreeBalls)
-                // Move to next three balls
-//                .stopAndAdd(this::spinIntake)
-                // Intake three balls
-                .setReversed(true)
-                .splineTo(new Vector2d(17, -20), Math.toRadians(-60))
-                .splineTo(new Vector2d(17, -55), Math.toRadians(-90))
-//                .stopAndAdd(this::stopIntake)
-                // Move back to shooting position
-                .splineTo(new Vector2d(5, -50), Math.toRadians(90))
-                .splineTo(new Vector2d(-5, -14), Math.toRadians(185))
-                                .waitSeconds(0.1)
-                .setReversed(false)
-                .splineToLinearHeading(new Pose2d(35, -20, Math.toRadians(90)), Math.toRadians(45))
-//                .setReversed(true)
-                .strafeToLinearHeading(new Vector2d(40, -50), Math.toRadians(90))
-                                .waitSeconds(0.1)
-                .splineTo(new Vector2d(-11, -14), Math.toRadians(185))
-//                .stopAndAdd(this::spinIntake)
-                // Shoot three balls
-//                .stopAndAdd(this::shootThreeBalls)
-                // Prepare the robot for TeleOp by stopping the shooter and resetting the turret position
-//                .stopAndAdd(this::spinDown)
-//                .stopAndAdd(this::turretCenterPos)
-//                .strafeToLinearHeading(new Vector2d(3, -14), Math.toRadians(185))
-                .build());
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(62, -15, Math.toRadians(90)))
+                // spin up intake
+                        .strafeToLinearHeading(new Vector2d(60.7, -57.8), Math.toRadians(98))
+                        .waitSeconds(0.5)
+                        .strafeToLinearHeading(new Vector2d(62, -8), Math.toRadians(90))
+                        .setReversed(true)
+                        .splineTo(new Vector2d(39.8, -30), Math.toRadians(-119.83))
+                        .splineTo(new Vector2d(37, -55), Math.toRadians(-98))
+                        .build());
+
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_DECODE_JUICE_DARK)
                 .setDarkMode(true)
