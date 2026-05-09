@@ -40,14 +40,14 @@ public class AmingTestBlueFar extends LinearOpMode{
     private static final double TICKS_PER_ROTATION = 25.5;
 
     private static final double GOAL_X = -72;
-    private static final double GOAL_Y = -68;
+    private static final double GOAL_Y = -60;
 
     double turretAngle = 0;
 
     double P = 82;
     double F = 12.3474;
 
-    private double lowVelocity = 1450;
+    private double lowVelocity = 1470;
     private double RPM = 0;
     private double offset = 0;
 
@@ -68,7 +68,7 @@ public class AmingTestBlueFar extends LinearOpMode{
         transfer1.setPower(1);
         transfer2.setPower(1);
         intake.setPower(1);
-        sleep(2000);
+        sleep(2200);
         transfer1.setPower(0);
         transfer2.setPower(0);
         intake.setPower(0);
@@ -174,14 +174,13 @@ public class AmingTestBlueFar extends LinearOpMode{
                 // first shoot
                 .stopAndAdd(this::spinUp)
                 .stopAndAdd(this::aimTurretAtGoal)
-                .stopAndAdd(this::spinIntake)
+                .waitSeconds(0.5)
                 .stopAndAdd(this::shootThreeBalls)
                 .stopAndAdd(this::spinIntake)
-                .waitSeconds(0.8)
 
                 // first intake
-                .strafeToLinearHeading(new Vector2d(63, -62), Math.toRadians(93))
-                .waitSeconds(0.5)
+                .strafeToLinearHeading(new Vector2d(62, -63), Math.toRadians(85))
+                .waitSeconds(0.7)
                 .strafeToLinearHeading(new Vector2d(62, -15), Math.toRadians(90))
 
                 // second shoot
@@ -193,7 +192,8 @@ public class AmingTestBlueFar extends LinearOpMode{
                 .setReversed(true)
                 .stopAndAdd(this::spinIntake)
                 .splineTo(new Vector2d(39.8, -30), Math.toRadians(-119.83))
-                .splineTo(new Vector2d(37, -55), Math.toRadians(-98))
+                .splineTo(new Vector2d(36, -55), Math.toRadians(-98))
+                .waitSeconds(0.3)
                 .strafeToLinearHeading(new Vector2d(62, -15), Math.toRadians(90))
 
                 // third shoot
@@ -202,14 +202,29 @@ public class AmingTestBlueFar extends LinearOpMode{
                 .stopAndAdd(this::shootThreeBalls)
 
                 // third intake
+                .stopAndAdd(this::spinIntake)
                 .strafeToLinearHeading(new Vector2d(63, -62), Math.toRadians(93))
-                .waitSeconds(0.5)
-                .strafeToLinearHeading(new Vector2d(62, -15), Math.toRadians(90))
+                .waitSeconds(0.7)
+                .strafeToLinearHeading(new Vector2d(60, -15), Math.toRadians(90))
 
                 // fourth shoot
                 .stopAndAdd(this::aimTurretAtGoal)
                 .stopAndAdd(this::spinIntake)
                 .stopAndAdd(this::shootThreeBalls)
+
+                // fourth intake
+                .stopAndAdd(this::spinIntake)
+                .strafeToLinearHeading(new Vector2d(63, -62), Math.toRadians(93))
+                .waitSeconds(0.7)
+                .strafeToLinearHeading(new Vector2d(60, -15), Math.toRadians(90))
+                .waitSeconds(2)
+
+                // fith shoot
+                .stopAndAdd(this::aimTurretAtGoal)
+                .stopAndAdd(this::spinIntake)
+                .stopAndAdd(this::shootThreeBalls)
+                .stopAndAdd(this::spinDown)
+                .waitSeconds(5)
                 ;
 
 
