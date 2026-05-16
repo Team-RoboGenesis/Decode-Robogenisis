@@ -20,9 +20,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.Tests.Turret;
+import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
-@TeleOp(name = "TeleOpBLUE")
+//@TeleOp(name = "TeleOpBLUE")
 public class AutoAimTeleOpBLUE extends LinearOpMode {
 
     private DcMotor leftFront = null;

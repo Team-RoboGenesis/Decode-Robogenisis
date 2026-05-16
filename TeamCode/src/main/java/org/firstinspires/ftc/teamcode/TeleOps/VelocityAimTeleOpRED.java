@@ -21,7 +21,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.Tests.Turret;
+import org.firstinspires.ftc.teamcode.Subsystems.Intake;
+import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
 @TeleOp(name = "VeloTeleOpRED")
 public class VelocityAimTeleOpRED extends LinearOpMode {
@@ -32,7 +33,6 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
     private DcMotor rightBack;
     private DcMotorEx flywheel1;
     private DcMotorEx flywheel2;
-    private DcMotor intake;
     private CRServo actuator1;
     private CRServo actuator2;
     private DistanceSensor distSensor;
@@ -41,6 +41,7 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
     private Servo led3;
     private Servo led4;
     private Limelight3A limelight;
+    Intake intake = new Intake(hardwareMap);
 
     // LED control
     private static final double WHITE = 0.9;
@@ -144,7 +145,6 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
         flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
-        intake = hardwareMap.get(DcMotor.class, "intake");
         actuator1 = hardwareMap.get(CRServo.class, "servo");
         actuator2 = hardwareMap.get(CRServo.class, "servo1");
         distSensor = hardwareMap.get(DistanceSensor.class, "dist");
@@ -174,7 +174,6 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
         actuator1.setDirection(DcMotorSimple.Direction.REVERSE);
-        intake.setDirection(DcMotorSimple.Direction.FORWARD);
 
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -182,7 +181,6 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         flywheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flywheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

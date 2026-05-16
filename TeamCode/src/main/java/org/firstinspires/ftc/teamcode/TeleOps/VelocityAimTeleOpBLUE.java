@@ -21,7 +21,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.Tests.Turret;
+import org.firstinspires.ftc.teamcode.Subsystems.Intake;
+import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
 @TeleOp(name = "VeloTeleOpBLUE")
 public class VelocityAimTeleOpBLUE extends LinearOpMode {
@@ -32,7 +33,6 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
     private DcMotor rightBack;
     private DcMotorEx flywheel1;
     private DcMotorEx flywheel2;
-    private DcMotor intake;
     private CRServo actuator1;
     private CRServo actuator2;
     private DistanceSensor distSensor;
@@ -41,6 +41,7 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
     private Servo led3;
     private Servo led4;
     private Limelight3A limelight;
+    private Intake intake;
 
     // LED control
     private static final double WHITE = 0.9;
@@ -78,7 +79,7 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
     private int count = -1;
 
     // Turret PID
-    private double turretKp = 4.0;
+    private double turretKp = 1;
     private double turretKi = 0.0;
     private double turretKd = 0.15;
     private double turretIntegral = 0.0;
@@ -139,13 +140,14 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        intake = new Intake(hardwareMap);
+
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
         flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
-        intake = hardwareMap.get(DcMotor.class, "intake");
         actuator1 = hardwareMap.get(CRServo.class, "servo");
         actuator2 = hardwareMap.get(CRServo.class, "servo1");
         distSensor = hardwareMap.get(DistanceSensor.class, "dist");
@@ -175,7 +177,6 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
         actuator1.setDirection(DcMotorSimple.Direction.REVERSE);
-        intake.setDirection(DcMotorSimple.Direction.FORWARD);
 
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -183,7 +184,6 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         flywheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flywheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -259,10 +259,6 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
             filteredTurretTarget = aimAlpha * turretTarget + (1.0 - aimAlpha) * filteredTurretTarget;
 
             // ---------------- TURRET CONTROL ----------------
-            if (gamepad2.left_bumper) {
-                // handled below with edge detect style not available in standard SDK
-            }
-
             if (gamepad2.leftStickButtonWasPressed()) {
                 offset += 0.05;
             }
@@ -272,12 +268,23 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
             }
 
             if (gamepad1.leftStickButtonWasPressed()) {
-                projectileSpeed += 5;
+                turretKd += 0.01;
             }
 
             if (gamepad1.rightStickButtonWasPressed()) {
-                projectileSpeed -= 5;
+                turretKd -= 0.1;
             }
+
+            if (gamepad1.dpad_down) {
+                turretKp += 0.1;
+            }
+
+            if (gamepad1.dpad_up) {
+                turretKp -= 0.1;
+            }
+
+
+            telemetry.addData("turretD", turretKd);
 
             // Toggle auto/manual
             if (gamepad2.left_bumper) {
@@ -323,8 +330,6 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
                     turret.setPower(0.0);
                 }
             }
-
-            // Field-centric drive
 
             // Joystick variables
             double y = -gamepad1.left_stick_y;

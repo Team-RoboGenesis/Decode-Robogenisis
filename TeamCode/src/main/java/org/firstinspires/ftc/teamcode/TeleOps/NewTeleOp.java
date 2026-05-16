@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 
 //@TeleOp(name = "New Teleop")
 public class NewTeleOp extends LinearOpMode {
@@ -28,7 +29,7 @@ public class NewTeleOp extends LinearOpMode {
     private DcMotor rightBack = null;
     private DcMotorEx flywheel1;
     private DcMotorEx flywheel2;
-    private DcMotor intake = null;
+//    private DcMotor intake = null;
     private DcMotor turret = null;
     private CRServo actuator1 = null;
     private CRServo actuator2 = null;
@@ -36,6 +37,7 @@ public class NewTeleOp extends LinearOpMode {
     private Servo led2 = null;
     private Servo led3 = null;
     Limelight3A limelight = null;
+    Intake intake = new Intake(hardwareMap);
 
     private static final double GREEN = 0.456;
     private static final double PURPLE = 0.721;
@@ -125,7 +127,7 @@ public class NewTeleOp extends LinearOpMode {
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
         flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
-        intake = hardwareMap.get(DcMotor.class, "intake");
+//        intake = hardwareMap.get(DcMotor.class, "intake");
         turret = hardwareMap.get(DcMotor.class, "turret");
         actuator1 = hardwareMap.get(CRServo.class, "servo");
         actuator2 = hardwareMap.get(CRServo.class, "servo1");
@@ -170,10 +172,6 @@ public class NewTeleOp extends LinearOpMode {
         turret.setTargetPosition(0);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         turret.setDirection(DcMotorSimple.Direction.REVERSE);
-
-
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intake.setDirection(DcMotorSimple.Direction.FORWARD);
 
         actuator1.setDirection(DcMotorSimple.Direction.REVERSE);
 //        actuator2.setDirection(DcMotorSimple.Direction.REVERSE);

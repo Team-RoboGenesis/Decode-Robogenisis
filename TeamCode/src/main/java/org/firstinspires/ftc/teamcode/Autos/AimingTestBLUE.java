@@ -14,7 +14,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.Tests.Turret;
+import org.firstinspires.ftc.teamcode.Subsystems.Intake;
+import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
 @Autonomous(name = "AutoAutoAimBLUE")
 public class AimingTestBLUE extends LinearOpMode
@@ -22,11 +23,8 @@ public class AimingTestBLUE extends LinearOpMode
     // Motors
     private DcMotorEx flywheel1 = null;
     private DcMotorEx flywheel2 = null;
-    private DcMotor intake = null;
-
-    // Turret
-    private Turret turret = null;
-
+    private Intake intake;
+    private Turret turret;
     // Servos
     private CRServo transfer2 = null;
     private CRServo transfer1 = null;
@@ -141,10 +139,10 @@ public class AimingTestBLUE extends LinearOpMode
     {
         // Motor configuration
         turret = new Turret(hardwareMap);
+        intake = new Intake(hardwareMap);
 
         flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
         flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
-        intake = hardwareMap.get(DcMotor.class, "intake");
 
         transfer1 = hardwareMap.get(CRServo.class, "servo");
         transfer2 = hardwareMap.get(CRServo.class, "servo1");
@@ -159,7 +157,6 @@ public class AimingTestBLUE extends LinearOpMode
 
         flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
 
