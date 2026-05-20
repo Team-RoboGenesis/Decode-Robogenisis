@@ -36,6 +36,7 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
     private CRServo actuator1;
     private CRServo actuator2;
     private DistanceSensor distSensor;
+    private DistanceSensor distanceSensor = null;
     private Servo led1;
     private Servo led2;
     private Servo led3;
@@ -73,8 +74,12 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
     private double offset = 0.0;
 
     // Counting logic
-    double thresholdCm = 14.0;
-    private boolean lastBroken = false;
+    double thresholdCmA = 14.0;
+    double thresholdCmB = 10.0;
+    private boolean lastBrokenA = false;
+    private boolean lastBrokenB = false;
+    private double distA = 0;
+    private double distB = 0;
     private boolean lastCheck = false;
     private int count = -1;
 
@@ -150,6 +155,7 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
         flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
         actuator1 = hardwareMap.get(CRServo.class, "servo");
         actuator2 = hardwareMap.get(CRServo.class, "servo1");
+        distanceSensor = hardwareMap.get(DistanceSensor.class, "distance");
         distSensor = hardwareMap.get(DistanceSensor.class, "dist");
         led1 = hardwareMap.get(Servo.class, "led1");
         led2 = hardwareMap.get(Servo.class, "led2");
@@ -397,15 +403,27 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
             // We use a distance sensor to track how many balls
             // enter the robot, and we display the result on
             // three LED lights on the robot
-            double dist = distSensor.getDistance(DistanceUnit.CM);
-            boolean broken = dist < thresholdCm;
 
-            if (broken && !lastBroken) {
+            distA = distSensor.getDistance(DistanceUnit.CM);
+            distB = distanceSensor.getDistance(DistanceUnit.CM);
+            boolean brokenA = distA < thresholdCmA;
+            boolean brokenB = distB < thresholdCmB;
+
+            if (brokenA && !lastBrokenA) {
                 count++;
-                lastBroken = true;
-            } else if (!broken && lastBroken) {
-                lastBroken = false;
+                lastBrokenA = true;
+            } else if (!brokenA && lastBrokenA) {
+                lastBrokenA = false;
             }
+
+            if (brokenB && !lastBrokenB) {
+                lastBrokenB = true;
+            } else if (!brokenB && lastBrokenB) {
+                count--;
+                lastBrokenB = false;
+            }
+            if(count>3) count = 3;
+            if(count<0)count = 0;
 
             if (count <= 0) {
                 count = 0;
@@ -481,7 +499,8 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
             telemetry.addData("leadX", leadX);
             telemetry.addData("leadY", leadY);
 
-            telemetry.addData("DistanceSensorCM", dist);
+            telemetry.addData("DistanceSensorA(CM)", distA);
+            telemetry.addData("DistanceSensorB(CM)", distB);
             telemetry.addData("Count", count);
             telemetry.addData("Offset", offset);
             telemetry.addData("TagDistanceInches", distanceInches);
