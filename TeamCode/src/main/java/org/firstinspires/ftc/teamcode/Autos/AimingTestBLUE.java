@@ -67,7 +67,7 @@ public class AimingTestBLUE extends LinearOpMode
         transfer1.setPower(1);
         transfer2.setPower(1);
         intake.setPower(1);
-        sleep(2000);
+        sleep(1500);
         transfer1.setPower(0);
         transfer2.setPower(0);
         intake.setPower(0);

@@ -57,7 +57,7 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
     private final double flywheelF = 12.3474;
 
     // Flywheel speed control
-    private final double highVelocity = 1550;
+    private final double highVelocity = 1500;
     private final double lowVelocity = 1230;
     private double curTargetVelocity = lowVelocity;
 
@@ -67,7 +67,7 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
     private boolean manual = true;
 
     // Aiming constants
-    double goalY = 72;
+    double goalY = 68;
     double goalX = 72;
     double startY = -62;
     double startX = -62;
@@ -96,7 +96,7 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
 
     // Lead-shot tuning
     private double projectileSpeed = 360;
-    private double releaseDelay = 0.35;
+    private double releaseDelay = 0.2;
 
     // Aim smoothing
     private double filteredTurretTarget = 0.0;
@@ -272,25 +272,6 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
             if (gamepad2.rightStickButtonWasPressed()) {
                 offset -= 0.05;
             }
-
-            if (gamepad1.leftStickButtonWasPressed()) {
-                turretKd += 0.01;
-            }
-
-            if (gamepad1.rightStickButtonWasPressed()) {
-                turretKd -= 0.1;
-            }
-
-            if (gamepad1.dpad_down) {
-                turretKp += 0.1;
-            }
-
-            if (gamepad1.dpad_up) {
-                turretKp -= 0.1;
-            }
-
-
-            telemetry.addData("turretD", turretKd);
 
             // Toggle auto/manual
             if (gamepad2.left_bumper) {
