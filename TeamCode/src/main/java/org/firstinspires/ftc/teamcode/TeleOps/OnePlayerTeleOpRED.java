@@ -23,7 +23,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
-public class OnePlayerTeleOPBLUE extends LinearOpMode {
+//@TeleOp(name = "OnePlayerTeleOpRED")
+public class OnePlayerTeleOpRED extends LinearOpMode {
 
     private DcMotor leftFront;
     private DcMotor rightFront;
@@ -64,9 +65,9 @@ public class OnePlayerTeleOPBLUE extends LinearOpMode {
     private boolean manual = true;
 
     // Aiming constants
-    double goalY = 72;
+    double goalY = -72;
     double goalX = 72;
-    double startY = -62;
+    double startY = 62;
     double startX = -62;
     private double offset = 0.0;
 

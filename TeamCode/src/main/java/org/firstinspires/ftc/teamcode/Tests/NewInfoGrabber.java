@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-@TeleOp(name = "NewInfoGrabber")
+//@TeleOp(name = "NewInfoGrabber")
 public class NewInfoGrabber extends LinearOpMode {
     private final double highVelocity = 1550;
     private final double lowVelocity = 1230;

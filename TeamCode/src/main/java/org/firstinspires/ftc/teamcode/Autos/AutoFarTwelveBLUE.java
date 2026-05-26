@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@Autonomous(name = "TwelveFarBLUE")
+//@Autonomous(name = "TwelveFarBLUE")
 public class AutoFarTwelveBLUE extends LinearOpMode {
     private DcMotorEx flywheel1 = null;
     private DcMotorEx flywheel2 = null;

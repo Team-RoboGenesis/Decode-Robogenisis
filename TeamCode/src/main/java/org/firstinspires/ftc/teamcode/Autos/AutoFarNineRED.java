@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@Autonomous(name = "NineFarRed")
+//@Autonomous(name = "NineFarRed")
 public class AutoFarNineRED extends LinearOpMode {
     private DcMotorEx flywheel1 = null;
     private DcMotorEx flywheel2 = null;

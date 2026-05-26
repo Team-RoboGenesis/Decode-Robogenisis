@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@Autonomous(name = "SixCloseBlue")
+//@Autonomous(name = "SixCloseBlue")
 public class AutoCloseSixBLUE extends LinearOpMode {
     private DcMotorEx flywheel1 = null;
     private DcMotorEx flywheel2 = null;

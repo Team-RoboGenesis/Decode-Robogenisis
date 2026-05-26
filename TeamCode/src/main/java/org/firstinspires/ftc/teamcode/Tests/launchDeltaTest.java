@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import java.util.List;
 import java.util.ArrayList;
 
-@TeleOp(name = "launchDelta")
+//@TeleOp(name = "launchDelta")
 public class launchDeltaTest extends OpMode {
     private DcMotor leftFront = null;
     private DcMotor rightFront = null;

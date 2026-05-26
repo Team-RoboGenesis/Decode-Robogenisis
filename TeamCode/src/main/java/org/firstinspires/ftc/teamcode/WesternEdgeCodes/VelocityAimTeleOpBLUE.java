@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.TeleOps;
+package org.firstinspires.ftc.teamcode.WesternEdgeCodes;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
@@ -24,7 +24,7 @@ import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
-@TeleOp(name = "VeloTeleOpBLUE")
+@TeleOp(name = "TeleOpBLUE")
 public class VelocityAimTeleOpBLUE extends LinearOpMode {
 
     private DcMotor leftFront;
@@ -57,8 +57,8 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
     private final double flywheelF = 12.3474;
 
     // Flywheel speed control
-    private final double highVelocity = 1500;
-    private final double lowVelocity = 1230;
+    private final double highVelocity = 1470;
+    private final double lowVelocity = 1220;
     private double curTargetVelocity = lowVelocity;
 
     //
@@ -67,7 +67,7 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
     private boolean manual = true;
 
     // Aiming constants
-    double goalY = 68;
+    double goalY = 62;
     double goalX = 72;
     double startY = -62;
     double startX = -62;
@@ -96,7 +96,7 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
 
     // Lead-shot tuning
     private double projectileSpeed = 360;
-    private double releaseDelay = 0.2;
+    private double releaseDelay = 0.1;
 
     // Aim smoothing
     private double filteredTurretTarget = 0.0;
@@ -266,11 +266,11 @@ public class VelocityAimTeleOpBLUE extends LinearOpMode {
 
             // ---------------- TURRET CONTROL ----------------
             if (gamepad2.leftStickButtonWasPressed()) {
-                offset += 0.05;
+                offset += 0.025;
             }
 
             if (gamepad2.rightStickButtonWasPressed()) {
-                offset -= 0.05;
+                offset -= 0.025;
             }
 
             // Toggle auto/manual

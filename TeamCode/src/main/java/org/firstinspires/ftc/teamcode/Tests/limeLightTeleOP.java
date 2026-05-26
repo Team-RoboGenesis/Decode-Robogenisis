@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
-@TeleOp(name = "lime light teleop")
+//@TeleOp(name = "lime light teleop")
 public class limeLightTeleOP extends LinearOpMode {
 
 //    private DcMotor leftFront = null;

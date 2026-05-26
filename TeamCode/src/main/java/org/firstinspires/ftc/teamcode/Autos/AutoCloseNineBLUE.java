@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 
-@Autonomous(name = "NineCloseBLUE")
+//@Autonomous(name = "NineCloseBLUE")
 public class AutoCloseNineBLUE extends LinearOpMode
 {
     // Motors

@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
-@TeleOp(name = "beamBreak")
+//@TeleOp(name = "beamBreak")
 public class BreakBeam extends LinearOpMode {
 
     private DigitalChannel beamBreak;

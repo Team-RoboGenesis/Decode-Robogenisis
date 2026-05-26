@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-@TeleOp(name = "RPM")
+//@TeleOp(name = "RPM")
 public class EncoderTest extends LinearOpMode
 {
     private DcMotor flywheel1 = null;

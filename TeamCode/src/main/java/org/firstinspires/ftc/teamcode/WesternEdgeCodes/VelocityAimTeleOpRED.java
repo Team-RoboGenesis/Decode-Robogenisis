@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.TeleOps;
+package org.firstinspires.ftc.teamcode.WesternEdgeCodes;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
@@ -24,7 +24,7 @@ import org.firstinspires.ftc.teamcode.Roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
-@TeleOp(name = "VeloTeleOpRED")
+@TeleOp(name = "TeleOpRED")
 public class VelocityAimTeleOpRED extends LinearOpMode {
 
     private DcMotor leftFront;
@@ -36,12 +36,13 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
     private CRServo actuator1;
     private CRServo actuator2;
     private DistanceSensor distSensor;
+    private DistanceSensor distanceSensor = null;
     private Servo led1;
     private Servo led2;
     private Servo led3;
     private Servo led4;
     private Limelight3A limelight;
-    Intake intake = new Intake(hardwareMap);
+    private Intake intake;
 
     // LED control
     private static final double WHITE = 0.9;
@@ -56,8 +57,8 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
     private final double flywheelF = 12.3474;
 
     // Flywheel speed control
-    private final double highVelocity = 1550;
-    private final double lowVelocity = 1230;
+    private final double highVelocity = 1470;
+    private final double lowVelocity = 1220;
     private double curTargetVelocity = lowVelocity;
 
     //
@@ -66,36 +67,40 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
     private boolean manual = true;
 
     // Aiming constants
-    private final static double goalY = 72;
-    private final static double goalX = -72;
-    private final static double startY = -62;
-    private final static double startX = 62;
+    double goalY = 62;
+    double goalX = -72;
+    double startY = -62;
+    double startX = 62;
     private double offset = 0.0;
 
     // Counting logic
-    double thresholdCm = 14.0;
-    private boolean lastBroken = false;
+    double thresholdCmA = 14.0;
+    double thresholdCmB = 10.0;
+    private boolean lastBrokenA = false;
+    private boolean lastBrokenB = false;
+    private double distA = 0;
+    private double distB = 0;
     private boolean lastCheck = false;
     private int count = -1;
 
     // Turret PID
-    private double turretKp = 3.2;
+    private double turretKp = 1;
     private double turretKi = 0.0;
-    private double turretKd = 0.18;
+    private double turretKd = 0.15;
     private double turretIntegral = 0.0;
     private double turretLastError = 0.0;
     private long turretLastTimeNanos = 0L;
 
     // Vision correction
-    private double kVision = 1.0;
+    private double kVision = 0;
 
     // Lead-shot tuning
-    private double projectileSpeed = 300.0; // inches/sec, tune this
-    private double releaseDelay = 0.10;     // seconds, tune this
+    private double projectileSpeed = 360;
+    private double releaseDelay = 0.2;
 
     // Aim smoothing
     private double filteredTurretTarget = 0.0;
-    private double aimAlpha = 0.25;
+    private double aimAlpha = 0.4;
 
     // PID guards
     private double turretMaxPower = 0.75;
@@ -119,6 +124,7 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
         led3.setPosition(OFF);
     }
 
+
     public void three() {
         led1.setPosition(WHITE);
         led2.setPosition(WHITE);
@@ -139,6 +145,8 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        intake = new Intake(hardwareMap);
+
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
@@ -147,6 +155,7 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
         flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
         actuator1 = hardwareMap.get(CRServo.class, "servo");
         actuator2 = hardwareMap.get(CRServo.class, "servo1");
+        distanceSensor = hardwareMap.get(DistanceSensor.class, "distance");
         distSensor = hardwareMap.get(DistanceSensor.class, "dist");
         led1 = hardwareMap.get(Servo.class, "led1");
         led2 = hardwareMap.get(Servo.class, "led2");
@@ -256,12 +265,12 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
             filteredTurretTarget = aimAlpha * turretTarget + (1.0 - aimAlpha) * filteredTurretTarget;
 
             // ---------------- TURRET CONTROL ----------------
-            if (gamepad2.left_stick_button) {
-                offset += 0.05;
+            if (gamepad2.leftStickButtonWasPressed()) {
+                offset += 0.025;
             }
 
-            if (gamepad2.right_stick_button) {
-                offset -= 0.05;
+            if (gamepad2.rightStickButtonWasPressed()) {
+                offset -= 0.025;
             }
 
             // Toggle auto/manual
@@ -308,8 +317,6 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
                     turret.setPower(0.0);
                 }
             }
-
-            // Field-centric drive
 
             // Joystick variables
             double y = -gamepad1.left_stick_y;
@@ -377,15 +384,27 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
             // We use a distance sensor to track how many balls
             // enter the robot, and we display the result on
             // three LED lights on the robot
-            double dist = distSensor.getDistance(DistanceUnit.CM);
-            boolean broken = dist < thresholdCm;
 
-            if (broken && !lastBroken) {
+            distA = distSensor.getDistance(DistanceUnit.CM);
+            distB = distanceSensor.getDistance(DistanceUnit.CM);
+            boolean brokenA = distA < thresholdCmA;
+            boolean brokenB = distB < thresholdCmB;
+
+            if (brokenA && !lastBrokenA) {
                 count++;
-                lastBroken = true;
-            } else if (!broken && lastBroken) {
-                lastBroken = false;
+                lastBrokenA = true;
+            } else if (!brokenA && lastBrokenA) {
+                lastBrokenA = false;
             }
+
+            if (brokenB && !lastBrokenB) {
+                lastBrokenB = true;
+            } else if (!brokenB && lastBrokenB) {
+                count--;
+                lastBrokenB = false;
+            }
+            if(count>3) count = 3;
+            if(count<0)count = 0;
 
             if (count <= 0) {
                 count = 0;
@@ -461,7 +480,8 @@ public class VelocityAimTeleOpRED extends LinearOpMode {
             telemetry.addData("leadX", leadX);
             telemetry.addData("leadY", leadY);
 
-            telemetry.addData("DistanceSensorCM", dist);
+            telemetry.addData("DistanceSensorA(CM)", distA);
+            telemetry.addData("DistanceSensorB(CM)", distB);
             telemetry.addData("Count", count);
             telemetry.addData("Offset", offset);
             telemetry.addData("TagDistanceInches", distanceInches);

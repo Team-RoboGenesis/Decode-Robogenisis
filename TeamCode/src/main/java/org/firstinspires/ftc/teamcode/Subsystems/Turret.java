@@ -12,8 +12,8 @@ public class Turret {
     private static final double RAD_PER_TICK = 1.0 / TICKS_PER_RAD;
 
     // Soft limits in radians
-    private static final double LEFT_LIMIT_RAD = Math.toRadians(-160);
-    private static final double RIGHT_LIMIT_RAD = Math.toRadians(170);
+    private static final double LEFT_LIMIT_RAD = Math.toRadians(-130);
+    private static final double RIGHT_LIMIT_RAD = Math.toRadians(130);
 
     // Soft limits in ticks
     private static final int LEFT_LIMIT_TICKS = (int) (LEFT_LIMIT_RAD * TICKS_PER_RAD);
@@ -28,9 +28,21 @@ public class Turret {
     }
 
     public void setPower(double power) {
+        double currentAngle = getCurrentAngle();
+
+        boolean tryingLeft = power < 0;
+        boolean tryingRight = power > 0;
+
+        if (currentAngle <= LEFT_LIMIT_RAD && tryingLeft) {
+            power = 0;
+        }
+
+        if (currentAngle >= RIGHT_LIMIT_RAD && tryingRight) {
+            power = 0;
+        }
+
         motor.setPower(power);
     }
-
     public void aimToAngle(double angleRad) {
         angleRad = clamp(angleRad, LEFT_LIMIT_RAD, RIGHT_LIMIT_RAD);
 
@@ -61,9 +73,8 @@ public class Turret {
     }
 
     public void useRawPowerMode() {
-        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
-
     public double getLeftLimitRad() {
         return LEFT_LIMIT_RAD;
     }

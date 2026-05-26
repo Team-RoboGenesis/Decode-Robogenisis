@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@TeleOp(name = "lazer distance test")
+//@TeleOp(name = "lazer distance test")
 public class lazerDistanceTest extends LinearOpMode {
 
     private DistanceSensor distSensor;

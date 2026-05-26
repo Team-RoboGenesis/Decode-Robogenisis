@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-@TeleOp(name = "counterDistanceSensorTest")
+//@TeleOp(name = "counterDistanceSensorTest")
 public class counterDistanceSensorTest extends LinearOpMode {
     private DcMotorEx flywheel1;
     private DcMotorEx flywheel2;

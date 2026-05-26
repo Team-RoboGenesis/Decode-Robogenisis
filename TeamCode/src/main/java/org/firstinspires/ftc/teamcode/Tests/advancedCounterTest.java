@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "advanced counter test")
+//@TeleOp(name = "advanced counter test")
 public class advancedCounterTest extends OpMode {
     private DcMotor leftFront = null;
     private DcMotor rightFront = null;

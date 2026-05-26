@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.List;
 
-@TeleOp(name = "limelightTest")
+//@TeleOp(name = "limelightTest")
 public class LimelightTest extends LinearOpMode {
 
     private Limelight3A limelight;
